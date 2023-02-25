@@ -49,6 +49,8 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':data')
+    implementation project(path: ':domain')
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -64,6 +66,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
 
     // hilt, dagger
+    implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
@@ -71,7 +74,8 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 
     // orbit mvi
-    implementation("org.orbit-mvi:orbit-compose:4.6.1")
+    implementation 'org.orbit-mvi:orbit-compose:4.6.1'
+    implementation 'org.orbit-mvi:orbit-viewmodel:4.3.2'
 
     // orbit mvi Tests
     testImplementation("org.orbit-mvi:orbit-test:4.6.1")
