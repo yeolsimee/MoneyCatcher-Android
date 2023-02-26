@@ -14,3 +14,8 @@
 .cxx
 local.properties
 .idea
+playstore-api-key.json
+keystore/
+app/release
+signing.properties
+Gemfile.lock

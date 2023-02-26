@@ -1,0 +1,27 @@
+name: Deploy Android App to Play Store
+on:
+  push:
+    branches:
+      - release
+      - hotfix/*
+
+jobs:
+  build:
+    name: Build and Release Android App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11.x'
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1.2'
+      - name: Install Fastlane
+        run: bundle install
+      - run: echo '${{ secrets.SIGNING_PROPERTIES }}' | base64 -d > ./signing.properties
+      - run: mkdir keystore
+      - run: echo '${{ secrets.KEYSTORE }}' | base64 -d > ./keystore/moneysaving_key
+      - name: Execute Fastlane Command
+        run: fastlane deploy

@@ -1,7 +1,20 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
+
+def signingProperties = new Properties()
+def signingPropertiesFile = rootProject.file('signing.properties')
+if (signingPropertiesFile.exists()) {
+    signingPropertiesFile.withReader('UTF-8') {
+        signingProperties.load(it)
+    }
+}
+def _keyAlias = signingProperties.getProperty('key.alias')
+def _keyPassword = signingProperties.getProperty('key.password')
+def _storePassword = signingProperties.getProperty('store.password')
 
 android {
     namespace 'com.yeolsimee.moneysaving'
@@ -12,18 +25,29 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 1
-        versionName "1.0"
-
+        versionName "1.0.0"
+        ndk.debugSymbolLevel 'FULL'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
         }
     }
 
+    signingConfigs {
+        release {
+            keyAlias _keyAlias
+            keyPassword _keyPassword
+            storeFile file('../keystore/moneysaving_key')
+            storePassword _storePassword
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -47,6 +71,8 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':data')
+    implementation project(path: ':domain')
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -54,6 +80,28 @@ dependencies {
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.1'
+
+    // Jetpack LiveData
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+
+    // ViewModel-Compose 사용
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+
+    // hilt, dagger
+    implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+
+    // Coroutine
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+
+    // orbit mvi
+    implementation 'org.orbit-mvi:orbit-compose:4.6.1'
+    implementation 'org.orbit-mvi:orbit-viewmodel:4.6.1'
+
+    // orbit mvi Tests
+    testImplementation("org.orbit-mvi:orbit-test:4.6.1")
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
