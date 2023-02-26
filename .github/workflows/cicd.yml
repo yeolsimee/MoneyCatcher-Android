@@ -4,7 +4,6 @@ on:
     branches:
       - release
       - hotfix/*
-
 jobs:
   build:
     name: Build and Release Android App
@@ -21,6 +20,7 @@ jobs:
       - name: Install Fastlane
         run: bundle install
       - run: echo '${{ secrets.SIGNING_PROPERTIES }}' | base64 -d > ./signing.properties
+      - run: echo '${{ secrets.PLAYSTORE_API_KEY }}' | base64 -d > ./playstore-api-key.json
       - run: mkdir keystore
       - run: echo '${{ secrets.KEYSTORE }}' | base64 -d > ./keystore/moneysaving_key
       - name: Execute Fastlane Command
