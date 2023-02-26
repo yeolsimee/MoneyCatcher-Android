@@ -97,7 +97,7 @@ dependencies {
 
     // orbit mvi
     implementation 'org.orbit-mvi:orbit-compose:4.6.1'
-    implementation 'org.orbit-mvi:orbit-viewmodel:4.3.2'
+    implementation 'org.orbit-mvi:orbit-viewmodel:4.6.1'
 
     // orbit mvi Tests
     testImplementation("org.orbit-mvi:orbit-test:4.6.1")
