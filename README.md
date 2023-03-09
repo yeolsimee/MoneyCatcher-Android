@@ -8,4 +8,7 @@
 - API 24 ~ 33
 - Jetpack Compose 1.3.3
 - Material3
+- Firebase Auth 연동
+- orbit mvi
+- Hilt Dagger2
 - (계속 추가 예정)
