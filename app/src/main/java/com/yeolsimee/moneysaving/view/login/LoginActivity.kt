@@ -25,6 +25,9 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.ktx.functions
+import com.google.firebase.ktx.Firebase
 import com.kakao.sdk.user.UserApiClient
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
@@ -33,6 +36,7 @@ import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
 class LoginActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var functions: FirebaseFunctions
     private lateinit var googleSignInClient: GoogleSignInClient
 
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
@@ -41,6 +45,7 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
+        functions = Firebase.functions(regionOrCustomDomain = "asia-northeast1")
 
         initGoogleLogin()
 
@@ -72,6 +77,7 @@ class LoginActivity : ComponentActivity() {
                                     Log.i(App.TAG, "로그인 성공 ${token.accessToken}")
                                     Toast.makeText(applicationContext, "로그인 성공", Toast.LENGTH_SHORT)
                                         .show()
+                                    firebaseAuthWithKakao(token.accessToken)
                                 }
                             }
                         }) {
@@ -139,6 +145,43 @@ class LoginActivity : ComponentActivity() {
             }
             .addOnFailureListener {
                 Toast.makeText(applicationContext, "firebase 에러", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun firebaseAuthWithKakao(kakaoToken: String?) {
+        if (kakaoToken != null) {
+            kakaoCustomAuth(kakaoToken)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val token = it.result["firebase_token"]
+                        Toast.makeText(
+                            applicationContext,
+                            "firebase 성공: $token",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+
+                    } else {
+                        Toast.makeText(applicationContext, "firebase 실패", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnCanceledListener {
+                    Toast.makeText(applicationContext, "firebase 취소", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    it.printStackTrace()
+                    Toast.makeText(applicationContext, "firebase 에러", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+    private fun kakaoCustomAuth(token: String): Task<Map<String, String>> {
+        return functions.getHttpsCallable("kakaoCustomAuth")
+            .call(token)
+            .continueWith {task ->
+                @Suppress("UNCHECKED_CAST")
+                val result = task.result?.data as Map<String, String>?
+                result
             }
     }
 }
