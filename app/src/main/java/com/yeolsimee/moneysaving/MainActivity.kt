@@ -1,22 +1,23 @@
 package com.yeolsimee.moneysaving
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
+import com.yeolsimee.moneysaving.view.login.LoginActivity
 import com.yeolsimee.moneysaving.view.sample.SampleSideEffect
 import com.yeolsimee.moneysaving.view.sample.SampleViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: SampleViewModel by viewModels()
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +57,13 @@ class MainActivity : ComponentActivity() {
                                 }
                             })
                         Text(text = state.toString())
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Button(onClick = {
+                            val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                            startActivity(intent)
+                        }) {
+                            Text(text = "로그인 테스트")
+                        }
                     }
                     SetSideEffect(this, viewModel)
                 }

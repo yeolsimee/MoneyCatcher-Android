@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
 }
 
 def signingProperties = new Properties()
@@ -82,7 +83,7 @@ dependencies {
     implementation 'androidx.compose.material3:material3:1.0.1'
 
     // Firebase 로그인
-    implementation platform('com.google.firebase:firebase-bom:31.2.0')
+    implementation platform('com.google.firebase:firebase-bom:31.2.2')
     implementation 'com.google.firebase:firebase-auth-ktx'
     // Google 로그인
     implementation 'com.google.android.gms:play-services-auth:20.4.1'
