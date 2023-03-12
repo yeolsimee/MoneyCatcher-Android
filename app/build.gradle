@@ -16,6 +16,7 @@ if (signingPropertiesFile.exists()) {
 def _keyAlias = signingProperties.getProperty('key.alias')
 def _keyPassword = signingProperties.getProperty('key.password')
 def _storePassword = signingProperties.getProperty('store.password')
+def _kakaoApiKey = signingProperties.getProperty('kakao.api.key')
 
 android {
     namespace 'com.yeolsimee.moneysaving'
@@ -29,6 +30,10 @@ android {
         versionName "1.0.2"
         ndk.debugSymbolLevel 'FULL'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders.KAKAO_API_KEY = _kakaoApiKey
+        buildConfigField "String", "KAKAO_API_KEY", "\"$_kakaoApiKey\""
+
         vectorDrawables {
             useSupportLibrary true
         }
@@ -87,6 +92,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     // Google 로그인
     implementation 'com.google.android.gms:play-services-auth:20.4.1'
+    // kakao 로그인
+    implementation "com.kakao.sdk:v2-user:2.13.0"
 
     // Jetpack LiveData
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"

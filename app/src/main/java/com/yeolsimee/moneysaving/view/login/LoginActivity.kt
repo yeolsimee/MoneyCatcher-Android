@@ -2,6 +2,7 @@ package com.yeolsimee.moneysaving.view.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.kakao.sdk.user.UserApiClient
+import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
 
@@ -61,7 +64,17 @@ class LoginActivity : ComponentActivity() {
                             Text(text = "Naver Login")
                         }
 
-                        Button(onClick = { /*TODO*/ }) {
+                        Button(onClick = {
+                            UserApiClient.instance.loginWithKakaoTalk(this@LoginActivity) { token, error ->
+                                if (error != null) {
+                                    Log.e(App.TAG, "로그인 실패", error)
+                                } else if (token != null) {
+                                    Log.i(App.TAG, "로그인 성공 ${token.accessToken}")
+                                    Toast.makeText(applicationContext, "로그인 성공", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            }
+                        }) {
                             Text(text = "Kakao Login")
                         }
 
