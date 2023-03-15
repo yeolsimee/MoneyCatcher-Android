@@ -8,7 +8,7 @@ import com.yeolsimee.moneysaving.App
 
 object AuthFunctions {
 
-    private fun getAuthResult(resultTask: Task<Map<String, String>>) {
+    private fun getAuthMapResult(resultTask: Task<Map<String, String>>) {
         resultTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 val token = it.result["firebase_token"]
@@ -58,7 +58,7 @@ object AuthFunctions {
                     val result = task.result?.data as Map<String, String>
                     result
                 }
-            getAuthResult(resultTask)
+            getAuthMapResult(resultTask)
         }
     }
 }
