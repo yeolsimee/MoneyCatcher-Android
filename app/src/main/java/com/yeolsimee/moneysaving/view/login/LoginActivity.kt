@@ -9,37 +9,33 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.yeolsimee.moneysaving.R
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.yeolsimee.moneysaving.auth.Email
+import com.yeolsimee.moneysaving.auth.Google
+import com.yeolsimee.moneysaving.auth.Kakao
+import com.yeolsimee.moneysaving.auth.Naver
 import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
 
+@ExperimentalMaterial3Api
 class LoginActivity : ComponentActivity() {
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var google: Google
 
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
+    private lateinit var naverLoginLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        auth = FirebaseAuth.getInstance()
-
-        initGoogleLogin()
+        initAuth()
 
         setContent {
             MoneySavingTheme {
@@ -51,21 +47,60 @@ class LoginActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Row(modifier = Modifier) {
+                            Button(onClick = {
+                                google.login(googleLoginLauncher)
+                            }) {
+                                Text(text = "Google Login")
+                            }
+
+                            Button(onClick = {
+                                Firebase.auth.signOut()
+                                google.logout()
+                            }) {
+                                Text(text = "Google Logout")
+                            }
+                        }
+
+                        Row(modifier = Modifier) {
+                            Button(onClick = {
+                                Naver.login(applicationContext, naverLoginLauncher)
+                            }) {
+                                Text(text = "Naver Login")
+                            }
+
+                            Button(onClick = {
+                                Naver.logout()
+                            }) {
+                                Text(text = "Naver Logout")
+                            }
+                        }
+
+                        Row(modifier = Modifier) {
+                            Button(onClick = {
+                                Kakao.login(this@LoginActivity)
+                            }) {
+                                Text(text = "Kakao Login")
+                            }
+
+                            Button(onClick = {
+                                Kakao.logout()
+                            }) {
+                                Text(text = "Kakao Logout")
+                            }
+                        }
+
+                        val textState = remember { mutableStateOf("") }
+
+                        TextField(value = textState.value, onValueChange = {
+                            textState.value = it
+                        })
+
                         Button(onClick = {
-                            googleLoginLauncher.launch(googleSignInClient.signInIntent)
+                            val email = textState.value
+                            Toast.makeText(applicationContext, email, Toast.LENGTH_SHORT).show()
+                            Email.send(email)
                         }) {
-                            Text(text = "Google Login")
-                        }
-
-                        Button(onClick = { /*TODO*/ }) {
-                            Text(text = "Naver Login")
-                        }
-
-                        Button(onClick = { /*TODO*/ }) {
-                            Text(text = "Kakao Login")
-                        }
-
-                        Button(onClick = { /*TODO*/ }) {
                             Text(text = "Email Login")
                         }
 
@@ -78,54 +113,28 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
+    private fun initAuth() {
+        initGoogleLogin()
+        initNaverLogin()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Email.receive(intent, this@LoginActivity)
+    }
+
+    private fun initNaverLogin() {
+        naverLoginLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                Naver.init(result)
+            }
+    }
+
     private fun initGoogleLogin() {
+        google = Google(this@LoginActivity)
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == RESULT_OK) {
-                    val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-                    handleSignInResult(task)
-                } else {
-                    Toast.makeText(
-                        applicationContext,
-                        "firebase 로그인 결과가 다름: ${it.resultCode}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.web_client_id))
-            .build()
-        googleSignInClient = GoogleSignIn.getClient(this@LoginActivity, options)
-    }
-
-    private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
-        val account = task.getResult(ApiException::class.java)
-
-        if (account != null && account.idToken != null) {
-            firebaseAuthWithGoogle(account.idToken!!)
-            Toast.makeText(applicationContext, account.displayName, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun firebaseAuthWithGoogle(googleToken: String) {
-        val credential = GoogleAuthProvider.getCredential(googleToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val token = it.result.user?.getIdToken(false)?.result?.token
-                    Toast.makeText(applicationContext, "firebase 성공: $token", Toast.LENGTH_SHORT)
-                        .show()
-
-                } else {
-                    Toast.makeText(applicationContext, "firebase 실패", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .addOnCanceledListener {
-                Toast.makeText(applicationContext, "firebase 취소", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(applicationContext, "firebase 에러", Toast.LENGTH_SHORT).show()
+                google.init(it)
             }
     }
 }
