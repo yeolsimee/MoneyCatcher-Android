@@ -18,10 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.yeolsimee.moneysaving.auth.Email
-import com.yeolsimee.moneysaving.auth.Google
-import com.yeolsimee.moneysaving.auth.Kakao
-import com.yeolsimee.moneysaving.auth.Naver
+import com.yeolsimee.moneysaving.auth.*
 import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
 
 @ExperimentalMaterial3Api
@@ -104,7 +101,9 @@ class LoginActivity : ComponentActivity() {
                             Text(text = "Email Login")
                         }
 
-                        Button(onClick = { /*TODO*/ }) {
+                        Button(onClick = {
+                            Apple.login(this@LoginActivity)
+                        }) {
                             Text(text = "Apple Login")
                         }
                     }
@@ -121,6 +120,12 @@ class LoginActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Email.receive(intent, this@LoginActivity)
+        Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
+            if (authResult.credential != null) {
+                val task = Firebase.auth.signInWithCredential(authResult.credential!!)
+                AuthFunctions.getAuthResult(task)
+            }
+        }
     }
 
     private fun initNaverLogin() {
