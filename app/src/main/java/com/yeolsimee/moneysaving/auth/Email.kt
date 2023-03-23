@@ -38,7 +38,7 @@ object Email {
                         val email = Uri.parse(continueUrl).getQueryParameter("email") ?: ""
                         Firebase.auth.signInWithEmailLink(email, deepLink.toString())
                             .addOnSuccessListener { result ->
-                                result.user?.getIdToken(true)?.addOnSuccessListener { authResult ->
+                                result.user?.getIdToken(false)?.addOnSuccessListener { authResult ->
                                     Log.i(
                                         App.TAG,
                                         "email login firebase token: ${authResult.token}"

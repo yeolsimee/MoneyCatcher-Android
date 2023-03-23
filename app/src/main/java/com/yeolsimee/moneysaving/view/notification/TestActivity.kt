@@ -28,19 +28,16 @@ class TestActivity : ComponentActivity() {
             MoneySavingTheme {
                 Scaffold {
                     Column(
-                        Modifier.padding(it).fillMaxSize(),
+                        Modifier
+                            .padding(it)
+                            .fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Button(onClick = {
-                            setUp1()
-                        }) {
-                            Text(text = "25분 알림 시작")
-                        }
-                        Button(onClick = {
                             setUp2()
                         }) {
-                            Text(text = "27분 알림 시작")
+                            Text(text = "알림 시작")
                         }
                         Button(onClick = {
                             turnOff()
@@ -53,35 +50,18 @@ class TestActivity : ComponentActivity() {
         }
     }
 
-    private fun setUp1() {
-
-        val triggerTime = Calendar.getInstance()
-        triggerTime.set(Calendar.HOUR_OF_DAY, 15)
-        triggerTime.set(Calendar.MINUTE, 25)
-        triggerTime.set(Calendar.SECOND, 0)
-
-        val intent = Intent("com.yeolsimee.moneysaving.ALARM_TEST")
-        intent.setPackage(packageName)
-        val pIntent =
-            PendingIntent.getBroadcast(this@TestActivity, 1, intent, PendingIntent.FLAG_IMMUTABLE)
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        alarmManager.setInexactRepeating(
-            AlarmManager.RTC_WAKEUP,
-            triggerTime.timeInMillis,
-            60 * 1000,
-            pIntent
-        )
-    }
-
     private fun setUp2() {
 
         val triggerTime = Calendar.getInstance()
-        triggerTime.set(Calendar.HOUR_OF_DAY, 15)
-        triggerTime.set(Calendar.MINUTE, 27)
+        val hour = 22
+        val min = 30
+        triggerTime.set(Calendar.HOUR_OF_DAY, hour)
+        triggerTime.set(Calendar.MINUTE, min)
         triggerTime.set(Calendar.SECOND, 0)
 
         val intent = Intent("com.yeolsimee.moneysaving.ALARM_TEST")
         intent.setPackage(packageName)
+        intent.putExtra("time", "${hour}시 ${min}분")
         val pIntent =
             PendingIntent.getBroadcast(this@TestActivity, 2, intent, PendingIntent.FLAG_IMMUTABLE)
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
