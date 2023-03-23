@@ -1,4 +1,4 @@
-package com.yeolsimee.moneysaving
+package com.yeolsimee.moneysaving.view.sample
 
 import android.app.Activity
 import android.content.Intent
@@ -18,12 +18,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
 import com.yeolsimee.moneysaving.view.login.LoginActivity
-import com.yeolsimee.moneysaving.view.sample.SampleSideEffect
-import com.yeolsimee.moneysaving.view.sample.SampleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class SampleActivity : ComponentActivity() {
 
     private val viewModel: SampleViewModel by viewModels()
 
@@ -59,7 +57,7 @@ class MainActivity : ComponentActivity() {
                         Text(text = state.toString())
                         Spacer(modifier = Modifier.height(20.dp))
                         Button(onClick = {
-                            val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                            val intent = Intent(this@SampleActivity, LoginActivity::class.java)
                             startActivity(intent)
                         }) {
                             Text(text = "로그인 테스트")
