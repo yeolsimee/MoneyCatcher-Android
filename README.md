@@ -6,7 +6,8 @@
 
 ## Spec
 - API 24 ~ 33
-- Jetpack Compose 1.3.3
+- Jetpack Compose 1.4.0
+- Kotlin 1.8.10
 - Material3
 - Firebase Auth 연동
 - orbit mvi
