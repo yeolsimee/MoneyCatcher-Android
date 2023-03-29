@@ -50,6 +50,10 @@
 
         <activity android:name=".view.notification.TestActivity"
             android:exported="true">
+        </activity>
+
+        <activity android:name=".view.sample.SampleActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
