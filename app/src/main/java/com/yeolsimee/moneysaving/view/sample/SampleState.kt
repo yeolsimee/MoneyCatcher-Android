@@ -20,5 +20,6 @@ fun generateSampleStateFromSampleData(data: SampleData): SampleState {
         number4 = data.drwtNo4!!.toInt(),
         number5 = data.drwtNo5!!.toInt(),
         number6 = data.drwtNo6!!.toInt(),
+        bonus = data.bnusNo!!.toInt()
     )
 }
