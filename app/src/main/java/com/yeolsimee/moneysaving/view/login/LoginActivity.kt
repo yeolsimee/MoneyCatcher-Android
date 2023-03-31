@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.auth.*
-import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
+import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
 
 @ExperimentalMaterial3Api
 class LoginActivity : ComponentActivity() {
@@ -35,7 +35,7 @@ class LoginActivity : ComponentActivity() {
         initAuth()
 
         setContent {
-            MoneySavingTheme {
+            MoneyCatcherTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

@@ -30,16 +30,22 @@ import com.yeolsimee.moneysaving.R
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel) {
 
-    val dialogState = remember { mutableStateOf(false) }
-    YearMonthDialog(dialogState, viewModel)
-    Button(onClick = {
-        dialogState.value = !dialogState.value
-    }) {
-        Text(text = "현재: ${viewModel.date.observeAsState().value}")
-    }
-    Spacer(modifier = Modifier.height(12.dp))
+    Column(
+        Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val dialogState = remember { mutableStateOf(false) }
+        YearMonthDialog(dialogState, viewModel)
+        Button(onClick = {
+            dialogState.value = !dialogState.value
+        }) {
+            Text(text = "현재: ${viewModel.date.observeAsState().value}")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
 
-    ComposeCalendar(viewModel)
+        ComposeCalendar(viewModel)
+    }
 }
 
 
@@ -102,7 +108,6 @@ private fun ComposeCalendar(viewModel: CalendarViewModel) {
         }
     }
 }
-
 
 
 @SuppressLint("InflateParams")

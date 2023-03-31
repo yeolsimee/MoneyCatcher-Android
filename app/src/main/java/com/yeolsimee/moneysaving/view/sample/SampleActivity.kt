@@ -18,7 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.yeolsimee.moneysaving.ui.theme.MoneySavingTheme
+import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
 import com.yeolsimee.moneysaving.view.calendar.CalendarScreen
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.login.LoginActivity
@@ -34,7 +34,7 @@ class SampleActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MoneySavingTheme {
+            MoneyCatcherTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -102,7 +102,7 @@ fun Greeting(name: String) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    MoneySavingTheme {
+    MoneyCatcherTheme {
         Greeting("Android")
     }
 }
