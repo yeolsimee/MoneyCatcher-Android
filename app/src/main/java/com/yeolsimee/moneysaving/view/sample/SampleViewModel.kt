@@ -22,6 +22,7 @@ class SampleViewModel @Inject constructor(private val sampleUseCase: SampleUseCa
     override val container = container<SampleState, SampleSideEffect>(SampleState())
     private var testJob: Job? = null
 
+
     init {
         getData(12)
     }
@@ -53,4 +54,5 @@ class SampleViewModel @Inject constructor(private val sampleUseCase: SampleUseCa
             postSideEffect(SampleSideEffect.Toast(message ?: "Unknown Error Message"))
         }
     }
+
 }
