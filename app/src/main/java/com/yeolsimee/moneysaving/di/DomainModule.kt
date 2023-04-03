@@ -1,8 +1,7 @@
-package com.yeolsimee.moneysaving.domain
+package com.yeolsimee.moneysaving.di
 
-import com.yeolsimee.moneysaving.data.api.TestApiService
+import com.yeolsimee.moneysaving.domain.repository.ITestApiRepository
 import com.yeolsimee.moneysaving.domain.usecase.SampleUseCase
-
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,11 +10,9 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DomainModule {
+object DomainModule {
 
     @Provides
     @Singleton
-    fun provideSampleData(testApiService: TestApiService): SampleUseCase {
-        return SampleUseCase(testApiService)
-    }
+    fun provideSampleData(iTestApiRepository: ITestApiRepository): SampleUseCase = SampleUseCase(iTestApiRepository)
 }

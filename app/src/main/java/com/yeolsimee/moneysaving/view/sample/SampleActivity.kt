@@ -19,8 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
-import com.yeolsimee.moneysaving.view.calendar.CalendarScreen
-import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.login.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,7 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class SampleActivity : ComponentActivity() {
 
     private val viewModel: SampleViewModel by viewModels()
-    private val calendarViewModel: CalendarViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,12 +41,7 @@ class SampleActivity : ComponentActivity() {
                     val state by viewModel.container.stateFlow.collectAsState()
                     val text = remember { mutableStateOf("12") }
 
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CalendarScreen(calendarViewModel)
-
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         OutlinedTextField(
                             value = text.value,
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),

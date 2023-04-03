@@ -65,6 +65,7 @@ class TestActivity : ComponentActivity() {
         val pIntent =
             PendingIntent.getBroadcast(this@TestActivity, 2, intent, PendingIntent.FLAG_IMMUTABLE)
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             triggerTime.timeInMillis,

@@ -1,4 +1,4 @@
-package com.yeolsimee.moneysaving.data.api.model
+package com.yeolsimee.moneysaving.domain.entity
 
 import androidx.annotation.Keep
 

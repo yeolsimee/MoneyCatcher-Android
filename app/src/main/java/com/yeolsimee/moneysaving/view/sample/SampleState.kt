@@ -1,6 +1,6 @@
 package com.yeolsimee.moneysaving.view.sample
 
-import com.yeolsimee.moneysaving.data.api.model.SampleData
+import com.yeolsimee.moneysaving.domain.entity.SampleData
 
 data class SampleState(
     val number1: Int? = null,
