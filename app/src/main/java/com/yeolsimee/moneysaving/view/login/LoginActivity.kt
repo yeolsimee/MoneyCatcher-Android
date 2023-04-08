@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,14 +21,19 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.auth.*
 import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 @ExperimentalMaterial3Api
 class LoginActivity : ComponentActivity() {
 
-    private lateinit var google: Google
+
 
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
     private lateinit var naverLoginLauncher: ActivityResultLauncher<Intent>
+
+    private val viewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +52,13 @@ class LoginActivity : ComponentActivity() {
                     ) {
                         Row(modifier = Modifier) {
                             Button(onClick = {
-                                google.login(googleLoginLauncher)
+                                viewModel.googleLogin(googleLoginLauncher)
                             }) {
                                 Text(text = "Google Login")
                             }
 
                             Button(onClick = {
-                                Firebase.auth.signOut()
-                                google.logout()
+                                viewModel.googleLogout()
                             }) {
                                 Text(text = "Google Logout")
                             }
@@ -102,7 +107,7 @@ class LoginActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            Apple.login(this@LoginActivity)
+                            viewModel.appleLogin(this@LoginActivity)
                         }) {
                             Text(text = "Apple Login")
                         }
@@ -136,10 +141,10 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun initGoogleLogin() {
-        google = Google(this@LoginActivity)
+        viewModel.init(this@LoginActivity)
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                google.init(it)
+                viewModel.googleInit(it)
             }
     }
 }

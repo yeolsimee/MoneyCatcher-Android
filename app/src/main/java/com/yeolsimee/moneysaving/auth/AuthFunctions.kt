@@ -27,21 +27,33 @@ object AuthFunctions {
             }
     }
 
-    fun getAuthResult(resultTask: Task<AuthResult>) {
+    fun getAuthResult(
+        resultTask: Task<AuthResult>,
+        tokenCallback: ((String) -> Unit)? = null,
+        errorCallback: (() -> Unit)? = null
+    ) {
         resultTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 val token = it.result.user?.getIdToken(false)?.result?.token
                 Log.i(App.TAG, "firebase 성공: $token")
+                if (token != null) {
+                    tokenCallback?.invoke(token)
+                } else {
+                    errorCallback?.invoke()
+                }
             } else {
                 Log.i(App.TAG, "firebase 실패")
+                errorCallback?.invoke()
             }
         }
             .addOnCanceledListener {
                 Log.i(App.TAG, "firebase 취소")
+                errorCallback?.invoke()
             }
             .addOnFailureListener {
                 it.printStackTrace()
                 Log.i(App.TAG, "firebase 에러")
+                errorCallback?.invoke()
             }
     }
 

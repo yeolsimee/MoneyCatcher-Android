@@ -1,9 +1,9 @@
 package com.yeolsimee.moneysaving.di
 
-import com.yeolsimee.moneysaving.data.api.TestApiRepository
-import com.yeolsimee.moneysaving.data.api.TestApiService
-import com.yeolsimee.moneysaving.data.sample.SampleSource
-import com.yeolsimee.moneysaving.domain.repository.ITestApiRepository
+import com.yeolsimee.moneysaving.data.api.UserApiService
+import com.yeolsimee.moneysaving.data.repository.UserApiRepository
+import com.yeolsimee.moneysaving.data.source.UserSource
+import com.yeolsimee.moneysaving.domain.repository.IUserApiRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,9 +16,9 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideTestApiRepository(source: SampleSource): ITestApiRepository = TestApiRepository(source)
+    fun provideUserApiRepository(source: UserSource): IUserApiRepository = UserApiRepository(source)
 
     @Provides
     @Singleton
-    fun provideSampleSource(api: TestApiService): SampleSource = SampleSource(api)
+    fun provideUserSource(api: UserApiService): UserSource = UserSource(api)
 }

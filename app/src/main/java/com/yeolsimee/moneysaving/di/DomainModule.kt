@@ -1,7 +1,7 @@
 package com.yeolsimee.moneysaving.di
 
-import com.yeolsimee.moneysaving.domain.repository.ITestApiRepository
-import com.yeolsimee.moneysaving.domain.usecase.SampleUseCase
+import com.yeolsimee.moneysaving.domain.repository.IUserApiRepository
+import com.yeolsimee.moneysaving.domain.usecase.UserUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,5 +14,5 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideSampleData(iTestApiRepository: ITestApiRepository): SampleUseCase = SampleUseCase(iTestApiRepository)
+    fun provideLoginResult(repository: IUserApiRepository): UserUseCase = UserUseCase(repository)
 }
