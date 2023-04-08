@@ -2,17 +2,15 @@ package com.yeolsimee.moneysaving.auth
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.navercorp.nid.NaverIdLoginSDK
-import com.yeolsimee.moneysaving.App
 
 object Naver {
-    fun init(result: ActivityResult) {
+    fun init(result: ActivityResult, tokenCallback: (String) -> Unit, failedCallback: (String) -> Unit) {
         val functions = Firebase.functions(regionOrCustomDomain = "asia-northeast1")
         when (result.resultCode) {
             ComponentActivity.RESULT_OK -> {
@@ -22,13 +20,15 @@ object Naver {
                     functions,
                     accessToken,
                     "naverCustomAuth"
-                )
+                ) { token ->
+                    tokenCallback(token)
+                }
             }
             ComponentActivity.RESULT_CANCELED -> {
                 // 실패 or 에러
                 val errorCode = NaverIdLoginSDK.getLastErrorCode().code
                 val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                Log.e(App.TAG, "errorCode:$errorCode, errorDesc:$errorDescription")
+                failedCallback("errorCode:$errorCode, errorDesc:$errorDescription")
             }
         }
     }

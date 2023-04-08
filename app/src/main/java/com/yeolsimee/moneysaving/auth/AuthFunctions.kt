@@ -8,12 +8,17 @@ import com.yeolsimee.moneysaving.App
 
 object AuthFunctions {
 
-    private fun getAuthMapResult(resultTask: Task<Map<String, String>>) {
+    private fun getAuthMapResult(
+        resultTask: Task<Map<String, String>>,
+        tokenCallback: ((String) -> Unit)
+    ) {
         resultTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 val token = it.result["firebase_token"]
                 Log.i(App.TAG, "firebase 성공: $token")
-
+                if (token != null) {
+                    tokenCallback(token)
+                }
             } else {
                 Log.i(App.TAG, "firebase 실패")
             }
@@ -60,7 +65,8 @@ object AuthFunctions {
     fun customAuthByFirebaseFunctions(
         functions: FirebaseFunctions,
         accessToken: String?,
-        type: String
+        type: String,
+        tokenCallback: ((String) -> Unit)
     ) {
         if (accessToken != null) {
             val resultTask = functions.getHttpsCallable(type)
@@ -70,7 +76,7 @@ object AuthFunctions {
                     val result = task.result?.data as Map<String, String>
                     result
                 }
-            getAuthMapResult(resultTask)
+            getAuthMapResult(resultTask, tokenCallback)
         }
     }
 }

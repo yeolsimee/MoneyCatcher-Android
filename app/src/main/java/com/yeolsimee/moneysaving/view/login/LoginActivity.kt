@@ -17,8 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.auth.*
 import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,29 +64,15 @@ class LoginActivity : ComponentActivity() {
 
                         Row(modifier = Modifier) {
                             Button(onClick = {
-                                Naver.login(applicationContext, naverLoginLauncher)
+                                viewModel.naverLogin(applicationContext, naverLoginLauncher)
                             }) {
                                 Text(text = "Naver Login")
                             }
 
                             Button(onClick = {
-                                Naver.logout()
+                                viewModel.naverLogout()
                             }) {
                                 Text(text = "Naver Logout")
-                            }
-                        }
-
-                        Row(modifier = Modifier) {
-                            Button(onClick = {
-                                Kakao.login(this@LoginActivity)
-                            }) {
-                                Text(text = "Kakao Login")
-                            }
-
-                            Button(onClick = {
-                                Kakao.logout()
-                            }) {
-                                Text(text = "Kakao Logout")
                             }
                         }
 
@@ -124,19 +108,13 @@ class LoginActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        Email.receive(intent, this@LoginActivity)
-        Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
-            if (authResult.credential != null) {
-                val task = Firebase.auth.signInWithCredential(authResult.credential!!)
-                AuthFunctions.getAuthResult(task)
-            }
-        }
+        viewModel.receiveEmailResult(intent, this@LoginActivity)
     }
 
     private fun initNaverLogin() {
         naverLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                Naver.init(result)
+                viewModel.naverInit(result)
             }
     }
 

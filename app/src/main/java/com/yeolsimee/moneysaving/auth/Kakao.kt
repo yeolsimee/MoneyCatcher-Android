@@ -13,13 +13,13 @@ import com.kakao.sdk.user.UserApiClient
 import com.yeolsimee.moneysaving.App
 
 object Kakao {
-    fun login(activity: Activity) {
+    fun login(activity: Activity, tokenCallback: (String) -> Unit) {
         val functions = Firebase.functions(regionOrCustomDomain = "asia-northeast1")
 
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
-            processKakaoLoginResult(functions, error, token)
+            processKakaoLoginResult(functions, error, token, tokenCallback)
         }
 
         // 카카오톡이 설치되어 있으면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
@@ -41,7 +41,7 @@ object Kakao {
                     )
                 } else if (token != null) {
                     Log.i(App.TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
-                    processKakaoLoginResult(functions, null, token)
+                    processKakaoLoginResult(functions, null, token, tokenCallback)
                 }
             }
         } else {
@@ -55,13 +55,16 @@ object Kakao {
     private fun processKakaoLoginResult(
         functions: FirebaseFunctions,
         error: Throwable?,
-        token: OAuthToken?
+        token: OAuthToken?,
+        tokenCallback: (String) -> Unit
     ) {
         if (error != null) {
             Log.e(App.TAG, "로그인 실패", error)
         } else if (token != null) {
-            Log.i(App.TAG, "로그인 성공 ${token.accessToken}")
-            AuthFunctions.customAuthByFirebaseFunctions(functions, token.accessToken, "kakaoCustomAuth")
+            Log.i(App.TAG, "카카오 로그인 성공 ${token.accessToken}")
+            AuthFunctions.customAuthByFirebaseFunctions(functions, token.accessToken, "kakaoCustomAuth") {
+                tokenCallback(it)
+            }
         }
     }
 
