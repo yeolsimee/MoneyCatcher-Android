@@ -10,7 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.mutableStateOf
@@ -19,13 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.yeolsimee.moneysaving.auth.*
 import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
+import com.yeolsimee.moneysaving.view.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 @ExperimentalMaterial3Api
 class LoginActivity : ComponentActivity() {
-
 
 
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
@@ -48,32 +47,16 @@ class LoginActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(modifier = Modifier) {
-                            Button(onClick = {
-                                viewModel.googleLogin(googleLoginLauncher)
-                            }) {
-                                Text(text = "Google Login")
-                            }
-
-                            Button(onClick = {
-                                viewModel.googleLogout()
-                            }) {
-                                Text(text = "Google Logout")
-                            }
+                        Button(onClick = {
+                            viewModel.googleLogin(googleLoginLauncher)
+                        }) {
+                            Text(text = "Google Login")
                         }
 
-                        Row(modifier = Modifier) {
-                            Button(onClick = {
-                                viewModel.naverLogin(applicationContext, naverLoginLauncher)
-                            }) {
-                                Text(text = "Naver Login")
-                            }
-
-                            Button(onClick = {
-                                viewModel.naverLogout()
-                            }) {
-                                Text(text = "Naver Logout")
-                            }
+                        Button(onClick = {
+                            viewModel.naverLogin(applicationContext, naverLoginLauncher)
+                        }) {
+                            Text(text = "Naver Login")
                         }
 
                         val textState = remember { mutableStateOf("") }
@@ -91,9 +74,14 @@ class LoginActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            viewModel.appleLogin(this@LoginActivity)
+                            viewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
                         }) {
                             Text(text = "Apple Login")
+                        }
+                        Button(onClick = {
+                            viewModel.logout()
+                        }) {
+                            Text(text = "Logout")
                         }
                     }
                 }
@@ -104,22 +92,32 @@ class LoginActivity : ComponentActivity() {
     private fun initAuth() {
         initGoogleLogin()
         initNaverLogin()
+        viewModel.autoLogin {
+            moveToMainActivity()
+        }
+    }
+
+    private fun moveToMainActivity() {
+        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+        finish()
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.receiveEmailResult(intent, this@LoginActivity)
+        viewModel.receiveEmailResult(intent, this@LoginActivity) {
+            moveToMainActivity()
+        }
     }
 
     private fun initNaverLogin() {
         naverLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                viewModel.naverInit(result)
+                viewModel.naverInit(result) { moveToMainActivity() }
             }
     }
 
     private fun initGoogleLogin() {
-        viewModel.init(this@LoginActivity)
+        viewModel.init(this@LoginActivity) { moveToMainActivity() }
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 viewModel.googleInit(it)

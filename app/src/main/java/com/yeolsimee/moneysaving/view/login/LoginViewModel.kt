@@ -23,9 +23,9 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) : ViewModel() {
     private lateinit var google: Google
 
-    fun init(activity: LoginActivity) {
+    fun init(activity: LoginActivity, callback: () -> Unit) {
         google = Google(activity) { token ->
-            loginUsingToken(token)
+            loginUsingToken(token, callback)
         }
     }
 
@@ -33,9 +33,9 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Log.e(App.TAG, "login failed: $message")
     }
 
-    fun naverInit(result: ActivityResult) {
+    fun naverInit(result: ActivityResult, callback: () -> Unit) {
         Naver.init(result, tokenCallback = { token ->
-            loginUsingToken(token)
+            loginUsingToken(token, callback)
         }, failedCallback = {
             showLoginFailed(it)
         })
@@ -54,16 +54,17 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         google.logout()
     }
 
-    fun appleLogin(loginActivity: LoginActivity) {
+    fun appleLogin(loginActivity: LoginActivity, callback: () -> Unit) {
         Apple.login(loginActivity) { token ->
-            loginUsingToken(token)
+            loginUsingToken(token, callback)
         }
     }
 
-    private fun loginUsingToken(token: String) {
+    private fun loginUsingToken(token: String, callback: () -> Unit) {
         viewModelScope.launch {
             userUseCase.login(token).onSuccess {
                 showLoginSuccess(it)
+                callback()
             }.onFailure {
                 showLoginFailed(it.message)
             }
@@ -77,33 +78,44 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Naver.login(applicationContext, naverLoginLauncher)
     }
 
-    fun naverLogout() {
-        Naver.logout()
-        Firebase.auth.signOut()
-    }
-
-    fun kakaoLogin(loginActivity: LoginActivity) {
-        Kakao.login(loginActivity) { token ->
-            loginUsingToken(token)
-        }
-    }
-
-    fun kakaoLogout() {
-        Kakao.logout()
-        Firebase.auth.signOut()
-    }
-
-    fun receiveEmailResult(intent: Intent, activity: LoginActivity) {
+    fun receiveEmailResult(intent: Intent, activity: LoginActivity, callback: () -> Unit) {
         Email.receive(intent, activity)
         Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
             if (authResult.credential != null) {
                 val task = Firebase.auth.signInWithCredential(authResult.credential!!)
-                AuthFunctions.getAuthResult(task)
+                AuthFunctions.getAuthResult(task, tokenCallback = { token ->
+                    viewModelScope.launch {
+                        userUseCase.login(token).onSuccess {
+                            showLoginSuccess(it)
+                            callback()
+                        }.onFailure {
+                            showLoginFailed(it.message)
+                        }
+                    }
+                })
             }
         }
     }
 
     private fun showLoginSuccess(result: LoginResult) {
-        Log.i(App.TAG, result.toString())
+
+    }
+
+    fun logout() {
+        Firebase.auth.signOut()
+        Naver.logout()
+        google.logout()
+    }
+
+    fun autoLogin(callback: () -> Unit) {
+        val user = Firebase.auth.currentUser
+        if (user != null && user.uid.isNotEmpty()) {
+            user.getIdToken(false).addOnSuccessListener {
+                val token = it.token
+                if (token != null) {
+                    loginUsingToken(token, callback)
+                }
+            }
+        }
     }
 }
