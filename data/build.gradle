@@ -5,6 +5,17 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
+def serverProperties = new Properties()
+def serverPropertiesFile = rootProject.file('server.properties')
+if (serverPropertiesFile.exists()) {
+    serverPropertiesFile.withReader('UTF-8') {
+        serverProperties.load(it)
+    }
+}
+
+def mockUrl = serverProperties.getProperty('MOCK_URL')
+def realUrl = serverProperties.getProperty('REAL_URL')
+
 android {
     namespace 'com.yeolsimee.moneysaving.data'
     compileSdk 33
@@ -15,6 +26,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField "String", "MOCK_URL", "\"$mockUrl\""
+        buildConfigField "String", "REAL_URL", "\"$realUrl\""
     }
 
     buildTypes {
@@ -33,7 +47,11 @@ android {
 }
 
 dependencies {
+
+    implementation project(path: ':domain')
+
     implementation 'androidx.core:core-ktx:1.9.0'
+
     // Retrofit2
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'

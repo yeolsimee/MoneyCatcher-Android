@@ -1,24 +1,22 @@
 package com.yeolsimee.moneysaving.data
 
 import android.app.Application
-import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.yeolsimee.moneysaving.data.api.TestApiService
+import com.yeolsimee.moneysaving.data.api.UserApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.*
+import okhttp3.Cache
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 class NetModule {
-
     @Provides
     @Singleton
     fun provideHttpCache(application: Application): Cache {
@@ -30,7 +28,6 @@ class NetModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create()
     }
 
@@ -59,11 +56,11 @@ class NetModule {
 
     @Provides
     @Singleton
-    fun provideTestApiService(retrofit: Retrofit): TestApiService {
-        return retrofit.create(TestApiService::class.java)
+    fun provideUserService(retrofit: Retrofit): UserApiService {
+        return retrofit.create(UserApiService::class.java)
     }
 
     companion object {
-        private const val BASE_URL: String = "https://www.dhlottery.co.kr"
+        private const val BASE_URL: String = BuildConfig.REAL_URL
     }
 }

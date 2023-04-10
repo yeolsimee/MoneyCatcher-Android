@@ -19,3 +19,4 @@ keystore/
 app/release
 signing.properties
 Gemfile.lock
+server.properties

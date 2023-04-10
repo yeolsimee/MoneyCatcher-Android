@@ -7,27 +7,30 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.auth.*
 import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
+import com.yeolsimee.moneysaving.view.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 @ExperimentalMaterial3Api
 class LoginActivity : ComponentActivity() {
 
-    private lateinit var google: Google
 
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
     private lateinit var naverLoginLauncher: ActivityResultLauncher<Intent>
+
+    private val viewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,47 +47,16 @@ class LoginActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(modifier = Modifier) {
-                            Button(onClick = {
-                                google.login(googleLoginLauncher)
-                            }) {
-                                Text(text = "Google Login")
-                            }
-
-                            Button(onClick = {
-                                Firebase.auth.signOut()
-                                google.logout()
-                            }) {
-                                Text(text = "Google Logout")
-                            }
+                        Button(onClick = {
+                            viewModel.googleLogin(googleLoginLauncher)
+                        }) {
+                            Text(text = "Google Login")
                         }
 
-                        Row(modifier = Modifier) {
-                            Button(onClick = {
-                                Naver.login(applicationContext, naverLoginLauncher)
-                            }) {
-                                Text(text = "Naver Login")
-                            }
-
-                            Button(onClick = {
-                                Naver.logout()
-                            }) {
-                                Text(text = "Naver Logout")
-                            }
-                        }
-
-                        Row(modifier = Modifier) {
-                            Button(onClick = {
-                                Kakao.login(this@LoginActivity)
-                            }) {
-                                Text(text = "Kakao Login")
-                            }
-
-                            Button(onClick = {
-                                Kakao.logout()
-                            }) {
-                                Text(text = "Kakao Logout")
-                            }
+                        Button(onClick = {
+                            viewModel.naverLogin(applicationContext, naverLoginLauncher)
+                        }) {
+                            Text(text = "Naver Login")
                         }
 
                         val textState = remember { mutableStateOf("") }
@@ -102,9 +74,14 @@ class LoginActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            Apple.login(this@LoginActivity)
+                            viewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
                         }) {
                             Text(text = "Apple Login")
+                        }
+                        Button(onClick = {
+                            viewModel.logout()
+                        }) {
+                            Text(text = "Logout")
                         }
                     }
                 }
@@ -115,31 +92,35 @@ class LoginActivity : ComponentActivity() {
     private fun initAuth() {
         initGoogleLogin()
         initNaverLogin()
+        viewModel.autoLogin {
+            moveToMainActivity()
+        }
+    }
+
+    private fun moveToMainActivity() {
+        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+        finish()
     }
 
     override fun onResume() {
         super.onResume()
-        Email.receive(intent, this@LoginActivity)
-        Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
-            if (authResult.credential != null) {
-                val task = Firebase.auth.signInWithCredential(authResult.credential!!)
-                AuthFunctions.getAuthResult(task)
-            }
+        viewModel.receiveEmailResult(intent, this@LoginActivity) {
+            moveToMainActivity()
         }
     }
 
     private fun initNaverLogin() {
         naverLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                Naver.init(result)
+                viewModel.naverInit(result) { moveToMainActivity() }
             }
     }
 
     private fun initGoogleLogin() {
-        google = Google(this@LoginActivity)
+        viewModel.init(this@LoginActivity) { moveToMainActivity() }
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                google.init(it)
+                viewModel.googleInit(it)
             }
     }
 }

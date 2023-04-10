@@ -2,6 +2,7 @@
 
 package com.yeolsimee.moneysaving.view
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -15,9 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,6 +47,7 @@ class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         setContent {
             MoneyCatcherTheme {
                 MainScreenView()
@@ -65,7 +70,7 @@ class MainActivity: ComponentActivity() {
     @Composable
     fun MainScreenView() {
         val navController = rememberNavController()
-        SetStatusBarColor(Color.White)
+
         Scaffold(
             content = {
                 Box(Modifier.padding(it)) {

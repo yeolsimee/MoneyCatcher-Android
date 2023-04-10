@@ -18,7 +18,7 @@ import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 
-class Google(activity: Activity) {
+class Google(activity: Activity, private val tokenCallback: (String) -> Unit) {
 
     private var googleSignInClient: GoogleSignInClient
 
@@ -50,7 +50,9 @@ class Google(activity: Activity) {
     private fun firebaseAuthWithGoogle(googleToken: String) {
         val credential = GoogleAuthProvider.getCredential(googleToken, null)
         val task = Firebase.auth.signInWithCredential(credential)
-        AuthFunctions.getAuthResult(task)
+        AuthFunctions.getAuthResult(task, tokenCallback = { token ->
+            tokenCallback(token)
+        })
     }
 
     fun login(googleLoginLauncher: ActivityResultLauncher<Intent>) {
