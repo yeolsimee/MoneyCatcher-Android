@@ -4,14 +4,16 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.NumberPicker
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
@@ -19,32 +21,71 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
 
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel) {
 
-    Column(
-        Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(Modifier.fillMaxSize()) {
         val dialogState = remember { mutableStateOf(false) }
         YearMonthDialog(dialogState, viewModel)
-        Button(onClick = {
-            dialogState.value = !dialogState.value
-        }) {
-            Text(text = "현재: ${viewModel.date.observeAsState().value}")
-        }
-        Spacer(modifier = Modifier.height(12.dp))
 
+        AppLogoImage()
+        Spacer(Modifier.height(16.dp))
+        YearMonthSelectBox(dialogState, viewModel)
         ComposeCalendar(viewModel)
+    }
+}
+
+@Composable
+private fun AppLogoImage() {
+    Box(
+        modifier = Modifier
+            .background(Color.Red)
+            .width(98.dp)
+            .height(30.dp)
+    ) {
+        PrText(text = "앱 로고 영역", color = Color.White)
+    }
+}
+
+@Composable
+private fun YearMonthSelectBox(
+    dialogState: MutableState<Boolean>,
+    viewModel: CalendarViewModel
+) {
+    Row(
+        modifier = Modifier.clickable { dialogState.value = !dialogState.value },
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.icon_calendar),
+            contentDescription = "연/월 선택"
+        )
+        Spacer(Modifier.width(2.dp))
+        PrText(
+            text = viewModel.date.observeAsState().value ?: "",
+            style = TextStyle(
+                fontWeight = FontWeight.W700,
+                fontSize = 12.sp
+            )
+        )
+        Image(
+            painter = painterResource(id = R.drawable.icon_arrow_open),
+            contentDescription = "연/월 선택"
+        )
     }
 }
 
@@ -59,36 +100,28 @@ private fun ComposeCalendar(viewModel: CalendarViewModel) {
         Spacer(modifier = Modifier.height(10.dp))
         val days = viewModel.dayList.observeAsState().value!!
 
-        Row(
-            Modifier
+        // 처음에 선택된 날은 오늘
+        var selected = remember { mutableStateOf(viewModel.today) }
+
+        LazyHorizontalGrid(
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .height(12.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            rows = GridCells.Fixed(1),
         ) {
-            Text(text = "일", Modifier.padding(12.dp), textAlign = TextAlign.Center)
-            Text(text = "월", Modifier.padding(12.dp), textAlign = TextAlign.Center)
-            Text(text = "화", Modifier.padding(12.dp), textAlign = TextAlign.Center)
-            Text(text = "수", Modifier.padding(12.dp), textAlign = TextAlign.Center)
-            Text(text = "목", Modifier.padding(12.dp), textAlign = TextAlign.Center)
-            Text(text = "금", Modifier.padding(12.dp), textAlign = TextAlign.Center)
-            Text(text = "토", Modifier.padding(12.dp), textAlign = TextAlign.Center)
+            items(arrayOf("월", "화", "수", "목", "금", "토", "일")) {
+                DayOfWeekText(it)
+            }
         }
 
-        LazyVerticalGrid(columns = GridCells.Fixed(7)) {
+        Spacer(Modifier.height(8.dp))
+
+        LazyVerticalGrid(columns = GridCells.Fixed(7), contentPadding = PaddingValues(0.dp)) {
             items(days) { date ->
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = "${date.day}",
-                        Modifier
-                            .fillMaxSize()
-                            .background(if (date.today) Color.Green else Color.LightGray)
-                            .padding(8.dp),
-                        textAlign = TextAlign.Center
-                    )
+                // TODO date 값 안에 API 연동해서 진행상황 받고 그에 따라 상태값 받음
+                DayOfMonthIcon(date, selected) {
+                    selected.value = it
                 }
             }
         }
@@ -97,16 +130,31 @@ private fun ComposeCalendar(viewModel: CalendarViewModel) {
             Button(onClick = {
                 viewModel.moveToBeforeMonth()
             }) {
-                Text(text = "Before")
+                PrText(text = "Before")
             }
             Spacer(modifier = Modifier.width(10.dp))
             Button(onClick = {
                 viewModel.moveToNextMonth()
             }) {
-                Text(text = "Next")
+                PrText(text = "Next")
             }
         }
     }
+}
+
+@Composable
+fun DayOfWeekText(text: String) {
+    PrText(
+        text = text,
+        modifier = Modifier
+            .width(38.dp)
+            .height(12.dp),
+        style = TextStyle(
+            fontWeight = FontWeight.W700,
+            fontSize = 10.sp,
+            textAlign = TextAlign.Center
+        )
+    )
 }
 
 
@@ -147,4 +195,28 @@ private fun YearMonthDialog(dialogState: MutableState<Boolean>, viewModel: Calen
             })
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppLogoPreview() {
+    AppLogoImage()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun YearMonthSelectBoxPreview() {
+    YearMonthSelectBox(
+        dialogState = remember { mutableStateOf(false) },
+        viewModel = CalendarViewModel()
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun YearMonthDialogPreview() {
+    YearMonthDialog(
+        dialogState = remember { mutableStateOf(true) },
+        viewModel = CalendarViewModel()
+    )
 }

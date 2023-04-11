@@ -61,6 +61,6 @@ class NetModule {
     }
 
     companion object {
-        private const val BASE_URL: String = BuildConfig.REAL_URL
+        private const val BASE_URL: String = BuildConfig.MOCK_URL
     }
 }

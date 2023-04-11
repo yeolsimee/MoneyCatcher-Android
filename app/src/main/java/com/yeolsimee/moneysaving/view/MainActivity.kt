@@ -2,7 +2,6 @@
 
 package com.yeolsimee.moneysaving.view
 
-import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -16,12 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,7 +29,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
-import com.yeolsimee.moneysaving.utils.SetStatusBarColor
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
@@ -73,7 +68,7 @@ class MainActivity: ComponentActivity() {
 
         Scaffold(
             content = {
-                Box(Modifier.padding(it)) {
+                Box(Modifier.padding(it).background(Color.LightGray)) {
                     NavHost(navController = navController, startDestination = BottomNavItem.Home.screenRoute) {
                         composable(BottomNavItem.Home.screenRoute) {
                             val calendarViewModel: CalendarViewModel by viewModels()
