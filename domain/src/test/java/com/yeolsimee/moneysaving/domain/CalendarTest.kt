@@ -1,9 +1,9 @@
 package com.yeolsimee.moneysaving.domain
 
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
+import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
 import com.yeolsimee.moneysaving.domain.calendar.isToday
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Test
 import java.util.Calendar
 
@@ -28,5 +28,25 @@ class CalendarTest {
     fun CalendarExtensionTodayCheckTest() {
         val today = Calendar.getInstance()
         assertTrue(today.isToday())
+    }
+
+    @Test
+    fun `2023년 4월 달력은 3월 27일부터 4월 30일까지다`() {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, 2023)
+        calendar.set(Calendar.MONTH, 3)
+
+        val days = getWeekDays(calendar)
+
+        val expected = mutableListOf<CalendarDay>()
+
+        for (i in 0 until 5) {
+            expected.add(CalendarDay(2023, 3, i + 27))
+        }
+        for (i in 0 until 30) {
+            expected.add(CalendarDay(2023, 4, i + 1))
+        }
+
+        assertArrayEquals(expected.toTypedArray(), days.toTypedArray())
     }
 }

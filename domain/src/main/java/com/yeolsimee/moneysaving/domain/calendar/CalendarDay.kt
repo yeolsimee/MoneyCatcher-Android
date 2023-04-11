@@ -6,7 +6,7 @@ data class CalendarDay(
     val year: Int,
     val month: Int,
     val day: Int,
-    val today: Boolean,
+    val today: Boolean = false,
     var iconState: DateIconState = DateIconState.Empty,
 ) {
     fun isSame(calendar: Calendar): Boolean {
@@ -16,7 +16,7 @@ data class CalendarDay(
     }
 
     fun getNextDay(): CalendarDay {
-        val calendar = GregorianCalendar()
+        val calendar = Calendar.getInstance()
         calendar.set(Calendar.YEAR, year)
         calendar.set(Calendar.MONTH, month + 1)
         calendar.set(Calendar.DAY_OF_MONTH, day)
@@ -31,7 +31,7 @@ data class CalendarDay(
     }
 
     fun getAfterTwoDay(): CalendarDay {
-        val calendar = GregorianCalendar()
+        val calendar = Calendar.getInstance()
         calendar.set(Calendar.YEAR, year)
         calendar.set(Calendar.MONTH, month + 1)
         calendar.set(Calendar.DAY_OF_MONTH, day)
@@ -54,7 +54,6 @@ data class CalendarDay(
         if (year != other.year) return false
         if (month != other.month) return false
         if (day != other.day) return false
-        if (today != other.today) return false
 
         return true
     }
@@ -63,9 +62,6 @@ data class CalendarDay(
         var result = year
         result = 31 * result + month
         result = 31 * result + day
-        result = 31 * result + today.hashCode()
         return result
     }
-
-
 }

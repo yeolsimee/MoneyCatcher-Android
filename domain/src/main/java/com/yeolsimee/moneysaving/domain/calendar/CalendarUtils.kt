@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.domain.calendar
 
-import android.util.Log
 import java.util.*
 
 fun Calendar.isToday(): Boolean {
@@ -19,32 +18,41 @@ fun Calendar.setNextDay(year: Int, month: Int) {
 fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
     val tempDayList = mutableListOf<CalendarDay>()
 
-    calendar.set(Calendar.DAY_OF_MONTH, 1)
-    val month = calendar.get(Calendar.MONTH) + 1
-    for (i in 0..5) {
-        for (j in 0..6) {
-            addDate(j, calendar, tempDayList)
-        }
+    val month = calendar.get(Calendar.MONTH)
+    val tempCal = calendar.clone() as Calendar
 
-        val lastDay = tempDayList.last().getAfterTwoDay()
-        Log.i("check", "${lastDay.month}월 ${lastDay.day}일")
-        if (lastDay.month != month) {
-            break
+    tempCal.set(Calendar.DAY_OF_MONTH, 1)
+    val amount = 1 - tempCal.get(Calendar.DAY_OF_WEEK)
+    if (amount < 0) {
+        tempCal.add(Calendar.DAY_OF_MONTH, amount + 1)
+    }
+    // Before 1 Month
+    while (tempCal.get(Calendar.MONTH) != month) {
+        addDate(tempCal, tempDayList)
+        tempCal.add(Calendar.DAY_OF_MONTH, 1)
+    }
+    // This Month
+    while (tempCal.get(Calendar.MONTH) == month) {
+        addDate(tempCal, tempDayList)
+        tempCal.add(Calendar.DAY_OF_MONTH, 1)
+    }
+    val dayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK)
+    if (dayOfWeek == Calendar.MONDAY) {
+        return tempDayList
+    } else {
+        while (tempCal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            addDate(tempCal, tempDayList)
+            tempCal.add(Calendar.DAY_OF_MONTH, 1)
         }
-        calendar.add(Calendar.WEEK_OF_MONTH, 1)
     }
 
     return tempDayList
 }
 
 private fun addDate(
-    dayOfWeek: Int,
     calendar: Calendar,
     tempDayList: MutableList<CalendarDay>
 ) {
-    val amount = (1 - calendar.get(Calendar.DAY_OF_WEEK)) + dayOfWeek
-    calendar.add(Calendar.DAY_OF_MONTH, amount)
-
     val random = Random()
     val number = random.nextInt(5)
     var state = DateIconState.Empty

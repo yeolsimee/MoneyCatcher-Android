@@ -21,16 +21,11 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
     val today: CalendarDay get() = _today
 
     private val calendar = Calendar.getInstance()
-    private val monthCalendar = Calendar.getInstance()
 
     init {
         val todayCalendar = Calendar.getInstance()
         val now = Date()
         todayCalendar.time = now
-        monthCalendar.time = now
-
-        calendar.firstDayOfWeek = Calendar.MONDAY
-        monthCalendar.firstDayOfWeek = Calendar.MONDAY
 
         _today = CalendarDay(
             todayCalendar.get(Calendar.YEAR),
@@ -48,36 +43,33 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
     }
 
     fun month(): Int {
-        return calendar.get(Calendar.MONTH)
+        return calendar.get(Calendar.MONTH) + 1
     }
 
     private val _date: MutableLiveData<String> =
-        MutableLiveData("${monthCalendar.get(Calendar.YEAR)}년 ${monthCalendar.get(Calendar.MONTH) + 1}월")
+        MutableLiveData("${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월")
 
     val date: MutableLiveData<String>
         get() = _date
 
     fun setDate(year: Int, month: Int) {
         calendar.setNextDay(year, month)
-        monthCalendar.setNextDay(year, month)
         _date.value = "${year}년 ${month + 1}월"
         _dayList.value = getWeekDays(calendar)
     }
 
     fun moveToNextMonth() {
-        calendar.add(Calendar.MONTH, 0)
-        monthCalendar.add(Calendar.MONTH, 1)
+        calendar.add(Calendar.MONTH, 1)
         _dayList.value = getWeekDays(calendar)
         _date.value =
-            "${monthCalendar.get(Calendar.YEAR)}년 ${monthCalendar.get(Calendar.MONTH) + 1}월"
+            "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월"
     }
 
     fun moveToBeforeMonth() {
-        calendar.add(Calendar.MONTH, -2)
-        monthCalendar.add(Calendar.MONTH, -1)
+        calendar.add(Calendar.MONTH, -1)
         _dayList.value = getWeekDays(calendar)
         _date.value =
-            "${monthCalendar.get(Calendar.YEAR)}년 ${monthCalendar.get(Calendar.MONTH) + 1}월"
+            "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월"
     }
 
     private val _dayList: MutableLiveData<MutableList<CalendarDay>> =
