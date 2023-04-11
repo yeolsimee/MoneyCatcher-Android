@@ -84,6 +84,7 @@ fun TodayIcon() {
 fun DayOfMonthIcon(
     date: CalendarDay,
     selectedDay: MutableState<CalendarDay>,
+    modifier: Modifier = Modifier,
     onClick: (CalendarDay) -> Unit
 ) {
     val day = date.day
@@ -92,7 +93,7 @@ fun DayOfMonthIcon(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(interactionSource = remember {
+        modifier = modifier.clickable(interactionSource = remember {
             MutableInteractionSource()
         }, indication = null, onClick = { onClick(date) })
     ) {

@@ -17,15 +17,16 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
     private var lastDayOfMonth: Int
 
     private var _today: CalendarDay
+    private var _weekOfMonth: Int
 
     val today: CalendarDay get() = _today
+    val weekOfMonth: Int get() = _weekOfMonth
 
     private val calendar = Calendar.getInstance()
 
     init {
         val todayCalendar = Calendar.getInstance()
-        val now = Date()
-        todayCalendar.time = now
+        todayCalendar.time = Date()
 
         _today = CalendarDay(
             todayCalendar.get(Calendar.YEAR),
@@ -33,8 +34,9 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
             todayCalendar.get(Calendar.DATE),
             true
         )
-
+        _weekOfMonth = todayCalendar.get(Calendar.WEEK_OF_MONTH)
         lastDayOfMonth = todayCalendar.getMaximum(Calendar.DAY_OF_MONTH)
+        calendar.firstDayOfWeek = Calendar.MONDAY
         Log.i("TAG", "현재 월: ${calendar.get(Calendar.MONTH) + 1}")
     }
 
@@ -58,6 +60,7 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         _dayList.value = getWeekDays(calendar)
     }
 
+    @Suppress("unused")
     fun moveToNextMonth() {
         calendar.add(Calendar.MONTH, 1)
         _dayList.value = getWeekDays(calendar)
@@ -65,6 +68,7 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
             "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월"
     }
 
+    @Suppress("unused")
     fun moveToBeforeMonth() {
         calendar.add(Calendar.MONTH, -1)
         _dayList.value = getWeekDays(calendar)
