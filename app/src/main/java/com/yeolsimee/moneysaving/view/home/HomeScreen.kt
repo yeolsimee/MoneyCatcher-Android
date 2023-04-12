@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.view.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.view.calendar.CalendarScreen
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(viewModel: CalendarViewModel) {
     Box(

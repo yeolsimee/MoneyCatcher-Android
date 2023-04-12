@@ -27,10 +27,7 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.DateIconState
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.theme.Black17
-import com.yeolsimee.moneysaving.ui.theme.Bronze
-import com.yeolsimee.moneysaving.ui.theme.Gold
-import com.yeolsimee.moneysaving.ui.theme.Silver
+import com.yeolsimee.moneysaving.ui.theme.*
 
 @Composable
 fun GoldIcon() {
@@ -80,6 +77,34 @@ fun TodayIcon() {
     Image(painter = painterResource(id = R.drawable.image_today), contentDescription = "선택됨")
 }
 
+
+@Composable
+fun PreviousMonthIcon() {
+    Box(
+        Modifier
+            .size(28.dp)
+            .border(width = 1.5.dp, color = Grey17, shape = CircleShape)
+            .clip(CircleShape)
+    ) {
+        PrText(
+            text = "₩",
+            style = TextStyle(fontSize = 15.sp, color = Grey17, fontWeight = FontWeight.W800),
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+
+@Composable
+fun NextMonthIcon() {
+    Box(
+        Modifier
+            .size(28.dp)
+            .border(width = 1.5.dp, color = Grey17, shape = CircleShape)
+            .clip(CircleShape)
+    )
+}
+
 @Composable
 fun DayOfMonthIcon(
     date: CalendarDay,
@@ -93,33 +118,39 @@ fun DayOfMonthIcon(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.clickable(interactionSource = remember {
-            MutableInteractionSource()
-        }, indication = null, onClick = { onClick(date) })
+        modifier = modifier
+            .width(38.dp)
+            .clickable(interactionSource = remember {
+                MutableInteractionSource()
+            }, indication = null, onClick = { onClick(date) })
     ) {
         PrText(
             text = "$day",
             fontWeight = if (selected) FontWeight.W800 else FontWeight.W500,
             fontSize = 10.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(38.dp)
+            textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(8.dp))
         DateIconBuilder(iconState)
         if (selected) {
             Spacer(Modifier.height(4.dp))
-            Box(
-                Modifier
-                    .height(2.dp)
-                    .width(20.dp)
-                    .clip(RoundedCornerShape(size = 4.dp))
-                    .background(color = Color.Black)
-            )
+            Divider()
             Spacer(Modifier.height(4.dp))
         } else {
             Spacer(Modifier.height(10.dp))
         }
     }
+}
+
+@Composable
+private fun Divider() {
+    Box(
+        Modifier
+            .height(2.dp)
+            .width(20.dp)
+            .clip(RoundedCornerShape(size = 4.dp))
+            .background(color = Color.Black)
+    )
 }
 
 @Composable
@@ -130,6 +161,8 @@ fun DateIconBuilder(iconState: DateIconState) {
         DateIconState.Bronze -> BronzeIcon()
         DateIconState.Today -> TodayIcon()
         DateIconState.Empty -> EmptyMoneyIcon()
+        DateIconState.PreviousMonth -> PreviousMonthIcon()
+        DateIconState.NextMonth -> NextMonthIcon()
     }
 }
 
@@ -171,11 +204,11 @@ fun DayOfMonthIconPreview() {
             selectedDay
         ) {}
         DayOfMonthIcon(
-            CalendarDay(2023, 4, 16, iconState = DateIconState.Empty, today = false),
+            CalendarDay(2023, 4, 16, iconState = DateIconState.PreviousMonth, today = false),
             selectedDay
         ) {}
         DayOfMonthIcon(
-            CalendarDay(2023, 4, 17, iconState = DateIconState.Empty, today = false),
+            CalendarDay(2023, 4, 17, iconState = DateIconState.NextMonth, today = false),
             selectedDay
         ) {}
     }

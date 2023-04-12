@@ -11,6 +11,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
 
@@ -103,59 +106,99 @@ private fun ComposeCalendar(viewModel: CalendarViewModel) {
         val selected = remember { mutableStateOf(viewModel.today) }
         val spread = remember { mutableStateOf(false) }
 
-        LazyHorizontalGrid(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(12.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            rows = GridCells.Fixed(1),
-        ) {
-            items(arrayOf("월", "화", "수", "목", "금", "토", "일")) {
-                DayOfWeekText(it)
-            }
-        }
-
+        DayOfWeekStartsOnMonday()
         Spacer(Modifier.height(8.dp))
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            contentPadding = PaddingValues(0.dp),
-        ) {
-            items(days) { date ->
-                AnimatedVisibility(visible = spread.value) {
+        CalendarGrid(days, spread, selected, viewModel)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        CalendarSpreadButton(spread)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            PrText(
+                text = "${selected.value.month}월 ${selected.value.day}일 ${selected.value.getDayOfWeek()}",
+                style = TextStyle(
+                    color = Color.Black,
+                    fontWeight = FontWeight.W700,
+                    fontSize = 18.sp,
+                    letterSpacing = (-0.1).sp
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun DayOfWeekStartsOnMonday() {
+    LazyHorizontalGrid(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(12.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        rows = GridCells.Fixed(1),
+    ) {
+        items(arrayOf("월", "화", "수", "목", "금", "토", "일")) {
+            DayOfWeekText(it)
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.CalendarGrid(
+    days: MutableList<CalendarDay>,
+    spread: MutableState<Boolean>,
+    selected: MutableState<CalendarDay>,
+    viewModel: CalendarViewModel
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(7),
+        contentPadding = PaddingValues(0.dp),
+    ) {
+        items(days) { date ->
+            AnimatedVisibility(visible = spread.value) {
+                DayOfMonthIcon(
+                    date, selected
+                ) {
+                    selected.value = it
+                }
+            }
+            AnimatedVisibility(visible = !spread.value) {
+                if (date.getWeekOfMonth() == viewModel.weekOfMonth) {
                     DayOfMonthIcon(
                         date, selected
                     ) {
                         selected.value = it
                     }
                 }
-                AnimatedVisibility(visible = !spread.value) {
-                    if (date.getWeekOfMonth() == viewModel.weekOfMonth) {
-                        DayOfMonthIcon(
-                            date, selected
-                        ) {
-                            selected.value = it
-                        }
-                    }
-                }
             }
         }
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Image(
-            modifier = Modifier.clickable { spread.value = !spread.value },
-            painter = if (spread.value) painterResource(id = R.drawable.icon_bigarrow_end)
-            else painterResource(id = R.drawable.icon_bigarrow_open),
-            contentDescription = "닫기"
-        )
     }
 }
 
 @Composable
+private fun CalendarSpreadButton(spread: MutableState<Boolean>) {
+    Image(
+        modifier = Modifier.clickable(
+            interactionSource = remember {
+                MutableInteractionSource()
+            },
+            indication = null,
+            onClick = { spread.value = !spread.value }
+        ),
+        painter = if (spread.value) painterResource(id = R.drawable.icon_bigarrow_end)
+        else painterResource(id = R.drawable.icon_bigarrow_open),
+        contentDescription = "닫기"
+    )
+}
+
+@Composable
 fun DayOfWeekText(text: String) {
+    val config = LocalConfiguration.current
+    val itemWidth = (config.screenWidthDp.dp - (28.dp * 2)) / 7
     PrText(
         text = text, modifier = Modifier
-            .width(38.dp)
+            .width(itemWidth)
             .height(12.dp), style = TextStyle(
             fontWeight = FontWeight.W700, fontSize = 10.sp, textAlign = TextAlign.Center
         )

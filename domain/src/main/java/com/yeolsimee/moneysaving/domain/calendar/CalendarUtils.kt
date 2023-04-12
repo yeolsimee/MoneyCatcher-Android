@@ -15,6 +15,16 @@ fun Calendar.setNextDay(year: Int, month: Int) {
     this.set(Calendar.DAY_OF_MONTH, 1)
 }
 
+fun Calendar.isPreviousMonth(): Boolean {
+    val todayCalendar = Calendar.getInstance()
+    return todayCalendar.get(Calendar.MONTH) == this.get(Calendar.MONTH) + 1
+}
+
+fun Calendar.isNextMonth(): Boolean {
+    val todayCalendar = Calendar.getInstance()
+    return todayCalendar.get(Calendar.MONTH) + 1 == this.get(Calendar.MONTH)
+}
+
 fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
     val tempDayList = mutableListOf<CalendarDay>()
 
@@ -53,6 +63,7 @@ private fun addDate(
     calendar: Calendar,
     tempDayList: MutableList<CalendarDay>
 ) {
+    // TODO Temporary Start
     val random = Random()
     val number = random.nextInt(5)
     var state = DateIconState.Empty
@@ -66,16 +77,24 @@ private fun addDate(
     } else if (number == 4) {
         state = DateIconState.Silver
     }
-    val today = calendar.isToday()
-    if (today) {
+    // TODO Temporary End
+
+    if (calendar.isToday()) {
         state = DateIconState.Today
     }
+    if (calendar.isPreviousMonth()) {
+        state = DateIconState.PreviousMonth
+    }
+    if (calendar.isNextMonth()) {
+        state = DateIconState.NextMonth
+    }
+
     tempDayList.add(
         CalendarDay(
             year = calendar.get(Calendar.YEAR),
             month = calendar.get(Calendar.MONTH) + 1,
             day = calendar.get(Calendar.DAY_OF_MONTH),
-            today = today,
+            today = calendar.isToday(),
             iconState = state
         )
     )

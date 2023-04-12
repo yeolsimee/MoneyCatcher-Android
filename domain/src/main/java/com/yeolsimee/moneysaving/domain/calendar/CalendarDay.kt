@@ -11,10 +11,7 @@ data class CalendarDay(
 ) {
 
     fun getNextDay(): CalendarDay {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, year)
-        calendar.set(Calendar.MONTH, month + 1)
-        calendar.set(Calendar.DAY_OF_MONTH, day)
+        val calendar = getCalendar()
         calendar.add(Calendar.DAY_OF_MONTH, 1)
 
         return CalendarDay(
@@ -23,6 +20,28 @@ data class CalendarDay(
             day = calendar.get(Calendar.DAY_OF_MONTH),
             today = calendar.isToday()
         )
+    }
+
+    fun getDayOfWeek(): String {
+        val calendar = getCalendar()
+        return when(calendar.get(Calendar.DAY_OF_WEEK)) {
+            Calendar.MONDAY -> "월요일"
+            Calendar.TUESDAY -> "화요일"
+            Calendar.WEDNESDAY -> "수요일"
+            Calendar.THURSDAY -> "목요일"
+            Calendar.FRIDAY -> "금요일"
+            Calendar.SATURDAY -> "토요일"
+            Calendar.SUNDAY -> "일요일"
+            else -> ""
+        }
+    }
+
+    private fun getCalendar(): Calendar {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month + 1)
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        return calendar
     }
 
     fun getWeekOfMonth(): Int {

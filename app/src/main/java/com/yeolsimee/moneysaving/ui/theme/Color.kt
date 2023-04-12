@@ -13,6 +13,10 @@ val Pink40 = Color(0xFF7D5260)
 // Black
 val Black17 = Color(0xFF171717)
 
+// Grey
+val Grey17 = Color(0x66171717)
+val Grey99 = Color(0xFF999999)
+
 // MoneyIconColor
 val Gold = Color(0xFFFAE74E)
 val Silver = Color(0xFF989898)

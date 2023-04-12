@@ -36,6 +36,7 @@ fun MoneyCatcherTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    navigationBarColor: Color = Color.Transparent,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -51,9 +52,9 @@ fun MoneyCatcherTheme(
     val useDarkIcons = !isSystemInDarkTheme()
 
     DisposableEffect(systemUiController, useDarkIcons) {
-        systemUiController.setSystemBarsColor(
-            color = Color.Transparent,
-            darkIcons = useDarkIcons
+        systemUiController.setNavigationBarColor(
+            color = navigationBarColor,
+            darkIcons = false
         )
         systemUiController.setStatusBarColor(
             color = Color.White,
