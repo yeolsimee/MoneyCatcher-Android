@@ -3,7 +3,10 @@ package com.yeolsimee.moneysaving.data
 import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.yeolsimee.moneysaving.data.api.RoutineApiService
 import com.yeolsimee.moneysaving.data.api.UserApiService
+import com.yeolsimee.moneysaving.data.interceptor.ConnectivityInterceptor
+import com.yeolsimee.moneysaving.data.interceptor.FirebaseUserIdTokenInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,16 +36,21 @@ class NetModule {
 
     @Provides
     @Singleton
-    fun provideOkhttpClient(connectivityInterceptor: ConnectivityInterceptor, cache: Cache? = null): OkHttpClient {
+    fun provideOkhttpClient(connectivityInterceptor: ConnectivityInterceptor, authInterceptor: FirebaseUserIdTokenInterceptor, cache: Cache? = null): OkHttpClient {
         return OkHttpClient.Builder()
             .cache(cache)
             .addInterceptor(connectivityInterceptor)
+            .addInterceptor(authInterceptor)
             .build()
     }
 
     @Provides
     @Singleton
     internal fun interceptor(): ConnectivityInterceptor = ConnectivityInterceptor()
+
+    @Provides
+    @Singleton
+    internal fun authInterceptor(): FirebaseUserIdTokenInterceptor = FirebaseUserIdTokenInterceptor()
 
     @Provides
     @Singleton
@@ -58,6 +66,12 @@ class NetModule {
     @Singleton
     fun provideUserService(retrofit: Retrofit): UserApiService {
         return retrofit.create(UserApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRoutineApiService(retrofit: Retrofit): RoutineApiService {
+        return retrofit.create(RoutineApiService::class.java)
     }
 
     companion object {

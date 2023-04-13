@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.domain.calendar
 
+import android.util.Log
 import java.util.*
 
 fun Calendar.isToday(): Boolean {
@@ -15,35 +16,34 @@ fun Calendar.setNextDay(year: Int, month: Int) {
     this.set(Calendar.DAY_OF_MONTH, 1)
 }
 
-fun Calendar.isPreviousMonth(): Boolean {
-    val todayCalendar = Calendar.getInstance()
-    return todayCalendar.get(Calendar.MONTH) == this.get(Calendar.MONTH) + 1
+fun Calendar.isPreviousMonth(month: Int): Boolean {
+    return month - 1 == this.get(Calendar.MONTH) + 1
 }
 
-fun Calendar.isNextMonth(): Boolean {
-    val todayCalendar = Calendar.getInstance()
-    return todayCalendar.get(Calendar.MONTH) + 1 == this.get(Calendar.MONTH)
+fun Calendar.isNextMonth(month: Int): Boolean {
+    return month - 1 + 1 == this.get(Calendar.MONTH)
 }
 
 fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
     val tempDayList = mutableListOf<CalendarDay>()
 
-    val month = calendar.get(Calendar.MONTH)
+    val month = calendar.get(Calendar.MONTH) + 1
     val tempCal = calendar.clone() as Calendar
 
     tempCal.set(Calendar.DAY_OF_MONTH, 1)
+    Log.i("CalendarUtil", "${tempCal.time}")
     val amount = 1 - tempCal.get(Calendar.DAY_OF_WEEK)
     if (amount < 0) {
         tempCal.add(Calendar.DAY_OF_MONTH, amount + 1)
     }
     // Before 1 Month
-    while (tempCal.get(Calendar.MONTH) != month) {
-        addDate(tempCal, tempDayList)
+    while (tempCal.get(Calendar.MONTH) + 1 != month) {
+        addDate(tempCal, month, tempDayList)
         tempCal.add(Calendar.DAY_OF_MONTH, 1)
     }
     // This Month
-    while (tempCal.get(Calendar.MONTH) == month) {
-        addDate(tempCal, tempDayList)
+    while (tempCal.get(Calendar.MONTH) + 1 == month) {
+        addDate(tempCal, month, tempDayList)
         tempCal.add(Calendar.DAY_OF_MONTH, 1)
     }
     val dayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK)
@@ -51,7 +51,7 @@ fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
         return tempDayList
     } else {
         while (tempCal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
-            addDate(tempCal, tempDayList)
+            addDate(tempCal, month, tempDayList)
             tempCal.add(Calendar.DAY_OF_MONTH, 1)
         }
     }
@@ -61,31 +61,18 @@ fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
 
 private fun addDate(
     calendar: Calendar,
+    month: Int,
     tempDayList: MutableList<CalendarDay>
 ) {
-    // TODO Temporary Start
-    val random = Random()
-    val number = random.nextInt(5)
     var state = DateIconState.Empty
-
-    if (number == 1) {
-        state = DateIconState.Gold
-    } else if (number == 2) {
-        state = DateIconState.Silver
-    } else if (number == 3) {
-        state = DateIconState.Bronze
-    } else if (number == 4) {
-        state = DateIconState.Silver
-    }
-    // TODO Temporary End
 
     if (calendar.isToday()) {
         state = DateIconState.Today
     }
-    if (calendar.isPreviousMonth()) {
+    if (calendar.isPreviousMonth(month)) {
         state = DateIconState.PreviousMonth
     }
-    if (calendar.isNextMonth()) {
+    if (calendar.isNextMonth(month)) {
         state = DateIconState.NextMonth
     }
 

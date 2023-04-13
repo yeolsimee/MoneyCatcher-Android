@@ -9,5 +9,5 @@ import retrofit2.http.POST
 interface UserApiService {
 
     @POST("login")
-    suspend fun login(@Header("x-auth") token: String): Response<ApiResponse<LoginResult>>
+    suspend fun login(): Response<ApiResponse<LoginResult>>
 }

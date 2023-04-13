@@ -7,7 +7,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.util.Calendar
 
-class CalendarTest {
+class CalendarDayTest {
     @Test
     fun CalendarDay에서_2023년_3월_31일_다음_날짜는_2023년_4월_1일이다() {
         val target = CalendarDay(2023, 3, 31, false)
@@ -48,5 +48,12 @@ class CalendarTest {
         }
 
         assertArrayEquals(expected.toTypedArray(), days.toTypedArray())
+    }
+
+    @Test
+    fun isSameWeekTest() {
+        val calendarDay = CalendarDay(2023, 4, 9)
+        val result = calendarDay.isSameWeek(CalendarDay(2023, 4, 14))
+        assertFalse(result)
     }
 }

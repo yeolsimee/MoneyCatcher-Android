@@ -1,30 +1,35 @@
 package com.yeolsimee.moneysaving.view.calendar
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
 import com.yeolsimee.moneysaving.domain.calendar.setNextDay
+import com.yeolsimee.moneysaving.domain.usecase.RoutineUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class CalendarViewModel @Inject constructor() : ViewModel() {
+class CalendarViewModel @Inject constructor(private val routineUseCase: RoutineUseCase) : ViewModel() {
 
     private var lastDayOfMonth: Int
-
-    private var _today: CalendarDay
-    private var _weekOfMonth: Int
-
-    val today: CalendarDay get() = _today
-    val weekOfMonth: Int get() = _weekOfMonth
-
     private val calendar = Calendar.getInstance()
 
+    private var _today: CalendarDay
+    val today: CalendarDay
+        get() = _today
+
+    private val _dayList: MutableLiveData<MutableList<CalendarDay>>
+    val dayList: LiveData<MutableList<CalendarDay>>
+        get() = _dayList
+
+
     init {
+        calendar.firstDayOfWeek = Calendar.MONDAY
         val todayCalendar = Calendar.getInstance()
         todayCalendar.time = Date()
 
@@ -34,10 +39,14 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
             todayCalendar.get(Calendar.DATE),
             true
         )
-        _weekOfMonth = todayCalendar.get(Calendar.WEEK_OF_MONTH)
         lastDayOfMonth = todayCalendar.getMaximum(Calendar.DAY_OF_MONTH)
-        calendar.firstDayOfWeek = Calendar.MONDAY
-        Log.i("TAG", "현재 월: ${calendar.get(Calendar.MONTH) + 1}")
+
+        _dayList = MutableLiveData(getWeekDays(calendar))
+        val days = _dayList.value!!
+
+        viewModelScope.launch {
+            routineUseCase.findAllMyRoutineDays(days.first().toString(), days.last().toString())
+        }
     }
 
     fun year(): Int {
@@ -75,10 +84,4 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         _date.value =
             "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월"
     }
-
-    private val _dayList: MutableLiveData<MutableList<CalendarDay>> =
-        MutableLiveData(getWeekDays(calendar))
-
-    val dayList: LiveData<MutableList<CalendarDay>>
-        get() = _dayList
 }

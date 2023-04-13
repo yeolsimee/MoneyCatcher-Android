@@ -39,7 +39,9 @@ import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var callback: OnBackPressedCallback
@@ -100,6 +102,7 @@ class MainActivity : ComponentActivity() {
                     onClick = { /*TODO*/ },
                     containerColor = Color.Black,
                     shape = CircleShape,
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
                     modifier = Modifier.padding(end = 12.dp)
                 ) {
                     Image(

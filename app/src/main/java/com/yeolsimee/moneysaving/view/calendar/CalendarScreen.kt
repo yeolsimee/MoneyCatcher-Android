@@ -3,14 +3,14 @@
 package com.yeolsimee.moneysaving.view.calendar
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.NumberPicker
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -37,21 +37,45 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
+import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
+import java.util.*
 
 @ExperimentalFoundationApi
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel) {
 
-    Column(Modifier.fillMaxSize()) {
+    val scrollState = rememberScrollState()
+    Column(
+        Modifier
+            .fillMaxSize()
+            .scrollable(scrollState, Orientation.Vertical)
+    ) {
+        val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
-        YearMonthDialog(dialogState, viewModel)
+        val year = viewModel.year()
+        val month = viewModel.month()
+
+        val cancelButtonListener = {
+            dialogState.value = false
+        }
+
+        val confirmButtonListener: (NumberPicker, NumberPicker) -> Unit =
+            { yearPicker, monthPicker ->
+                viewModel.setDate(yearPicker.value, monthPicker.value - 1)
+                dialogState.value = false
+            }
+        YearMonthDialog(dialogState, year, month, cancelButtonListener, confirmButtonListener)
 
         AppLogoImage()
         Spacer(Modifier.height(16.dp))
-        YearMonthSelectBox(dialogState, viewModel)
-        ComposeCalendar(viewModel)
+
+        YearMonthSelectBox(dialogState, viewModel.date.observeAsState().value ?: "", spread)
+
+        val selected = remember { mutableStateOf(viewModel.today) }
+        val days = viewModel.dayList.observeAsState().value!!
+        ComposeCalendar(days, selected, spread)
     }
 }
 
@@ -69,47 +93,54 @@ private fun AppLogoImage() {
 
 @Composable
 private fun YearMonthSelectBox(
-    dialogState: MutableState<Boolean>, viewModel: CalendarViewModel
+    dialogState: MutableState<Boolean>, dateText: String, spread: MutableState<Boolean>
 ) {
     Row(
-        modifier = Modifier.clickable { dialogState.value = !dialogState.value },
+        modifier = Modifier.clickable(
+            interactionSource = remember {
+                MutableInteractionSource()
+            },
+            indication = null,
+            onClick = {
+                if (spread.value) {
+                    dialogState.value = !dialogState.value
+                }
+            }),
         verticalAlignment = Alignment.Bottom
     ) {
         Image(
             painter = painterResource(id = R.drawable.icon_calendar), contentDescription = "연/월 선택"
         )
         Spacer(Modifier.width(2.dp))
+
         PrText(
-            text = viewModel.date.observeAsState().value ?: "", style = TextStyle(
+            text = dateText, style = TextStyle(
                 fontWeight = FontWeight.W700, fontSize = 12.sp
             )
         )
-        Image(
-            painter = painterResource(id = R.drawable.icon_arrow_open),
-            contentDescription = "연/월 선택"
-        )
+        if (spread.value) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_arrow_open),
+                contentDescription = "연/월 선택"
+            )
+        }
     }
 }
 
-
-@ExperimentalFoundationApi
 @Composable
-private fun ComposeCalendar(viewModel: CalendarViewModel) {
+private fun ComposeCalendar(
+    days: MutableList<CalendarDay>,
+    selected: MutableState<CalendarDay>,
+    spread: MutableState<Boolean>
+) {
     Column(
         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Spacer(modifier = Modifier.height(10.dp))
-        val days = viewModel.dayList.observeAsState().value!!
-
-        // 처음에 선택된 날은 오늘
-        val selected = remember { mutableStateOf(viewModel.today) }
-        val spread = remember { mutableStateOf(false) }
-
         DayOfWeekStartsOnMonday()
         Spacer(Modifier.height(8.dp))
 
-        CalendarGrid(days, spread, selected, viewModel)
+        CalendarGrid(days, spread, selected)
         Spacer(modifier = Modifier.height(12.dp))
 
         CalendarSpreadButton(spread)
@@ -145,11 +176,10 @@ private fun DayOfWeekStartsOnMonday() {
 }
 
 @Composable
-private fun ColumnScope.CalendarGrid(
+private fun CalendarGrid(
     days: MutableList<CalendarDay>,
     spread: MutableState<Boolean>,
     selected: MutableState<CalendarDay>,
-    viewModel: CalendarViewModel
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
@@ -161,15 +191,13 @@ private fun ColumnScope.CalendarGrid(
                     date, selected
                 ) {
                     selected.value = it
+                    Log.i("Selected",
+                        "${it.month}월 ${it.day}일 ${selected.value.getNextDayOfWeekOfMonth()}")
                 }
             }
             AnimatedVisibility(visible = !spread.value) {
-                if (date.getWeekOfMonth() == viewModel.weekOfMonth) {
-                    DayOfMonthIcon(
-                        date, selected
-                    ) {
-                        selected.value = it
-                    }
+                if (date.isSameWeek(selected.value)) {
+                    DayOfMonthIcon(date, selected) { selected.value = it }
                 }
             }
         }
@@ -205,10 +233,15 @@ fun DayOfWeekText(text: String) {
     )
 }
 
-
 @SuppressLint("InflateParams")
 @Composable
-private fun YearMonthDialog(dialogState: MutableState<Boolean>, viewModel: CalendarViewModel) {
+private fun YearMonthDialog(
+    dialogState: MutableState<Boolean>,
+    year: Int,
+    month: Int,
+    cancelButtonListener: () -> Unit,
+    confirmButtonListener: (NumberPicker, NumberPicker) -> Unit
+) {
     if (dialogState.value) {
         Dialog(onDismissRequest = {
             dialogState.value = false
@@ -223,19 +256,18 @@ private fun YearMonthDialog(dialogState: MutableState<Boolean>, viewModel: Calen
 
                 yearPicker.minValue = 2023
                 yearPicker.maxValue = 2099
-                yearPicker.value = viewModel.year()
+                yearPicker.value = year
 
                 monthPicker.minValue = 1
                 monthPicker.maxValue = 12
-                monthPicker.value = viewModel.month()
+                monthPicker.value = month
 
                 cancelButton.setOnClickListener {
-                    dialogState.value = false
+                    cancelButtonListener()
                 }
 
                 confirmButton.setOnClickListener {
-                    viewModel.setDate(yearPicker.value, monthPicker.value - 1)
-                    dialogState.value = false
+                    confirmButtonListener(yearPicker, monthPicker)
                 }
 
                 view
@@ -247,7 +279,10 @@ private fun YearMonthDialog(dialogState: MutableState<Boolean>, viewModel: Calen
 @Preview(showBackground = true)
 @Composable
 fun ComposeCalendarPreview() {
-    ComposeCalendar(CalendarViewModel())
+    val days = getWeekDays(Calendar.getInstance())
+    val selected = remember { mutableStateOf(CalendarDay(2023, 4, 12)) }
+    val spread = remember { mutableStateOf(false) }
+    ComposeCalendar(days, selected, spread)
 }
 
 @Preview(showBackground = true)
@@ -259,8 +294,11 @@ fun AppLogoPreview() {
 @Preview(showBackground = true)
 @Composable
 fun YearMonthSelectBoxPreview() {
+    val spread = remember { mutableStateOf(false) }
     YearMonthSelectBox(
-        dialogState = remember { mutableStateOf(false) }, viewModel = CalendarViewModel()
+        dialogState = remember { mutableStateOf(false) },
+        dateText = "4월 12일 수요일",
+        spread = spread
     )
 }
 
@@ -268,6 +306,10 @@ fun YearMonthSelectBoxPreview() {
 @Composable
 fun YearMonthDialogPreview() {
     YearMonthDialog(
-        dialogState = remember { mutableStateOf(true) }, viewModel = CalendarViewModel()
+        dialogState = remember { mutableStateOf(true) },
+        year = 2023,
+        month = 4,
+        cancelButtonListener = {},
+        confirmButtonListener = { _, _ -> }
     )
 }

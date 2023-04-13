@@ -37,22 +37,8 @@ object Email {
                         val continueUrl = deepLink.getQueryParameter("continueUrl") ?: ""
                         val email = Uri.parse(continueUrl).getQueryParameter("email") ?: ""
                         Firebase.auth.signInWithEmailLink(email, deepLink.toString())
-                            .addOnSuccessListener { result ->
-                                result.user?.getIdToken(false)?.addOnSuccessListener { authResult ->
-                                    Log.i(
-                                        App.TAG,
-                                        "email login firebase token: ${authResult.token}"
-                                    )
-                                    Toast.makeText(
-                                        activity,
-                                        authResult.token,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
                     }
                 }
-
             }
             .addOnFailureListener(activity) { e ->
                 Log.e(App.TAG, "getDynamicLink:onFailure: $e")
