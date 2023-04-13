@@ -54,6 +54,9 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
     ) {
         val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
+        val selected = remember { mutableStateOf(viewModel.today) }
+        val calendarMonth = remember { mutableStateOf(selected.value.month - 1) }
+
         val year = viewModel.year()
         val month = viewModel.month()
 
@@ -64,18 +67,29 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
         val confirmButtonListener: (NumberPicker, NumberPicker) -> Unit =
             { yearPicker, monthPicker ->
                 viewModel.setDate(yearPicker.value, monthPicker.value - 1)
+                Log.i("Changed", "${calendarMonth.value}")
                 dialogState.value = false
             }
+
         YearMonthDialog(dialogState, year, month, cancelButtonListener, confirmButtonListener)
 
         AppLogoImage()
+
         Spacer(Modifier.height(16.dp))
 
         YearMonthSelectBox(dialogState, viewModel.date.observeAsState().value ?: "", spread)
 
-        val selected = remember { mutableStateOf(viewModel.today) }
-        val days = viewModel.dayList.observeAsState().value!!
-        ComposeCalendar(days, selected, spread)
+        ComposeCalendar(
+            viewModel.dayList.observeAsState().value!!,
+            selected,
+            spread,
+            year,
+            month,
+            calendarMonth
+        ) {
+            Log.i("Restore", "$it")
+            viewModel.setDate(selected.value.year, it)
+        }
     }
 }
 
@@ -131,7 +145,11 @@ private fun YearMonthSelectBox(
 private fun ComposeCalendar(
     days: MutableList<CalendarDay>,
     selected: MutableState<CalendarDay>,
-    spread: MutableState<Boolean>
+    spread: MutableState<Boolean>,
+    year: Int,
+    month: Int,
+    calendarMonth: MutableState<Int>,
+    restoreSelected: (Int) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
@@ -140,10 +158,10 @@ private fun ComposeCalendar(
         DayOfWeekStartsOnMonday()
         Spacer(Modifier.height(8.dp))
 
-        CalendarGrid(days, spread, selected)
+        CalendarGrid(days, spread, selected, month, calendarMonth)
         Spacer(modifier = Modifier.height(12.dp))
 
-        CalendarSpreadButton(spread)
+        CalendarSpreadButton(spread, selected, year, month, calendarMonth, restoreSelected)
         Spacer(modifier = Modifier.height(24.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -180,6 +198,8 @@ private fun CalendarGrid(
     days: MutableList<CalendarDay>,
     spread: MutableState<Boolean>,
     selected: MutableState<CalendarDay>,
+    month: Int,
+    calendarMonth: MutableState<Int>
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
@@ -187,17 +207,17 @@ private fun CalendarGrid(
     ) {
         items(days) { date ->
             AnimatedVisibility(visible = spread.value) {
-                DayOfMonthIcon(
-                    date, selected
-                ) {
+                DayOfMonthIcon(date, selected) {
                     selected.value = it
-                    Log.i("Selected",
-                        "${it.month}월 ${it.day}일 ${selected.value.getNextDayOfWeekOfMonth()}")
+                    calendarMonth.value = month
                 }
             }
             AnimatedVisibility(visible = !spread.value) {
                 if (date.isSameWeek(selected.value)) {
-                    DayOfMonthIcon(date, selected) { selected.value = it }
+                    DayOfMonthIcon(date, selected) {
+                        selected.value = it
+                        calendarMonth.value = month
+                    }
                 }
             }
         }
@@ -205,14 +225,26 @@ private fun CalendarGrid(
 }
 
 @Composable
-private fun CalendarSpreadButton(spread: MutableState<Boolean>) {
+private fun CalendarSpreadButton(
+    spread: MutableState<Boolean>,
+    selected: MutableState<CalendarDay>,
+    year: Int,
+    month: Int,
+    calendarMonth: MutableState<Int>,
+    restoreSelected: (Int) -> Unit
+) {
     Image(
         modifier = Modifier.clickable(
             interactionSource = remember {
                 MutableInteractionSource()
             },
             indication = null,
-            onClick = { spread.value = !spread.value }
+            onClick = {
+                if (spread.value && (selected.value.year != year || selected.value.month != month)) {
+                    restoreSelected(calendarMonth.value - 1)
+                }
+                spread.value = !spread.value
+            }
         ),
         painter = if (spread.value) painterResource(id = R.drawable.icon_bigarrow_end)
         else painterResource(id = R.drawable.icon_bigarrow_open),
@@ -282,7 +314,8 @@ fun ComposeCalendarPreview() {
     val days = getWeekDays(Calendar.getInstance())
     val selected = remember { mutableStateOf(CalendarDay(2023, 4, 12)) }
     val spread = remember { mutableStateOf(false) }
-    ComposeCalendar(days, selected, spread)
+    val calendarMonth = remember { mutableStateOf(4) }
+    ComposeCalendar(days, selected, spread, 2023, 4, calendarMonth) {}
 }
 
 @Preview(showBackground = true)
