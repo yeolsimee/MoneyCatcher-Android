@@ -10,6 +10,6 @@ import retrofit2.Response
 class UserSource(
     private val api: UserApiService
 ) {
-    fun login(token: String): Flow<Response<ApiResponse<LoginResult>>> =
-        flow { emit(api.login(token)) }
+    fun login(): Flow<Response<ApiResponse<LoginResult>>> =
+        flow { emit(api.login()) }
 }

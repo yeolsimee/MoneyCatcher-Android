@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
     }
 }
-rootProject.name = "MoneyCatcher"
+rootProject.name = "ROUMO"
 include ':app'
 include ':domain'
 include ':data'

@@ -17,7 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.yeolsimee.moneysaving.auth.*
-import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
+import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.view.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,7 +38,7 @@ class LoginActivity : ComponentActivity() {
         initAuth()
 
         setContent {
-            MoneyCatcherTheme {
+            RoumoTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

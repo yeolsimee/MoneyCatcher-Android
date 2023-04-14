@@ -25,7 +25,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
 
     fun init(activity: LoginActivity, callback: () -> Unit) {
         google = Google(activity) { token ->
-            loginUsingToken(token, callback)
+            loginUsingToken(callback)
         }
     }
 
@@ -35,7 +35,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
 
     fun naverInit(result: ActivityResult, callback: () -> Unit) {
         Naver.init(result, tokenCallback = { token ->
-            loginUsingToken(token, callback)
+            loginUsingToken(callback)
         }, failedCallback = {
             showLoginFailed(it)
         })
@@ -56,13 +56,13 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
 
     fun appleLogin(loginActivity: LoginActivity, callback: () -> Unit) {
         Apple.login(loginActivity) { token ->
-            loginUsingToken(token, callback)
+            loginUsingToken(callback)
         }
     }
 
-    private fun loginUsingToken(token: String, callback: () -> Unit) {
+    private fun loginUsingToken(callback: () -> Unit) {
         viewModelScope.launch {
-            userUseCase.login(token).onSuccess {
+            userUseCase.login().onSuccess {
                 showLoginSuccess(it)
                 callback()
             }.onFailure {
@@ -79,13 +79,16 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     fun receiveEmailResult(intent: Intent, activity: LoginActivity, callback: () -> Unit) {
+        // 1. Email SignIn
         Email.receive(intent, activity)
+
+        // 2. 1번 결과 처리
         Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
             if (authResult.credential != null) {
                 val task = Firebase.auth.signInWithCredential(authResult.credential!!)
                 AuthFunctions.getAuthResult(task, tokenCallback = { token ->
                     viewModelScope.launch {
-                        userUseCase.login(token).onSuccess {
+                        userUseCase.login().onSuccess {
                             showLoginSuccess(it)
                             callback()
                         }.onFailure {
@@ -113,7 +116,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
             user.getIdToken(false).addOnSuccessListener {
                 val token = it.token
                 if (token != null) {
-                    loginUsingToken(token, callback)
+                    loginUsingToken(callback)
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.yeolsimee.moneysaving.data
+package com.yeolsimee.moneysaving.data.interceptor
 
 import android.util.Log
 import okhttp3.Interceptor

@@ -9,3 +9,17 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
+
+// Black
+val Black17 = Color(0xFF171717)
+
+// Grey
+val Grey17 = Color(0x66171717)
+val Grey99 = Color(0xFF999999)
+val Grey66 = Color(0xFF666666)
+val GreyF0 = Color(0xFFF0F0F0)
+
+// MoneyIconColor
+val Gold = Color(0xFFFAE74E)
+val Silver = Color(0xFF989898)
+val Bronze = Color(0xFF9F7B60)

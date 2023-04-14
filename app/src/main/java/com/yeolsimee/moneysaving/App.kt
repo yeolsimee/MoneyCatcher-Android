@@ -10,7 +10,7 @@ import dagger.hilt.android.HiltAndroidApp
 class App : Application() {
 
     companion object {
-        const val TAG = "MoneyCatcherApp"
+        const val TAG = "RoumoApp"
     }
 
     override fun onCreate() {

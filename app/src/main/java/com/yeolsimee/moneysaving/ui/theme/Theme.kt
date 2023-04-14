@@ -1,21 +1,12 @@
 package com.yeolsimee.moneysaving.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorScheme = darkColorScheme(
@@ -41,10 +32,11 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun MoneyCatcherTheme(
+fun RoumoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    navigationBarColor: Color = Color.Transparent,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -60,9 +52,9 @@ fun MoneyCatcherTheme(
     val useDarkIcons = !isSystemInDarkTheme()
 
     DisposableEffect(systemUiController, useDarkIcons) {
-        systemUiController.setSystemBarsColor(
-            color = Color.Transparent,
-            darkIcons = useDarkIcons
+        systemUiController.setNavigationBarColor(
+            color = navigationBarColor,
+            darkIcons = false
         )
         systemUiController.setStatusBarColor(
             color = Color.White,
@@ -74,6 +66,6 @@ fun MoneyCatcherTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

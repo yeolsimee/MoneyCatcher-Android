@@ -2,44 +2,52 @@
 
 package com.yeolsimee.moneysaving.view
 
-import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
-import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
-import com.yeolsimee.moneysaving.utils.SetStatusBarColor
+import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.theme.Grey99
+import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
+import com.yeolsimee.moneysaving.view.routine.RoutineActivity
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity: ComponentActivity() {
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
 
     private lateinit var callback: OnBackPressedCallback
     private var pressedTime: Long = 0
@@ -47,9 +55,8 @@ class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         setContent {
-            MoneyCatcherTheme {
+            RoumoTheme(navigationBarColor = Color.Black) {
                 MainScreenView()
             }
         }
@@ -70,21 +77,53 @@ class MainActivity: ComponentActivity() {
     @Composable
     fun MainScreenView() {
         val navController = rememberNavController()
+        val floatingButtonVisible = remember { mutableStateOf(false) }
 
         Scaffold(
             content = {
-                Box(Modifier.padding(it)) {
-                    NavHost(navController = navController, startDestination = BottomNavItem.Home.screenRoute) {
+                Box(
+                    Modifier
+                        .padding(it)
+                        .background(Color.White)
+                ) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = BottomNavItem.Home.screenRoute
+                    ) {
                         composable(BottomNavItem.Home.screenRoute) {
-                            val calendarViewModel: CalendarViewModel by viewModels()
-                            HomeScreen(calendarViewModel)
+                            val calendarViewModel: CalendarViewModel = hiltViewModel()
+                            val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
+                            floatingButtonVisible.value = true
+                            HomeScreen(calendarViewModel, selectedDateViewModel)
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
+                            floatingButtonVisible.value = false
                             RecommendScreen()
                         }
                         composable(BottomNavItem.MyPage.screenRoute) {
+                            floatingButtonVisible.value = false
                             MyPageScreen()
                         }
+                    }
+                }
+            },
+            floatingActionButton = {
+                if (floatingButtonVisible.value) {
+                    FloatingActionButton(
+                        onClick = {
+                            val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                            intent.putExtra("titleString", "루틴 추가하기")
+                            startActivity(intent)
+                        },
+                        containerColor = Color.Black,
+                        shape = CircleShape,
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                        modifier = Modifier.padding(end = 12.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.icon_plus),
+                            contentDescription = "루틴 추가"
+                        )
                     }
                 }
             },
@@ -99,10 +138,11 @@ class MainActivity: ComponentActivity() {
             BottomNavItem.Recommend,
             BottomNavItem.MyPage
         )
-        
+
         NavigationBar(
-            Modifier.background(Color.White),
-            contentColor = Color.Black
+            contentColor = Color.Black,
+            containerColor = Color.Black,
+            modifier = Modifier.height(49.dp)
         ) {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
@@ -111,29 +151,41 @@ class MainActivity: ComponentActivity() {
 
                 val isSelected = currentRoute == item.screenRoute
                 val resId = if (isSelected) item.pressedResId else item.normalResId
-                val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.W500
+                val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.W400
+                val labelColor = if (isSelected) Color.White else Grey99
 
                 NavigationBarItem(
                     icon = {
-                        Icon(
-                            painter = painterResource(id = resId),
-                            contentDescription = item.title,
-                            modifier = Modifier
-                                .width(20.dp)
-                                .height(20.dp)
-                        )
-                    },
-                    label = {
-                        Text(
-                            item.title,
-                            fontSize = 10.sp,
-                            fontWeight = fontWeight,
-                            lineHeight = 24.sp,
-                            softWrap = false
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                Modifier
+                                    .height(3.dp)
+                                    .width(50.dp)
+                                    .clip(RoundedCornerShape(size = 2.5.dp))
+                                    .background(color = if (isSelected) Color.White else Color.Black)
+                            )
+                            Spacer(Modifier.height(9.dp))
+                            Icon(
+                                painter = painterResource(id = resId),
+                                contentDescription = item.title,
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(20.dp)
+                                    .padding(0.dp)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            PrText(
+                                item.title,
+                                fontSize = 10.sp,
+                                fontWeight = fontWeight,
+                                textAlign = TextAlign.Center,
+                                letterSpacing = (-0.1).sp,
+                                color = labelColor,
+                                softWrap = false,
+                            )
+                        }
                     },
                     selected = isSelected,
-                    alwaysShowLabel = true,
                     onClick = {
                         navController.navigate(item.screenRoute) {
                             navController.graph.startDestinationRoute?.let {
@@ -144,8 +196,8 @@ class MainActivity: ComponentActivity() {
                         }
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Black,
-                        unselectedIconColor = Color.Gray
+                        selectedIconColor = Color.White,
+                        indicatorColor = Color.Transparent
                     ),
                 )
             }
