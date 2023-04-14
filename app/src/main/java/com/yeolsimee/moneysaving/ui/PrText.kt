@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.ui.theme.pretendard
 
 @Suppress("DEPRECATION")
@@ -53,6 +54,6 @@ fun PrText(
         softWrap,
         maxLines,
         onTextLayout,
-        style.copy(platformStyle = PlatformTextStyle(includeFontPadding = false))
+        style.copy(platformStyle = PlatformTextStyle(includeFontPadding = false), letterSpacing = (-0.1).sp)
     )
 }

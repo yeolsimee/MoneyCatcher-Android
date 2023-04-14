@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +38,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Grey99
 import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
@@ -72,6 +75,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainScreenView() {
         val navController = rememberNavController()
+        val floatingButtonVisible = remember { mutableStateOf(false) }
 
         Scaffold(
             content = {
@@ -85,30 +89,36 @@ class MainActivity : ComponentActivity() {
                         startDestination = BottomNavItem.Home.screenRoute
                     ) {
                         composable(BottomNavItem.Home.screenRoute) {
-                            val calendarViewModel: CalendarViewModel by viewModels()
-                            HomeScreen(calendarViewModel)
+                            val calendarViewModel: CalendarViewModel = hiltViewModel()
+                            val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
+                            floatingButtonVisible.value = true
+                            HomeScreen(calendarViewModel, selectedDateViewModel)
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
+                            floatingButtonVisible.value = false
                             RecommendScreen()
                         }
                         composable(BottomNavItem.MyPage.screenRoute) {
+                            floatingButtonVisible.value = false
                             MyPageScreen()
                         }
                     }
                 }
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { /*TODO*/ },
-                    containerColor = Color.Black,
-                    shape = CircleShape,
-                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                    modifier = Modifier.padding(end = 12.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_plus),
-                        contentDescription = "루틴 추가"
-                    )
+                if (floatingButtonVisible.value) {
+                    FloatingActionButton(
+                        onClick = { /*TODO*/ },
+                        containerColor = Color.Black,
+                        shape = CircleShape,
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                        modifier = Modifier.padding(end = 12.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.icon_plus),
+                            contentDescription = "루틴 추가"
+                        )
+                    }
                 }
             },
             bottomBar = { MainBottomNavigation(navController) }

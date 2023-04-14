@@ -36,7 +36,11 @@ class NetModule {
 
     @Provides
     @Singleton
-    fun provideOkhttpClient(connectivityInterceptor: ConnectivityInterceptor, authInterceptor: FirebaseUserIdTokenInterceptor, cache: Cache? = null): OkHttpClient {
+    fun provideOkhttpClient(
+        connectivityInterceptor: ConnectivityInterceptor,
+        authInterceptor: FirebaseUserIdTokenInterceptor,
+        cache: Cache? = null
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .cache(cache)
             .addInterceptor(connectivityInterceptor)
@@ -50,7 +54,8 @@ class NetModule {
 
     @Provides
     @Singleton
-    internal fun authInterceptor(): FirebaseUserIdTokenInterceptor = FirebaseUserIdTokenInterceptor()
+    internal fun authInterceptor(): FirebaseUserIdTokenInterceptor =
+        FirebaseUserIdTokenInterceptor()
 
     @Provides
     @Singleton

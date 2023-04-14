@@ -120,6 +120,7 @@ fun DayOfMonthIcon(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .width(38.dp)
+            .wrapContentHeight()
             .clickable(interactionSource = remember {
                 MutableInteractionSource()
             }, indication = null, onClick = { onClick(date) })
