@@ -2,6 +2,7 @@
 
 package com.yeolsimee.moneysaving.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -36,12 +37,13 @@ import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Grey99
-import com.yeolsimee.moneysaving.ui.theme.MoneyCatcherTheme
+import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
+import com.yeolsimee.moneysaving.view.routine.RoutineActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MoneyCatcherTheme(navigationBarColor = Color.Black) {
+            RoumoTheme(navigationBarColor = Color.Black) {
                 MainScreenView()
             }
         }
@@ -108,7 +110,11 @@ class MainActivity : ComponentActivity() {
             floatingActionButton = {
                 if (floatingButtonVisible.value) {
                     FloatingActionButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                            intent.putExtra("titleString", "루틴 추가하기")
+                            startActivity(intent)
+                        },
                         containerColor = Color.Black,
                         shape = CircleShape,
                         elevation = FloatingActionButtonDefaults.elevation(0.dp),
