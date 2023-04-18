@@ -25,8 +25,8 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun findRoutineDay(date: String): Result<RoutinesOfDay> {
         val response = source.findRoutineDay(date).last()
         val result = response.body()
-        return if (result != null && result.success) {
-            Result.success(result.data)
+        return if (result != null && result.success && result.data != null) {
+            Result.success(result.data!!)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
         }

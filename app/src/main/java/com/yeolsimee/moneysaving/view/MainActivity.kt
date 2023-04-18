@@ -47,6 +47,7 @@ import com.yeolsimee.moneysaving.view.routine.RoutineActivity
 import com.yeolsimee.moneysaving.view.routine.RoutineModifyOption
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalLayoutApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 

@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
@@ -56,6 +56,7 @@ import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.AlarmIconAndText
 import com.yeolsimee.moneysaving.ui.routine.RoutineTimeZone
 import com.yeolsimee.moneysaving.ui.theme.GreyF0
+import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 import java.util.Calendar
@@ -76,7 +77,6 @@ fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDate
         val dialogState = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf(viewModel.today) }
         val calendarMonth = remember { mutableStateOf(selected.value.month - 1) }
-        val routinesOfDay by selectedDateViewModel.container.stateFlow.collectAsState()
 
         val year = viewModel.year()
         val month = viewModel.month()
@@ -127,93 +127,107 @@ fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDate
 
         DateText(selected)
 
-        if (routinesOfDay.routineDay.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(Modifier.height(45.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.empty_routine),
-                    contentDescription = "루틴이 비어 있어요!"
-                )
-                PrText(
-                    text = stringResource(R.string.routine_is_empty),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W800,
-                )
-                Spacer(Modifier.height(10.dp))
-                PrText(
-                    text = stringResource(R.string.please_add_routine_button),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W700,
-                )
-                Spacer(Modifier.height(200.dp))
-            }
-        } else if (routinesOfDay.routineDay != "empty") {
-            val categories = routinesOfDay.categoryDatas
+        val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            RoutinesOfDay()
+        )
 
-            Spacer(Modifier.height(18.dp))
+        if (routinesOfDayState.getRoutineDay().isEmpty()) {
+            EmptyRoutine()
+        } else {
+            ShowRoutines(routinesOfDayState)
+        }
+    }
+}
 
-            Column {
-                for (category in categories) {
-                    PrText(
-                        text = category.categoryName,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.W700
-                    )
-                    Spacer(Modifier.height(8.dp))
+@Composable
+private fun ShowRoutines(routinesOfDayState: RoutinesOfDay) {
+    val categories = routinesOfDayState.categoryDatas
 
-                    for (routine in category.routineDatas) {
-                        val checked = routine.routineCheckYN == "Y"
-                        Box(
-                            modifier = Modifier
-                                .border(
-                                    width = 1.5.dp,
-                                    shape = RoundedCornerShape(4.dp),
-                                    color = if (checked) Color.Black else GreyF0
-                                )
-                                .background(color = if (checked) GreyF0 else Color.White)
-                                .fillMaxWidth()
-                                .height(70.dp)
-                        ) {
-                            Row(
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column {
-                                    PrText(
-                                        text = routine.routineName,
-                                        fontWeight = FontWeight.W800,
-                                        fontSize = 15.sp,
-                                        color = Color.Black,
-                                        textDecoration = if (checked) TextDecoration.LineThrough else null,
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Row {
-                                        RoutineTimeZone(routine)
-                                        Spacer(Modifier.width(8.dp))
-                                        AlarmIconAndText(routine)
-                                    }
-                                }
-                                Image(
-                                    painter = painterResource(
-                                        id = if (checked) R.drawable.icon_check
-                                        else R.drawable.icon_nonecheck
-                                    ),
-                                    contentDescription = "루틴 체크"
-                                )
+    Spacer(Modifier.height(18.dp))
+
+    Column {
+        for (category in categories) {
+            PrText(
+                text = category.categoryName,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.W700
+            )
+            Spacer(Modifier.height(8.dp))
+
+            for (routine in category.routineDatas) {
+                val checked = routine.routineCheckYN == "Y"
+                Box(
+                    modifier = Modifier
+                        .border(
+                            width = 1.5.dp,
+                            shape = RoundedCornerShape(4.dp),
+                            color = if (checked) Color.Black else GreyF0
+                        )
+                        .background(color = if (checked) GreyF0 else Color.White)
+                        .fillMaxWidth()
+                        .height(70.dp)
+                ) {
+                    Row(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            PrText(
+                                text = routine.routineName,
+                                fontWeight = FontWeight.W800,
+                                fontSize = 15.sp,
+                                color = Color.Black,
+                                textDecoration = if (checked) TextDecoration.LineThrough else null,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row {
+                                RoutineTimeZone(routine)
+                                Spacer(Modifier.width(8.dp))
+                                AlarmIconAndText(routine)
                             }
                         }
+                        Image(
+                            painter = painterResource(
+                                id = if (checked) R.drawable.icon_check
+                                else R.drawable.icon_nonecheck
+                            ),
+                            contentDescription = "루틴 체크"
+                        )
                     }
-                    Spacer(Modifier.height(20.dp))
                 }
-                Spacer(Modifier.height(56.dp))
             }
+            Spacer(Modifier.height(20.dp))
         }
+        Spacer(Modifier.height(56.dp))
+    }
+}
+
+@Composable
+private fun EmptyRoutine() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(45.dp))
+        Image(
+            painter = painterResource(id = R.drawable.empty_routine),
+            contentDescription = "루틴이 비어 있어요!"
+        )
+        PrText(
+            text = stringResource(R.string.routine_is_empty),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.W800,
+        )
+        Spacer(Modifier.height(10.dp))
+        PrText(
+            text = stringResource(R.string.please_add_routine_button),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.W700,
+        )
+        Spacer(Modifier.height(200.dp))
     }
 }
 

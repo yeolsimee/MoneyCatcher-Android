@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,7 @@ import com.yeolsimee.moneysaving.view.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 
+@ExperimentalLayoutApi
 @AndroidEntryPoint
 @ExperimentalMaterial3Api
 class LoginActivity : ComponentActivity() {

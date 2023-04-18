@@ -20,7 +20,7 @@ import javax.inject.Inject
 class SelectedDateViewModel @Inject constructor(private val routineUseCase: RoutineUseCase) :
     ContainerHost<RoutinesOfDay, ToastSideEffect>, ISideEffect, ViewModel() {
 
-    override val container = container<RoutinesOfDay, ToastSideEffect>(RoutinesOfDay(routineDay = "init"))
+    override val container = container<RoutinesOfDay, ToastSideEffect>(RoutinesOfDay())
 
     fun findRoutineDay(calendarDay: CalendarDay) = intent {
         viewModelScope.launch {
@@ -28,6 +28,7 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
             result.onSuccess {
                 reduce { it }
             }.onFailure {
+                reduce { RoutinesOfDay() }
                 showSideEffect(it.message)
             }
         }

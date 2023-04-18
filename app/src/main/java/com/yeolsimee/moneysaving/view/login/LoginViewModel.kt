@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ExperimentalLayoutApi
 @ExperimentalMaterial3Api
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) : ViewModel() {
@@ -47,11 +49,6 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
 
     fun googleLogin(launcher: ActivityResultLauncher<Intent>) {
         google.login(launcher)
-    }
-
-    fun googleLogout() {
-        Firebase.auth.signOut()
-        google.logout()
     }
 
     fun appleLogin(loginActivity: LoginActivity, callback: () -> Unit) {
@@ -101,7 +98,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     private fun showLoginSuccess(result: LoginResult) {
-
+        Log.i(App.TAG, "로그인 성공: ${result.name} 가입여부: ${result.isNewUser}")
     }
 
     fun logout() {

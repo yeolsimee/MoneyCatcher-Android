@@ -6,16 +6,11 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 
+@ExperimentalLayoutApi
 @ExperimentalMaterial3Api
 class RoutineActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,19 +25,8 @@ class RoutineActivity : ComponentActivity() {
 
         setContent {
             RoumoTheme {
-                Scaffold(
-                    topBar = {
-                        RoutineTopAppBar(routineType) { finish() }
-                    }
-                ) {
-                    Box(
-                        Modifier
-                            .padding(it)
-                            .padding(horizontal = 28.dp)
-                    ) {
-                        val routineName = remember { mutableStateOf("") }
-                        InputRoutineName(routineName)
-                    }
+                RoutineScreen(routineType) {
+                    finish()
                 }
             }
         }
