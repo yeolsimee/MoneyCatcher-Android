@@ -16,7 +16,6 @@ if (signingPropertiesFile.exists()) {
 def _keyAlias = signingProperties.getProperty('key.alias')
 def _keyPassword = signingProperties.getProperty('key.password')
 def _storePassword = signingProperties.getProperty('store.password')
-def _kakaoApiKey = signingProperties.getProperty('kakao.api.key')
 
 def _naverClientId = signingProperties.getProperty('naver.client.id')
 def _naverClientSecret = signingProperties.getProperty('naver.client.secret')
@@ -35,8 +34,6 @@ android {
         ndk.debugSymbolLevel 'FULL'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders.KAKAO_API_KEY = _kakaoApiKey
-        buildConfigField "String", "KAKAO_API_KEY", "\"$_kakaoApiKey\""
         buildConfigField "String", "OAUTH_CLIENT_ID", "\"$_naverClientId\""
         buildConfigField "String", "OAUTH_CLIENT_SECRET", "\"$_naverClientSecret\""
         buildConfigField "String", "OAUTH_CLIENT_NAME", "\"$_naverClientName\""
@@ -109,8 +106,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-dynamic-links-ktx'
     // Google 로그인
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
-    // kakao 로그인
-    implementation "com.kakao.sdk:v2-user:2.13.0"
+
     // naver
     implementation "com.navercorp.nid:oauth:5.4.0"
 

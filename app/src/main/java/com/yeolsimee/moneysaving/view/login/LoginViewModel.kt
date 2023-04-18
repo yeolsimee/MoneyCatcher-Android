@@ -26,7 +26,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     private lateinit var google: Google
 
     fun init(activity: LoginActivity, callback: () -> Unit) {
-        google = Google(activity) { token ->
+        google = Google(activity) {
             loginUsingToken(callback)
         }
     }
@@ -36,7 +36,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     fun naverInit(result: ActivityResult, callback: () -> Unit) {
-        Naver.init(result, tokenCallback = { token ->
+        Naver.init(result, tokenCallback = {
             loginUsingToken(callback)
         }, failedCallback = {
             showLoginFailed(it)
@@ -52,7 +52,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     fun appleLogin(loginActivity: LoginActivity, callback: () -> Unit) {
-        Apple.login(loginActivity) { token ->
+        Apple.login(loginActivity) {
             loginUsingToken(callback)
         }
     }
@@ -83,7 +83,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
             if (authResult.credential != null) {
                 val task = Firebase.auth.signInWithCredential(authResult.credential!!)
-                AuthFunctions.getAuthResult(task, tokenCallback = { token ->
+                AuthFunctions.getAuthResult(task, tokenCallback = { _ ->
                     viewModelScope.launch {
                         userUseCase.login().onSuccess {
                             showLoginSuccess(it)
