@@ -17,7 +17,7 @@ class RoutineSource(
             emit(api.findAllMyRoutineDays(startDate, endDate))
         }
 
-    fun findRoutineDay(date: String): Flow<Response<ApiResponse<RoutinesOfDay>>> = flow {
+    fun findRoutineDay(date: String): Flow<Response<ApiResponse<RoutinesOfDay?>>> = flow {
         emit(api.findRoutineDay(date))
     }
 }

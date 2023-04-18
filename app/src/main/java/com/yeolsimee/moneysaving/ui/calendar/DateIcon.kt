@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.ui.calendar
 
+import androidx.annotation.IntRange
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +29,7 @@ import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.DateIconState
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.*
+import com.yeolsimee.moneysaving.utils.getTextFromDayOfWeek
 
 @Composable
 fun GoldIcon() {
@@ -103,6 +105,96 @@ fun NextMonthIcon() {
             .border(width = 1.5.dp, color = Grey17, shape = CircleShape)
             .clip(CircleShape)
     )
+}
+
+@Composable
+fun DayOfWeekIcon(@IntRange(from = 0, to = 6) dayOfWeek: Int, initialSelected: Boolean, onClick: (Int) -> Unit) {
+    val text = getTextFromDayOfWeek(dayOfWeek)
+    val selected = remember { mutableStateOf(initialSelected) }
+
+    if (selected.value) {
+        SelectedDayOfWeek(dayOfWeek, text) {
+            onClick(dayOfWeek)
+            selected.value = !selected.value
+        }
+    } else {
+        UnSelectedDayOfWeek(dayOfWeek, text) {
+            onClick(dayOfWeek)
+            selected.value = !selected.value
+        }
+    }
+}
+
+@Composable
+private fun SelectedDayOfWeek(
+    dayOfWeek: Int,
+    text: String,
+    onClick: (Int) -> Unit,
+) {
+    Box(
+        Modifier
+            .size(32.dp)
+            .border(width = 1.5.dp, color = Color.Black, shape = CircleShape)
+            .clip(CircleShape)
+            .background(color = GreyF0)
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null,
+                onClick = { onClick(dayOfWeek) })
+    ) {
+        PrText(
+            text = text,
+            fontWeight = FontWeight.W600,
+            fontSize = 13.sp,
+            color = Color.Black,
+            modifier = Modifier.align(
+                Alignment.Center
+            )
+        )
+    }
+}
+
+@Composable
+private fun UnSelectedDayOfWeek(
+    dayOfWeek: Int,
+    text: String,
+    onClick: (Int) -> Unit,
+) {
+    Box(
+        Modifier
+            .size(32.dp)
+            .border(width = 1.5.dp, color = GreyF0, shape = CircleShape)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null,
+                onClick = { onClick(dayOfWeek) })
+    ) {
+        PrText(
+            text = text,
+            fontWeight = FontWeight.W500,
+            fontSize = 13.sp,
+            color = Grey66,
+            modifier = Modifier.align(
+                Alignment.Center
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DayOfWeekIconPreview() {
+    RoumoTheme {
+        Row(modifier = Modifier) {
+            DayOfWeekIcon(0, false) {}
+            DayOfWeekIcon(6, true) {}
+        }
+    }
 }
 
 @Composable

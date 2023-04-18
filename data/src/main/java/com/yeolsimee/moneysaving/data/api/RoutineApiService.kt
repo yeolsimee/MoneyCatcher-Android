@@ -17,5 +17,5 @@ interface RoutineApiService {
     @GET("routineday/{date}")
     suspend fun findRoutineDay(
         @Path("date") date: String
-    ): Response<ApiResponse<RoutinesOfDay>>
+    ): Response<ApiResponse<RoutinesOfDay?>>
 }

@@ -44,8 +44,10 @@ import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
+import com.yeolsimee.moneysaving.view.routine.RoutineModifyOption
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalLayoutApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -112,7 +114,7 @@ class MainActivity : ComponentActivity() {
                     FloatingActionButton(
                         onClick = {
                             val intent = Intent(this@MainActivity, RoutineActivity::class.java)
-                            intent.putExtra("titleString", "루틴 추가하기")
+                            intent.putExtra("routineType", RoutineModifyOption.add)
                             startActivity(intent)
                         },
                         containerColor = Color.Black,

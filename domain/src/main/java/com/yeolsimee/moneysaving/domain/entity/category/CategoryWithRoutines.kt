@@ -2,7 +2,7 @@ package com.yeolsimee.moneysaving.domain.entity.category
 
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 
-data class Category(
+data class CategoryWithRoutines(
     val categoryId: String,
     val categoryName: String,
     val remainingRoutineNum: String,
@@ -12,7 +12,7 @@ data class Category(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Category
+        other as CategoryWithRoutines
 
         if (categoryId != other.categoryId) return false
         if (categoryName != other.categoryName) return false

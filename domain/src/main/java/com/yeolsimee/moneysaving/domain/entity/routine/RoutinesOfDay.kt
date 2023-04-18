@@ -1,11 +1,14 @@
 package com.yeolsimee.moneysaving.domain.entity.routine
 
-import com.yeolsimee.moneysaving.domain.entity.category.Category
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 
 data class RoutinesOfDay(
-    val routineDay: String = "",
-    val categoryDatas: Array<Category> = arrayOf()
+    private val routineDay: String? = "",
+    val categoryDatas: Array<CategoryWithRoutines> = arrayOf()
 ) {
+    fun getRoutineDay(): String {
+        return routineDay ?: ""
+    }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

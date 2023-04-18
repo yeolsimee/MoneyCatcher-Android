@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,13 +19,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ExperimentalLayoutApi
 @ExperimentalMaterial3Api
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) : ViewModel() {
     private lateinit var google: Google
 
     fun init(activity: LoginActivity, callback: () -> Unit) {
-        google = Google(activity) { token ->
+        google = Google(activity) {
             loginUsingToken(callback)
         }
     }
@@ -34,7 +36,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     fun naverInit(result: ActivityResult, callback: () -> Unit) {
-        Naver.init(result, tokenCallback = { token ->
+        Naver.init(result, tokenCallback = {
             loginUsingToken(callback)
         }, failedCallback = {
             showLoginFailed(it)
@@ -49,13 +51,8 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         google.login(launcher)
     }
 
-    fun googleLogout() {
-        Firebase.auth.signOut()
-        google.logout()
-    }
-
     fun appleLogin(loginActivity: LoginActivity, callback: () -> Unit) {
-        Apple.login(loginActivity) { token ->
+        Apple.login(loginActivity) {
             loginUsingToken(callback)
         }
     }
@@ -86,7 +83,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
             if (authResult.credential != null) {
                 val task = Firebase.auth.signInWithCredential(authResult.credential!!)
-                AuthFunctions.getAuthResult(task, tokenCallback = { token ->
+                AuthFunctions.getAuthResult(task, tokenCallback = { _ ->
                     viewModelScope.launch {
                         userUseCase.login().onSuccess {
                             showLoginSuccess(it)
@@ -101,7 +98,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     private fun showLoginSuccess(result: LoginResult) {
-
+        Log.i(App.TAG, "로그인 성공: ${result.name} 가입여부: ${result.isNewUser}")
     }
 
     fun logout() {

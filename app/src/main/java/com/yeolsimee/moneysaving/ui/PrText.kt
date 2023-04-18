@@ -54,6 +54,10 @@ fun PrText(
         softWrap,
         maxLines,
         onTextLayout,
-        style.copy(platformStyle = PlatformTextStyle(includeFontPadding = false), letterSpacing = (-0.1).sp)
+        style.copy(
+            platformStyle = PlatformTextStyle(includeFontPadding = false),
+            letterSpacing = (-0.1).sp,
+            color = Color.Black
+        )
     )
 }
