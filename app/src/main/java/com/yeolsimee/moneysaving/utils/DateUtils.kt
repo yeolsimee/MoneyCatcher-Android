@@ -36,3 +36,4 @@ fun Int.getTwoDigitsHour(): String {
 fun Int.getTwoDigitsMinute(): String {
     return String.format("%02d", this)
 }
+

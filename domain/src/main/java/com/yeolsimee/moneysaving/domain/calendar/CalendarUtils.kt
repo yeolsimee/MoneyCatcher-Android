@@ -10,6 +10,13 @@ fun Calendar.isToday(): Boolean {
             && todayCalendar.get(Calendar.DAY_OF_MONTH) == this.get(Calendar.DAY_OF_MONTH)
 }
 
+fun isToday(year: Int, month: Int, day: Int): Boolean {
+    val todayCalendar = Calendar.getInstance()
+    return todayCalendar.get(Calendar.YEAR) == year
+            && todayCalendar.get(Calendar.MONTH) == month - 1
+            && todayCalendar.get(Calendar.DAY_OF_MONTH) == day
+}
+
 fun Calendar.setNextDay(year: Int, month: Int) {
     this.set(Calendar.YEAR, year)
     this.set(Calendar.MONTH, month)
@@ -85,4 +92,12 @@ private fun addDate(
             iconState = state
         )
     )
+}
+
+fun getCalendarFromCalendarDay(calendarDay: CalendarDay): Calendar {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.YEAR, calendarDay.year)
+    calendar.set(Calendar.MONTH, calendarDay.month - 1)
+    calendar.set(Calendar.DAY_OF_MONTH, calendarDay.day)
+    return calendar
 }

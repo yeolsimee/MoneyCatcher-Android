@@ -22,7 +22,7 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
 
     override val container = container<RoutinesOfDay, ToastSideEffect>(RoutinesOfDay())
 
-    fun findRoutineDay(calendarDay: CalendarDay) = intent {
+    fun find(calendarDay: CalendarDay) = intent {
         viewModelScope.launch {
             val result = routineUseCase.findRoutineDay(calendarDay.toString())
             result.onSuccess {

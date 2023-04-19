@@ -31,31 +31,44 @@ import com.yeolsimee.moneysaving.utils.addFocusCleaner
 @ExperimentalMaterial3Api
 @ExperimentalLayoutApi
 @Composable
-fun RoutineScreen(routineType: RoutineModifyOption?, closeCallback: () -> Unit) {
-    RoumoTheme {
+fun RoutineScreen(
+    routineType: RoutineModifyOption?,
+    closeCallback: () -> Unit,
+    onCompleteCallback: () -> Unit
+) {
+    RoumoTheme(navigationBarColor = Color.Black) {
         Scaffold(
             topBar = {
                 RoutineTopAppBar(routineType) { closeCallback() }
             },
-            modifier = Modifier.background(Color.White)
+            bottomBar = {
+                RoutineBottomAppBar(routineType) { onCompleteCallback() }
+            },
+            containerColor = Color.White
         ) {
             Box(
                 Modifier
                     .padding(it)
                     .padding(horizontal = 28.dp)
+                    .background(Color.White)
             ) {
                 val focusRequester by remember { mutableStateOf(FocusRequester()) }
                 val focusManager = LocalFocusManager.current
                 val routineName = remember { mutableStateOf("") }
                 val selectedCategoryId = remember { mutableStateOf("1") }
                 val scrollState = rememberScrollState()
-                val repeatSelectList = remember { mutableStateListOf(false, false, false, false, false, false, false) }
+                val repeatSelectList =
+                    remember { mutableStateListOf(false, false, false, false, false, false, false) }
                 val selectedRoutineTimeZoneId = remember { mutableStateOf("1") }
                 val alarmState = remember { mutableStateOf(false) }
                 val hourState = remember { mutableStateOf(13) }
                 val minuteState = remember { mutableStateOf(0) }
 
-                Column(Modifier.verticalScroll(scrollState).addFocusCleaner(focusManager)) {
+                Column(
+                    Modifier
+                        .verticalScroll(scrollState)
+                        .addFocusCleaner(focusManager)
+                ) {
                     InputRoutineName(routineName, focusRequester)
                     Spacer(Modifier.height(20.dp))
                     SelectCategory(
@@ -107,7 +120,8 @@ fun RoutineScreen(routineType: RoutineModifyOption?, closeCallback: () -> Unit) 
 @Preview(showBackground = true)
 @Composable
 fun RoutineScreenPreview() {
-    RoutineScreen(routineType = RoutineModifyOption.add) {
-
-    }
+    RoutineScreen(
+        routineType = RoutineModifyOption.add,
+        closeCallback = {},
+        onCompleteCallback = {})
 }

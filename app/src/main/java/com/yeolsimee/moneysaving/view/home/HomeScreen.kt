@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.view.home
 
-import android.util.Log
 import android.widget.NumberPicker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -58,14 +57,21 @@ import com.yeolsimee.moneysaving.ui.routine.RoutineTimeZone
 import com.yeolsimee.moneysaving.ui.theme.GreyF0
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 import java.util.Calendar
 
 @Composable
-fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDateViewModel) {
-    val scrollState = rememberScrollState()
-    selectedDateViewModel.findRoutineDay(viewModel.today)
+fun HomeScreen(
+    viewModel: CalendarViewModel,
+    selectedDateViewModel: SelectedDateViewModel,
+    findAllMyRoutineViewModel: FindAllMyRoutineViewModel
+) {
+    val year = viewModel.year()
+    val month = viewModel.month()
+    val today = viewModel.today
 
+    val scrollState = rememberScrollState()
     Column(
         Modifier
             .fillMaxSize()
@@ -75,11 +81,8 @@ fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDate
     ) {
         val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
-        val selected = remember { mutableStateOf(viewModel.today) }
+        val selected = remember { mutableStateOf(today) }
         val calendarMonth = remember { mutableStateOf(selected.value.month - 1) }
-
-        val year = viewModel.year()
-        val month = viewModel.month()
 
         val cancelButtonListener = {
             dialogState.value = false
@@ -87,7 +90,9 @@ fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDate
 
         val confirmButtonListener: (NumberPicker, NumberPicker) -> Unit =
             { yearPicker, monthPicker ->
-                viewModel.setDate(yearPicker.value, monthPicker.value - 1)
+                val selectedMonth = monthPicker.value
+                viewModel.setDate(yearPicker.value, selectedMonth - 1)
+                findAllMyRoutineViewModel.find(viewModel.getFirstAndLastDate(), selectedMonth)
                 dialogState.value = false
             }
 
@@ -107,6 +112,12 @@ fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDate
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        val iconStateMutableList by findAllMyRoutineViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            mutableListOf()
+        )
+
+        viewModel.load(iconStateMutableList)
+
         ComposeCalendar(
             viewModel.dayList.observeAsState().value!!,
             selected,
@@ -115,11 +126,11 @@ fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDate
             month,
             calendarMonth,
             restoreSelected = {
-                Log.i("Restore", "$it")
-                viewModel.setDate(selected.value.year, it)
+                viewModel.setDate(selected.value.year, it + 1)
+                findAllMyRoutineViewModel.find(viewModel.getFirstAndLastDate(), it + 2)
             },
             onItemSelected = {
-                selectedDateViewModel.findRoutineDay(it)
+                selectedDateViewModel.find(it)
             }
         )
 
@@ -127,7 +138,7 @@ fun HomeScreen(viewModel: CalendarViewModel, selectedDateViewModel: SelectedDate
 
         DateText(selected)
 
-        val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+        val routinesOfDayState: RoutinesOfDay by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
             RoutinesOfDay()
         )
 
@@ -332,7 +343,7 @@ private fun CalendarGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         contentPadding = PaddingValues(0.dp),
-        modifier = Modifier.heightIn(min = 54.dp, max = (54 * 6).dp)
+        modifier = Modifier.heightIn(min = 54.dp, max = (54 * 7).dp)
     ) {
         items(days) { date ->
             AnimatedVisibility(visible = spread.value) {

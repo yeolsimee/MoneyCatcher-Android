@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 
 @ExperimentalLayoutApi
 @ExperimentalMaterial3Api
@@ -24,11 +23,14 @@ class RoutineActivity : ComponentActivity() {
         }
 
         setContent {
-            RoumoTheme {
-                RoutineScreen(routineType) {
+            RoutineScreen(
+                routineType = routineType,
+                closeCallback = {
                     finish()
+                }, onCompleteCallback = {
+
                 }
-            }
+            )
         }
     }
 }

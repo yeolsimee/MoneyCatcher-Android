@@ -12,6 +12,7 @@ class ConnectivityInterceptor: Interceptor {
         return try {
             val response: Response = chain.proceed(chain.request())
             val content = response.body()?.string() ?: ""
+            Log.d("OkHttp Request", response.request().url().url().toString())
             Log.d("OkHttp", content)
             response.newBuilder()
                 .body(ResponseBody.create(response.body()?.contentType(), content)).build()

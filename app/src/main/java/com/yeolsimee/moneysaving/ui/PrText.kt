@@ -57,7 +57,6 @@ fun PrText(
         style.copy(
             platformStyle = PlatformTextStyle(includeFontPadding = false),
             letterSpacing = (-0.1).sp,
-            color = Color.Black
         )
     )
 }

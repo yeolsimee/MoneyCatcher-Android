@@ -39,6 +39,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Grey99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
@@ -95,8 +96,15 @@ class MainActivity : ComponentActivity() {
                         composable(BottomNavItem.Home.screenRoute) {
                             val calendarViewModel: CalendarViewModel = hiltViewModel()
                             val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
+                            val findAllMyRoutineViewModel: FindAllMyRoutineViewModel = hiltViewModel()
+                            val today = calendarViewModel.today
+
                             floatingButtonVisible.value = true
-                            HomeScreen(calendarViewModel, selectedDateViewModel)
+
+                            selectedDateViewModel.find(today)
+                            findAllMyRoutineViewModel.find(calendarViewModel.getFirstAndLastDate(), today.month)
+
+                            HomeScreen(calendarViewModel, selectedDateViewModel, findAllMyRoutineViewModel)
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
                             floatingButtonVisible.value = false
