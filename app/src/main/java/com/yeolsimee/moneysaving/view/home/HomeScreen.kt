@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.view.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
@@ -81,7 +83,7 @@ fun HomeScreen(
         val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf(today) }
-        val calendarMonth = remember { mutableStateOf(selected.value.month - 1) }
+        val calendarMonth = remember { mutableStateOf(today.month - 1) }
 
         val cancelButtonListener = {
             dialogState.value = false
@@ -124,8 +126,9 @@ fun HomeScreen(
             month,
             calendarMonth,
             restoreSelected = {
-                viewModel.setDate(selected.value.year, it + 1)
-                findAllMyRoutineViewModel.find(viewModel.getFirstAndLastDate(), it + 2)
+                Log.i(App.TAG, "restoreSelected ${selected.value.month}, ${it + 1}, ${calendarMonth.value}")
+                viewModel.setDate(selected.value.year, selected.value.month - 1)
+                findAllMyRoutineViewModel.find(viewModel.getFirstAndLastDate(), selected.value.month)
             },
             onItemSelected = {
                 selectedDateViewModel.find(it)
@@ -380,7 +383,7 @@ private fun CalendarSpreadButton(
             },
             indication = null,
             onClick = {
-                if (spread.value && (selected.value.year != year || selected.value.month != month)) {
+                if (spread.value && (selected.value.year != year || calendarMonth.value != month)) {
                     restoreSelected(calendarMonth.value - 1)
                 }
                 spread.value = !spread.value
