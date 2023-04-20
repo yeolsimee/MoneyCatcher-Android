@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -43,20 +45,22 @@ fun YearMonthDialog(
     dialogState: MutableState<Boolean>,
     year: Int,
     month: Int,
-    cancelButtonListener: () -> Unit,
     confirmButtonListener: (Int, Int) -> Unit
 ) {
     val yearState = remember { mutableStateOf(year) }
     val monthState = remember { mutableStateOf(month) }
     if (dialogState.value) {
-        Dialog(onDismissRequest = {
-            dialogState.value = false
-        }) {
+        Dialog(
+            onDismissRequest = {
+                dialogState.value = false
+            }) {
             Box(
                 modifier = Modifier
                     .width(230.dp)
                     .wrapContentHeight()
+                    .clip(shape = RoundedCornerShape(4.dp))
                     .background(Color.White)
+                    .padding(0.dp)
             ) {
                 Column {
                     PrText(
@@ -73,11 +77,10 @@ fun YearMonthDialog(
                         horizontalArrangement = Arrangement.End,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp, end = 16.dp, bottom = 16.dp)
+                            .padding(top = 8.dp, end = 8.dp, bottom = 12.dp)
                     ) {
                         TextButton(onClick = {
                             dialogState.value = false
-                            cancelButtonListener()
                         }) {
                             PrText(
                                 text = "취소",
@@ -234,7 +237,6 @@ fun YearMonthDialogPreview() {
         dialogState = remember { mutableStateOf(true) },
         year = 2023,
         month = 4,
-        cancelButtonListener = {},
         confirmButtonListener = { year, month ->
             Toast.makeText(context, "${year}년 ${month}월", Toast.LENGTH_SHORT).show()
         }

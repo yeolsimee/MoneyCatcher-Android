@@ -85,10 +85,6 @@ fun HomeScreen(
         val selected = remember { mutableStateOf(today) }
         val calendarMonth = remember { mutableStateOf(today.month - 1) }
 
-        val cancelButtonListener = {
-            dialogState.value = false
-        }
-
         val confirmButtonListener: (Int, Int) -> Unit =
             { selectedYear, selectedMonth ->
                 viewModel.setDate(selectedYear, selectedMonth - 1)
@@ -100,7 +96,6 @@ fun HomeScreen(
             dialogState,
             year,
             month,
-            cancelButtonListener,
             confirmButtonListener
         )
 
