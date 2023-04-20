@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class,
+    ExperimentalLayoutApi::class
+)
 
 package com.yeolsimee.moneysaving.view.routine
 
@@ -49,8 +51,8 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfWeekIcon
 import com.yeolsimee.moneysaving.ui.list_item.SelectedItem
 import com.yeolsimee.moneysaving.ui.list_item.UnSelectedItem
-import com.yeolsimee.moneysaving.ui.theme.Grey99
-import com.yeolsimee.moneysaving.ui.theme.GreyF0
+import com.yeolsimee.moneysaving.ui.theme.Gray99
+import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.getTwoDigitsHour
 import com.yeolsimee.moneysaving.utils.getTwoDigitsMinute
@@ -82,7 +84,7 @@ fun InputRoutineName(routineName: MutableState<String>, focusRequester: FocusReq
                     if (routineName.value.isEmpty()) {
                         PrText(
                             text = "루틴명을 입력해주세요.",
-                            color = Grey99,
+                            color = Gray99,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W400
                         )
@@ -357,7 +359,7 @@ fun SettingAlarmTime(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.White)
-                        .border(width = 1.5.dp, color = GreyF0, shape = RoundedCornerShape(4.dp))
+                        .border(width = 1.5.dp, color = GrayF0, shape = RoundedCornerShape(4.dp))
                         .padding(vertical = 8.dp, horizontal = 10.dp)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },

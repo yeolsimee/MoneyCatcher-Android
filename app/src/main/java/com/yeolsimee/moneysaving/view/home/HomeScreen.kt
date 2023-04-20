@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.view.home
 
-import android.widget.NumberPicker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -54,7 +53,7 @@ import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.AlarmIconAndText
 import com.yeolsimee.moneysaving.ui.routine.RoutineTimeZone
-import com.yeolsimee.moneysaving.ui.theme.GreyF0
+import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.calendar.FindAllMyRoutineViewModel
@@ -88,10 +87,9 @@ fun HomeScreen(
             dialogState.value = false
         }
 
-        val confirmButtonListener: (NumberPicker, NumberPicker) -> Unit =
-            { yearPicker, monthPicker ->
-                val selectedMonth = monthPicker.value
-                viewModel.setDate(yearPicker.value, selectedMonth - 1)
+        val confirmButtonListener: (Int, Int) -> Unit =
+            { selectedYear, selectedMonth ->
+                viewModel.setDate(selectedYear, selectedMonth - 1)
                 findAllMyRoutineViewModel.find(viewModel.getFirstAndLastDate(), selectedMonth)
                 dialogState.value = false
             }
@@ -172,9 +170,9 @@ private fun ShowRoutines(routinesOfDayState: RoutinesOfDay) {
                         .border(
                             width = 1.5.dp,
                             shape = RoundedCornerShape(4.dp),
-                            color = if (checked) Color.Black else GreyF0
+                            color = if (checked) Color.Black else GrayF0
                         )
-                        .background(color = if (checked) GreyF0 else Color.White)
+                        .background(color = if (checked) GrayF0 else Color.White)
                         .fillMaxWidth()
                         .height(70.dp)
                 ) {

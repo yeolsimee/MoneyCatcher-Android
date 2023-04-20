@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.theme.Grey66
-import com.yeolsimee.moneysaving.ui.theme.GreyF0
+import com.yeolsimee.moneysaving.ui.theme.Gray66
+import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 
 
@@ -33,7 +33,7 @@ fun SelectedItem(it: TextItem, selectCallback: (String) -> Unit) {
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
-                .background(GreyF0)
+                .background(GrayF0)
                 .border(width = 1.5.dp, color = Color.Black, shape = RoundedCornerShape(4.dp))
                 .padding(8.dp)
                 .clickable(
@@ -63,7 +63,7 @@ fun UnSelectedItem(it: TextItem, selectCallback: (String) -> Unit) {
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .background(Color.White)
-                .border(width = 1.5.dp, color = GreyF0, shape = RoundedCornerShape(4.dp))
+                .border(width = 1.5.dp, color = GrayF0, shape = RoundedCornerShape(4.dp))
                 .padding(8.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -74,7 +74,7 @@ fun UnSelectedItem(it: TextItem, selectCallback: (String) -> Unit) {
                 text = it.name,
                 fontWeight = FontWeight.W500,
                 fontSize = 13.sp,
-                color = Grey66,
+                color = Gray66,
                 modifier = Modifier.align(
                     Alignment.Center
                 )

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.yeolsimee.moneysaving.view
+package com.yeolsimee.moneysaving.view.home
 
 import android.content.Intent
 import android.os.Bundle
@@ -36,12 +36,11 @@ import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.theme.Grey99
+import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
-import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
@@ -162,7 +161,7 @@ class MainActivity : ComponentActivity() {
                 val isSelected = currentRoute == item.screenRoute
                 val resId = if (isSelected) item.pressedResId else item.normalResId
                 val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.W400
-                val labelColor = if (isSelected) Color.White else Grey99
+                val labelColor = if (isSelected) Color.White else Gray99
 
                 NavigationBarItem(
                     icon = {
