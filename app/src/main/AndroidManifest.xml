@@ -50,7 +50,7 @@
             android:exported="false">
         </activity>
 
-        <receiver android:name=".view.notification.NotificationReceiver"
+        <receiver android:name=".utils.notification.NotificationReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.yeolsimee.moneysaving.ALARM_TEST"/>

@@ -1,4 +1,5 @@
-@file:OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class,
+@file:OptIn(
+    ExperimentalLayoutApi::class, ExperimentalLayoutApi::class,
     ExperimentalLayoutApi::class
 )
 
@@ -49,6 +50,7 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfWeekIcon
+import com.yeolsimee.moneysaving.ui.dialog.AddCategoryDialog
 import com.yeolsimee.moneysaving.ui.list_item.SelectedItem
 import com.yeolsimee.moneysaving.ui.list_item.UnSelectedItem
 import com.yeolsimee.moneysaving.ui.theme.Gray99
@@ -78,7 +80,9 @@ fun InputRoutineName(routineName: MutableState<String>, focusRequester: FocusReq
                 fontSize = 14.sp,
                 color = Color.Black
             ), onValueChange = { t ->
-                routineName.value = t
+                if (t.length <= 50) {
+                    routineName.value = t
+                }
             }, singleLine = true, decorationBox = { innerTextField ->
                 Box {
                     if (routineName.value.isEmpty()) {
@@ -130,8 +134,9 @@ fun InputRoutineNamePreview() {
 fun SelectCategory(
     categories: MutableList<TextItem>,
     selectedId: MutableState<String>,
+    addCategoryState: MutableState<Boolean>,
     selectCallback: (String) -> Unit,
-    addCallback: () -> Unit = {},
+    addCallback: (String) -> Unit = {},
 ) {
     Column(modifier = Modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -162,7 +167,9 @@ fun SelectCategory(
                             .background(Color.Black)
                             .clickable(interactionSource = remember {
                                 MutableInteractionSource()
-                            }, indication = null, onClick = { addCallback() })
+                            }, indication = null, onClick = {
+                                addCategoryState.value = true
+                            })
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -175,6 +182,9 @@ fun SelectCategory(
                         )
                     }
                 }
+                AddCategoryDialog(
+                    dialogState = addCategoryState,
+                    confirmButtonListener = { addCallback(it) })
             }
         }
     }
@@ -186,14 +196,21 @@ fun SelectCategory(
 fun SelectCategoryPreview() {
     RoumoTheme {
         val selectedCategoryId = remember { mutableStateOf("1") }
-        SelectCategory(mutableListOf(
-            TextItem("1", "💰아껴쓰기"),
-            TextItem("2", "주린이 성장일기"),
-            TextItem("3", "임티는 사용자 자유"),
-            TextItem("4", "열네글자까지들어가요일이삼사")
-        ), selectedId = selectedCategoryId, selectCallback = {
-            selectedCategoryId.value = it
-        })
+        val addCategoryState = remember { mutableStateOf(false) }
+        SelectCategory(
+            mutableListOf(
+                TextItem("1", "💰아껴쓰기"),
+                TextItem("2", "주린이 성장일기"),
+                TextItem("3", "임티는 사용자 자유"),
+                TextItem("4", "열네글자까지들어가요일이삼사")
+            ),
+            selectedId = selectedCategoryId,
+            addCategoryState = addCategoryState,
+            selectCallback = {
+                selectedCategoryId.value = it
+            },
+            addCallback = {}
+        )
     }
 }
 
@@ -235,10 +252,23 @@ fun SelectRoutineRepeatPreview() {
 
 @Composable
 fun SelectRoutineTimeZone(
-    timeZoneList: MutableList<TextItem>,
     selectedId: MutableState<String>,
     selectCallback: (String) -> Unit
 ) {
+    val timeZoneList = remember {
+        mutableListOf(
+            TextItem("1", "하루종일"),
+            TextItem("2", "아무때나"),
+            TextItem("3", "기상직후"),
+            TextItem("4", "아침"),
+            TextItem("5", "오전"),
+            TextItem("6", "점심"),
+            TextItem("7", "오후"),
+            TextItem("8", "저녁"),
+            TextItem("9", "밤"),
+            TextItem("10", "취침직전"),
+        )
+    }
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
@@ -270,22 +300,10 @@ fun SelectRoutineTimeZone(
 @Composable
 fun SelectRoutineTimeZonePreview() {
     RoumoTheme {
-        SelectRoutineTimeZone(remember {
-            mutableListOf(
-                TextItem("1", "하루종일"),
-                TextItem("2", "아무때나"),
-                TextItem("3", "기상직후"),
-                TextItem("4", "아침"),
-                TextItem("5", "오전"),
-                TextItem("6", "점심"),
-                TextItem("7", "오후"),
-                TextItem("8", "저녁"),
-                TextItem("9", "밤"),
-                TextItem("10", "취침직전"),
-            )
-        }, selectedId = remember {
-            mutableStateOf("1")
-        }) {}
+        SelectRoutineTimeZone(
+            selectedId = remember {
+                mutableStateOf("1")
+            }) {}
     }
 }
 
@@ -293,7 +311,8 @@ fun SelectRoutineTimeZonePreview() {
 fun SettingAlarmTime(
     alarmState: MutableState<Boolean>,
     hourState: MutableState<Int>,
-    minuteState: MutableState<Int>
+    minuteState: MutableState<Int>,
+    hasNotificationPermission: () -> Boolean = { false },
 ) {
     val timeText = hourState.value.getTwoDigitsHour() + ":" +
             minuteState.value.getTwoDigitsMinute()
@@ -333,7 +352,9 @@ fun SettingAlarmTime(
                         indication = null,
                         onClick = {
                             // TODO 알람 권한 확인
-                            alarmState.value = !alarmState.value
+                            if (hasNotificationPermission()) {
+                                alarmState.value = !alarmState.value
+                            }
                         }
                     )
                 )

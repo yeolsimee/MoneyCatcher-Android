@@ -1,4 +1,4 @@
-package com.yeolsimee.moneysaving.view.notification
+package com.yeolsimee.moneysaving.utils.notification
 
 import android.content.BroadcastReceiver
 import android.content.Context

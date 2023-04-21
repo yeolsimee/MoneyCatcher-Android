@@ -25,8 +25,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
+import com.yeolsimee.moneysaving.domain.entity.routine.NewRoutine
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
+import com.yeolsimee.moneysaving.utils.getWeekTypes
 
 @ExperimentalMaterial3Api
 @ExperimentalLayoutApi
@@ -34,15 +36,49 @@ import com.yeolsimee.moneysaving.utils.addFocusCleaner
 fun RoutineScreen(
     routineType: RoutineModifyOption?,
     closeCallback: () -> Unit,
-    onCompleteCallback: () -> Unit
+    onCompleteCallback: (NewRoutine) -> Unit,
+    hasNotificationPermission: () -> Boolean,
 ) {
     RoumoTheme(navigationBarColor = Color.Black) {
+        val focusRequester by remember { mutableStateOf(FocusRequester()) }
+        val focusManager = LocalFocusManager.current
+        val scrollState = rememberScrollState()
+
+        val routineName = remember { mutableStateOf("") }
+        val selectedCategoryId = remember { mutableStateOf("1") }
+        val categoryList = remember { mutableListOf(
+            TextItem("1", "💰아껴쓰기"),
+            TextItem("2", "주린이 성장일기"),
+            TextItem("3", "임티는 사용자 자유"),
+            TextItem("4", "열네글자까지들어가요일이삼사")
+        ) }
+
+        val repeatSelectList =
+            remember { mutableStateListOf(false, false, false, false, false, false, false) }
+        val selectedRoutineTimeZoneId = remember { mutableStateOf("1") }
+        val alarmState = remember { mutableStateOf(false) }
+        val hourState = remember { mutableStateOf(13) }
+        val minuteState = remember { mutableStateOf(0) }
+
+        val addCategoryState = remember { mutableStateOf(false) }
+
         Scaffold(
             topBar = {
                 RoutineTopAppBar(routineType) { closeCallback() }
             },
             bottomBar = {
-                RoutineBottomAppBar(routineType) { onCompleteCallback() }
+                RoutineBottomAppBar(routineType) {
+                    onCompleteCallback(
+                        NewRoutine(
+                            alarmStatus = if (alarmState.value) "ON" else "OFF",
+                            alarmTime = if (alarmState.value) "${hourState.value}${minuteState.value}" else "",
+                            routineName = routineName.value,
+                            categoryId = selectedCategoryId.value.toInt(),
+                            routineTimeZone = selectedRoutineTimeZoneId.value,
+                            weekTypes = getWeekTypes(repeatSelectList.toList())
+                        )
+                    )
+                }
             },
             containerColor = Color.White
         ) {
@@ -52,18 +88,6 @@ fun RoutineScreen(
                     .padding(horizontal = 28.dp)
                     .background(Color.White)
             ) {
-                val focusRequester by remember { mutableStateOf(FocusRequester()) }
-                val focusManager = LocalFocusManager.current
-                val routineName = remember { mutableStateOf("") }
-                val selectedCategoryId = remember { mutableStateOf("1") }
-                val scrollState = rememberScrollState()
-                val repeatSelectList =
-                    remember { mutableStateListOf(false, false, false, false, false, false, false) }
-                val selectedRoutineTimeZoneId = remember { mutableStateOf("1") }
-                val alarmState = remember { mutableStateOf(false) }
-                val hourState = remember { mutableStateOf(13) }
-                val minuteState = remember { mutableStateOf(0) }
-
                 Column(
                     Modifier
                         .verticalScroll(scrollState)
@@ -72,15 +96,18 @@ fun RoutineScreen(
                     InputRoutineName(routineName, focusRequester)
                     Spacer(Modifier.height(20.dp))
                     SelectCategory(
-                        mutableListOf(
-                            TextItem("1", "💰아껴쓰기"),
-                            TextItem("2", "주린이 성장일기"),
-                            TextItem("3", "임티는 사용자 자유"),
-                            TextItem("4", "열네글자까지들어가요일이삼사")
-                        ),
+                        categoryList,
                         selectedId = selectedCategoryId,
+                        addCategoryState = addCategoryState,
                         selectCallback = { id ->
                             selectedCategoryId.value = id
+                        },
+                        addCallback = {
+                            /* TODO
+                                 1. 카테고리 추가 API 호출: categoryName
+                                 2. 카테고리 목록 갱신:
+                            */
+
                         }
                     )
                     Spacer(Modifier.height(20.dp))
@@ -89,26 +116,12 @@ fun RoutineScreen(
                     }
                     Spacer(Modifier.height(20.dp))
                     SelectRoutineTimeZone(
-                        remember {
-                            mutableListOf(
-                                TextItem("1", "하루종일"),
-                                TextItem("2", "아무때나"),
-                                TextItem("3", "기상직후"),
-                                TextItem("4", "아침"),
-                                TextItem("5", "오전"),
-                                TextItem("6", "점심"),
-                                TextItem("7", "오후"),
-                                TextItem("8", "저녁"),
-                                TextItem("9", "밤"),
-                                TextItem("10", "취침직전"),
-                            )
-                        },
                         selectedId = selectedRoutineTimeZoneId
                     ) { id ->
                         selectedRoutineTimeZoneId.value = id
                     }
                     Spacer(Modifier.height(20.dp))
-                    SettingAlarmTime(alarmState, hourState, minuteState)
+                    SettingAlarmTime(alarmState, hourState, minuteState, hasNotificationPermission)
                 }
             }
         }
@@ -123,5 +136,9 @@ fun RoutineScreenPreview() {
     RoutineScreen(
         routineType = RoutineModifyOption.add,
         closeCallback = {},
-        onCompleteCallback = {})
+        onCompleteCallback = {},
+        hasNotificationPermission = {
+            return@RoutineScreen true
+        }
+    )
 }

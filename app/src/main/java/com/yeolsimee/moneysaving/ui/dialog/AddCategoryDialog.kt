@@ -35,7 +35,7 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, confirmButtonListener:
     val categoryName = remember { mutableStateOf("") }
 
     if (dialogState.value) {
-        Dialog(onDismissRequest = { /*TODO*/ }) {
+        Dialog(onDismissRequest = { dialogState.value = false }) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp))
@@ -52,7 +52,9 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, confirmButtonListener:
                             fontSize = 14.sp,
                             color = Color.Black
                         ), onValueChange = { t ->
-                            categoryName.value = t
+                            if (t.length <= 14) {
+                                categoryName.value = t
+                            }
                         }, singleLine = true, decorationBox = { innerTextField ->
                             Box {
                                 if (categoryName.value.isEmpty()) {
