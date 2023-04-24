@@ -50,13 +50,13 @@ import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: CalendarViewModel,
+    calendarViewModel: CalendarViewModel,
     selectedDateViewModel: SelectedDateViewModel,
     findAllMyRoutineViewModel: FindAllMyRoutineViewModel
 ) {
-    val year = viewModel.year()
-    val month = viewModel.month()
-    val today = viewModel.today
+    val year = calendarViewModel.year()
+    val month = calendarViewModel.month()
+    val today = calendarViewModel.today
 
     val scrollState = rememberScrollState()
     Column(
@@ -69,17 +69,19 @@ fun HomeScreen(
         val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf(today) }
-        val calendarMonth = remember { mutableStateOf(today.month - 1) }
+        val calendarMonth = remember { mutableStateOf(today.month) }
 
-        val dayList = viewModel.dayList.observeAsState().value!!
+//        val dayList = calendarViewModel.dayList.observeAsState().value!!
 
         val confirmButtonListener: (Int, Int) -> Unit =
             { selectedYear, selectedMonth ->
-                viewModel.setDate(selectedYear, selectedMonth - 1)
+                val resultDayList = calendarViewModel.setDate(selectedYear, selectedMonth - 1)
+                calendarMonth.value = selectedMonth
+                Log.i(App.TAG, "calendarMonth: ${calendarMonth.value}")
                 findAllMyRoutineViewModel.find(
-                    dateRange = viewModel.getFirstAndLastDate(),
-                    selectedMonth = selectedMonth,
-                    dayList = dayList,
+                    dateRange = calendarViewModel.getFirstAndLastDate(resultDayList),
+                    selectedMonth = calendarMonth.value,
+                    dayList = resultDayList,
                 )
                 dialogState.value = false
             }
@@ -95,7 +97,7 @@ fun HomeScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        YearMonthSelectBox(dialogState, viewModel.date.observeAsState().value ?: "", spread)
+        YearMonthSelectBox(dialogState, calendarViewModel.date.observeAsState().value ?: "", spread)
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -112,11 +114,11 @@ fun HomeScreen(
             calendarMonth,
             restoreSelected = {
                 Log.i(App.TAG, "restoreSelected ${selected.value.month}, ${it + 1}, ${calendarMonth.value}")
-                viewModel.setDate(selected.value.year, selected.value.month - 1)
+                val resultDayList = calendarViewModel.setDate(selected.value.year, selected.value.month - 1)
                 findAllMyRoutineViewModel.find(
-                    viewModel.getFirstAndLastDate(),
+                    calendarViewModel.getFirstAndLastDate(resultDayList),
                     selected.value.month,
-                    calendarDayList
+                    resultDayList
                 )
             },
             onItemSelected = {

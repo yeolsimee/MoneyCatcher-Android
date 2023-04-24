@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.domain.entity.routine
 
+import android.util.Log
 import com.yeolsimee.moneysaving.domain.calendar.DateIconState
 import com.yeolsimee.moneysaving.domain.calendar.isToday
 
@@ -10,6 +11,7 @@ data class RoutineAchievement(
     fun convertToDateIconState(selectedMonth: Int): DateIconState {
         val (year, month, day) = getYearMonthDay()
         val isToday = isToday(year, month, day)
+        Log.i("Converted", "$selectedMonth $year $month $day")
 
         val iconState = if (selectedMonth < month) {
             DateIconState.NextMonth

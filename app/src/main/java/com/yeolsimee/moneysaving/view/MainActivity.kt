@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.yeolsimee.moneysaving.view
 
@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -83,6 +82,20 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val floatingButtonVisible = remember { mutableStateOf(false) }
 
+        val calendarViewModel: CalendarViewModel = hiltViewModel()
+        val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
+        val findAllMyRoutineViewModel: FindAllMyRoutineViewModel = hiltViewModel()
+
+        val today = calendarViewModel.today
+        selectedDateViewModel.find(today)
+        val dayList = calendarViewModel.dayList.value!!
+
+        findAllMyRoutineViewModel.find(
+            calendarViewModel.getFirstAndLastDate(dayList),
+            today.month,
+            dayList
+        )
+
         Scaffold(
             content = {
                 Box(
@@ -95,19 +108,8 @@ class MainActivity : ComponentActivity() {
                         startDestination = BottomNavItem.Home.screenRoute
                     ) {
                         composable(BottomNavItem.Home.screenRoute) {
-                            val calendarViewModel: CalendarViewModel = hiltViewModel()
-                            val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
-                            val findAllMyRoutineViewModel: FindAllMyRoutineViewModel = hiltViewModel()
-                            val today = calendarViewModel.today
 
                             floatingButtonVisible.value = true
-
-                            selectedDateViewModel.find(today)
-                            findAllMyRoutineViewModel.find(
-                                calendarViewModel.getFirstAndLastDate(),
-                                today.month,
-                                calendarViewModel.dayList.observeAsState().value!!
-                            )
 
                             HomeScreen(calendarViewModel, selectedDateViewModel, findAllMyRoutineViewModel)
                         }

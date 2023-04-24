@@ -54,14 +54,14 @@ class CalendarViewModel @Inject constructor(): ViewModel() {
     val date: MutableLiveData<String>
         get() = _date
 
-    fun setDate(year: Int, month: Int) {
+    fun setDate(year: Int, month: Int): MutableList<CalendarDay> {
         calendar.setNextDay(year, month)
         _date.value = "${year}년 ${month + 1}월"
-        _dayList.value = getWeekDays(calendar)
+        return getWeekDays(calendar)
     }
 
-    fun getFirstAndLastDate(): Pair<CalendarDay, CalendarDay>? {
-        if (dayList.value?.isEmpty() == true) return null
-        return Pair(dayList.value!!.first(), dayList.value!!.last())
+    fun getFirstAndLastDate(resultDayList: MutableList<CalendarDay>): Pair<CalendarDay, CalendarDay>? {
+        if (resultDayList.isEmpty()) return null
+        return Pair(resultDayList.first(), resultDayList.last())
     }
 }

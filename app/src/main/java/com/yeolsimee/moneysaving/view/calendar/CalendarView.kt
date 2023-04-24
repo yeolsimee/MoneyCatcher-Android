@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.view.calendar
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -123,7 +124,8 @@ private fun CalendarSpreadButton(
             },
             indication = null,
             onClick = {
-                if (spread.value && (selected.value.year != year || calendarMonth.value != month)) {
+                Log.i("CalendarSpreadButton", "month: ${calendarMonth.value - 1}, ${month}")
+                if (spread.value && (selected.value.year != year || calendarMonth.value - 1 != month)) {
                     restoreSelected(calendarMonth.value - 1)
                 }
                 spread.value = !spread.value
