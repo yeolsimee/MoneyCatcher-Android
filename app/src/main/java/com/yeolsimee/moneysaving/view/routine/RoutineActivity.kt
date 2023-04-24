@@ -15,12 +15,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
+import com.yeolsimee.moneysaving.view.category.CategoryViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 @ExperimentalLayoutApi
 @ExperimentalMaterial3Api
+@AndroidEntryPoint
 class RoutineActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,19 +38,28 @@ class RoutineActivity : ComponentActivity() {
         }
 
         setContent {
+            val categoryViewModel: CategoryViewModel = hiltViewModel()
+
+            val categoryList = categoryViewModel.container.stateFlow.collectAsState()
             RoutineScreen(
                 routineType = routineType,
+                categoryList = categoryList.value,
                 closeCallback = {
                     finish()
-                }, onCompleteCallback = {
+                },
+                onCompleteCallback = {
                     // 1. API 전송
                     val routineId = 1   // TODO 생성된 루틴의 결과에서 routineId 값을 가지고 와서 알람 ID 생성할 때 이용 하기
                     // 2. Alarm 추가
                     if (it.alarmStatus == "ON") {
                         RoutineAlarmManager.set(this@RoutineActivity, it, routineId)
                     }
-                }, hasNotificationPermission = {
+                },
+                hasNotificationPermission = {
                     checkNotificationPermission()
+                },
+                onCategoryAdded = {
+                    categoryViewModel.addCategory(it)
                 }
             )
         }

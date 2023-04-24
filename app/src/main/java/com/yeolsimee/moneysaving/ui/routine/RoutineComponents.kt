@@ -23,11 +23,13 @@ fun RoutineTimeZone(routine: Routine) {
 
 @Composable
 fun AlarmIconAndText(routine: Routine) {
-    Image(painter = painterResource(id = R.drawable.icon_alram), contentDescription = "알림시간")
-    PrText(
-        text = routine.getAlarmText(),
-        fontSize = 11.sp,
-        fontWeight = FontWeight.W500,
-        color = Gray99
-    )
+    if (routine.alarmTimeHour.isNotEmpty()) {
+        Image(painter = painterResource(id = R.drawable.icon_alram), contentDescription = "알림시간")
+        PrText(
+            text = routine.getAlarmText(),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.W500,
+            color = Gray99
+        )
+    }
 }

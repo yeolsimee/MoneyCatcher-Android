@@ -5,8 +5,8 @@ data class Routine(
     val routineName: String,
     val routineCheckYN: String,
     val routineTimeZone: String,
-    val alarmTimeHour: String,
-    val alarmTimeMinute: String
+    val alarmTimeHour: String = "",
+    val alarmTimeMinute: String = ""
 ) {
     fun getTimeZoneText(): String {
         return when (routineTimeZone) {

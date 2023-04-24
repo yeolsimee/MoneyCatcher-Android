@@ -28,7 +28,6 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
             result.onSuccess {
                 reduce { it }
             }.onFailure {
-                reduce { RoutinesOfDay() }
                 showSideEffect(it.message)
             }
         }
@@ -36,6 +35,7 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
 
     override fun showSideEffect(message: String?) {
         intent {
+            reduce { RoutinesOfDay() }
             postSideEffect(ToastSideEffect.Toast(message ?: "Unknown Error Message"))
         }
     }

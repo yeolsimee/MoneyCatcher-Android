@@ -4,12 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
-import com.yeolsimee.moneysaving.domain.calendar.CalendarDay.Companion.getDayList
-import com.yeolsimee.moneysaving.domain.calendar.DateIconState
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
 import com.yeolsimee.moneysaving.domain.calendar.setNextDay
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,11 +40,6 @@ class CalendarViewModel @Inject constructor(): ViewModel() {
         lastDayOfMonth = todayCalendar.getMaximum(Calendar.DAY_OF_MONTH)
         _dayList = MutableLiveData(getWeekDays(calendar))
     }
-
-    fun load(calendarDayList: MutableList<DateIconState>) {
-        _dayList.value = getDayList(_dayList.value!!, calendarDayList)
-    }
-
     fun year(): Int {
         return calendar.get(Calendar.YEAR)
     }

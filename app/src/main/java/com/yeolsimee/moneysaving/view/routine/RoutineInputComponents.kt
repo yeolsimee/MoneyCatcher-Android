@@ -21,13 +21,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -50,7 +46,6 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfWeekIcon
-import com.yeolsimee.moneysaving.ui.dialog.AddCategoryDialog
 import com.yeolsimee.moneysaving.ui.list_item.SelectedItem
 import com.yeolsimee.moneysaving.ui.list_item.UnSelectedItem
 import com.yeolsimee.moneysaving.ui.theme.Gray99
@@ -131,90 +126,6 @@ fun InputRoutineNamePreview() {
 }
 
 @Composable
-fun SelectCategory(
-    categories: MutableList<TextItem>,
-    selectedId: MutableState<String>,
-    addCategoryState: MutableState<Boolean>,
-    selectCallback: (String) -> Unit,
-    addCallback: (String) -> Unit = {},
-) {
-    Column(modifier = Modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.image_tag),
-                contentDescription = "루틴 카테고리 설정"
-            )
-            Spacer(Modifier.width(4.dp))
-            PrText(
-                text = "루틴의 카테고리를 설정해주세요", fontWeight = FontWeight.W700, fontSize = 15.sp
-            )
-        }
-        Spacer(Modifier.height(11.dp))
-        FlowRow {
-            categories.forEach {
-                if (selectedId.value == it.id) {
-                    SelectedItem(it, selectCallback)
-                } else {
-                    UnSelectedItem(it, selectCallback)
-                }
-            }
-            if (categories.size < 10) {
-                Box(Modifier.padding(top = 6.dp)) {
-                    Box(
-                        Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.Black)
-                            .clickable(interactionSource = remember {
-                                MutableInteractionSource()
-                            }, indication = null, onClick = {
-                                addCategoryState.value = true
-                            })
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "카테고리 추가",
-                            tint = Color.White,
-                            modifier = Modifier
-                                .width(16.dp)
-                                .height(16.dp)
-                                .align(Alignment.Center)
-                        )
-                    }
-                }
-                AddCategoryDialog(
-                    dialogState = addCategoryState,
-                    confirmButtonListener = { addCallback(it) })
-            }
-        }
-    }
-}
-
-
-@Preview(showBackground = true, widthDp = 400)
-@Composable
-fun SelectCategoryPreview() {
-    RoumoTheme {
-        val selectedCategoryId = remember { mutableStateOf("1") }
-        val addCategoryState = remember { mutableStateOf(false) }
-        SelectCategory(
-            mutableListOf(
-                TextItem("1", "💰아껴쓰기"),
-                TextItem("2", "주린이 성장일기"),
-                TextItem("3", "임티는 사용자 자유"),
-                TextItem("4", "열네글자까지들어가요일이삼사")
-            ),
-            selectedId = selectedCategoryId,
-            addCategoryState = addCategoryState,
-            selectCallback = {
-                selectedCategoryId.value = it
-            },
-            addCallback = {}
-        )
-    }
-}
-
-@Composable
 fun SelectRoutineRepeat(selectedList: List<Boolean>, onClick: (Int) -> Unit) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -250,6 +161,7 @@ fun SelectRoutineRepeatPreview() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SelectRoutineTimeZone(
     selectedId: MutableState<String>,

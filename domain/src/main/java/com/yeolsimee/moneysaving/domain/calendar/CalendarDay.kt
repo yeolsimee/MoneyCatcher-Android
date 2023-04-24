@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.domain.calendar
 
+import android.util.Log
 import java.util.Calendar
 import kotlin.math.abs
 
@@ -76,6 +77,7 @@ data class CalendarDay(
             initialDayList: MutableList<CalendarDay>,
             iconStateList: MutableList<DateIconState>
         ): MutableList<CalendarDay> {
+            Log.i("CalendarDay", "${iconStateList.size} is ${initialDayList.size}")
             if (iconStateList.isNotEmpty() && iconStateList.size == initialDayList.size) {
                 for (i in iconStateList.indices) {
                     initialDayList[i].iconState = iconStateList[i]

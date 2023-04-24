@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.yeolsimee.moneysaving.view.home
+package com.yeolsimee.moneysaving.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
+import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
@@ -101,7 +103,11 @@ class MainActivity : ComponentActivity() {
                             floatingButtonVisible.value = true
 
                             selectedDateViewModel.find(today)
-                            findAllMyRoutineViewModel.find(calendarViewModel.getFirstAndLastDate(), today.month)
+                            findAllMyRoutineViewModel.find(
+                                calendarViewModel.getFirstAndLastDate(),
+                                today.month,
+                                calendarViewModel.dayList.observeAsState().value!!
+                            )
 
                             HomeScreen(calendarViewModel, selectedDateViewModel, findAllMyRoutineViewModel)
                         }

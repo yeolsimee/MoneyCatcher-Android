@@ -5,7 +5,6 @@ import com.yeolsimee.moneysaving.domain.entity.routine.RoutineDays
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RoutineApiService {
@@ -15,8 +14,8 @@ interface RoutineApiService {
         @Query("endDate") endDate: String
     ): Response<ApiResponse<RoutineDays>>
 
-    @GET("routineday/{date}")
+    @GET("routineday")
     suspend fun findRoutineDay(
-        @Path("date") date: String
+        @Query("date") date: String
     ): Response<ApiResponse<RoutinesOfDay?>>
 }

@@ -29,15 +29,18 @@ import com.yeolsimee.moneysaving.domain.entity.routine.NewRoutine
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
 import com.yeolsimee.moneysaving.utils.getWeekTypes
+import com.yeolsimee.moneysaving.view.category.CategoryGridView
 
 @ExperimentalMaterial3Api
 @ExperimentalLayoutApi
 @Composable
 fun RoutineScreen(
     routineType: RoutineModifyOption?,
+    categoryList: MutableList<TextItem>,
     closeCallback: () -> Unit,
     onCompleteCallback: (NewRoutine) -> Unit,
     hasNotificationPermission: () -> Boolean,
+    onCategoryAdded: (String) -> Unit,
 ) {
     RoumoTheme(navigationBarColor = Color.Black) {
         val focusRequester by remember { mutableStateOf(FocusRequester()) }
@@ -46,12 +49,6 @@ fun RoutineScreen(
 
         val routineName = remember { mutableStateOf("") }
         val selectedCategoryId = remember { mutableStateOf("1") }
-        val categoryList = remember { mutableListOf(
-            TextItem("1", "💰아껴쓰기"),
-            TextItem("2", "주린이 성장일기"),
-            TextItem("3", "임티는 사용자 자유"),
-            TextItem("4", "열네글자까지들어가요일이삼사")
-        ) }
 
         val repeatSelectList =
             remember { mutableStateListOf(false, false, false, false, false, false, false) }
@@ -95,19 +92,16 @@ fun RoutineScreen(
                 ) {
                     InputRoutineName(routineName, focusRequester)
                     Spacer(Modifier.height(20.dp))
-                    SelectCategory(
+                    CategoryGridView(
                         categoryList,
                         selectedId = selectedCategoryId,
                         addCategoryState = addCategoryState,
                         selectCallback = { id ->
                             selectedCategoryId.value = id
                         },
-                        addCallback = {
-                            /* TODO
-                                 1. 카테고리 추가 API 호출: categoryName
-                                 2. 카테고리 목록 갱신:
-                            */
-
+                        addCallback = { categoryName ->
+                            // 카테고리 추가 API 호출
+                            onCategoryAdded(categoryName)
                         }
                     )
                     Spacer(Modifier.height(20.dp))
@@ -135,10 +129,18 @@ fun RoutineScreen(
 fun RoutineScreenPreview() {
     RoutineScreen(
         routineType = RoutineModifyOption.add,
+        categoryList = remember { mutableListOf(
+            TextItem("1", "💰아껴쓰기"),
+            TextItem("2", "주린이 성장일기"),
+            TextItem("3", "임티는 사용자 자유"),
+            TextItem("4", "열네글자까지들어가요일이삼사")
+        ) },
         closeCallback = {},
         onCompleteCallback = {},
         hasNotificationPermission = {
             return@RoutineScreen true
         }
-    )
+    ) {
+
+    }
 }

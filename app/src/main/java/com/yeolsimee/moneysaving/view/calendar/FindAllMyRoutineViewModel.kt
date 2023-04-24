@@ -1,9 +1,10 @@
 package com.yeolsimee.moneysaving.view.calendar
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
-import com.yeolsimee.moneysaving.domain.calendar.DateIconState
 import com.yeolsimee.moneysaving.domain.usecase.RoutineUseCase
 import com.yeolsimee.moneysaving.view.ISideEffect
 import com.yeolsimee.moneysaving.view.ToastSideEffect
@@ -18,17 +19,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FindAllMyRoutineViewModel @Inject constructor(private val routineUseCase: RoutineUseCase) :
-    ContainerHost<MutableList<DateIconState>, ToastSideEffect>, ISideEffect, ViewModel() {
+    ContainerHost<MutableList<CalendarDay>, ToastSideEffect>, ISideEffect, ViewModel() {
 
-    override val container = container<MutableList<DateIconState>, ToastSideEffect>(mutableListOf())
+    override val container = container<MutableList<CalendarDay>, ToastSideEffect>(mutableListOf())
 
     override fun showSideEffect(message: String?) {
         intent {
+            reduce { mutableListOf() }
             postSideEffect(ToastSideEffect.Toast(message ?: "Unknown Error Message"))
         }
     }
 
-    fun find(dateRange: Pair<CalendarDay, CalendarDay>?, selectedMonth: Int) = intent {
+    fun find(
+        dateRange: Pair<CalendarDay, CalendarDay>?,
+        selectedMonth: Int,
+        dayList: MutableList<CalendarDay>
+    ) = intent {
         if (dateRange == null) {
             reduce { mutableListOf() }
             return@intent
@@ -38,9 +44,12 @@ class FindAllMyRoutineViewModel @Inject constructor(private val routineUseCase: 
         viewModelScope.launch {
             val result = routineUseCase.findAllMyRoutineDays(startDate.toString(), endDate.toString(), selectedMonth)
             result.onSuccess {
-                reduce { it }
+                reduce {
+                    val days = CalendarDay.getDayList(dayList, it)
+                    days.forEach { Log.i(App.TAG, it.toString() + it.iconState.name) }
+                    days
+                }
             }.onFailure {
-                reduce { mutableListOf() }
                 showSideEffect(it.message)
             }
         }
