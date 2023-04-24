@@ -23,7 +23,7 @@ import com.yeolsimee.moneysaving.ui.theme.pretendard
 fun PrText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
+    color: Color = Color.Black,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,

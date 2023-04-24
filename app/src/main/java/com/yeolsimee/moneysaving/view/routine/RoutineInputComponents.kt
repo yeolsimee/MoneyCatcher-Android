@@ -52,7 +52,7 @@ import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.getTwoDigitsHour
-import com.yeolsimee.moneysaving.utils.getTwoDigitsMinute
+import com.yeolsimee.moneysaving.utils.getTwoDigits
 
 @Composable
 fun InputRoutineName(routineName: MutableState<String>, focusRequester: FocusRequester) {
@@ -227,7 +227,7 @@ fun SettingAlarmTime(
     hasNotificationPermission: () -> Boolean = { false },
 ) {
     val timeText = hourState.value.getTwoDigitsHour() + ":" +
-            minuteState.value.getTwoDigitsMinute()
+            minuteState.value.getTwoDigits()
 
     Column {
         Row(
@@ -302,6 +302,7 @@ fun SettingAlarmTime(
                                     hourState.value = h
                                     minuteState.value = m
                                 }, hourState.value, minuteState.value, false)
+
                                 dialog.show()
                             }
                         )

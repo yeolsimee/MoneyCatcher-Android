@@ -42,11 +42,11 @@ fun Int.getTwoDigitsHour(): String {
     return String.format("$prefix %02d", hour)
 }
 
-fun Int.getTwoDigitsMinute(): String {
+fun Int.getTwoDigits(): String {
     return String.format("%02d", this)
 }
 
-fun getWeekTypes(checkList: List<Boolean>): List<String> {
+fun getWeekTypes(checkList: List<Boolean>): Array<String> {
     val result = mutableListOf<String>()
 
     for (dayOfWeek in checkList.indices) {
@@ -55,7 +55,7 @@ fun getWeekTypes(checkList: List<Boolean>): List<String> {
             result.add(temp)
         }
     }
-    return result
+    return result.toTypedArray()
 }
 
 private fun getEnglishDayOfWeekByInt(dayOfWeek: Int) = when (dayOfWeek) {

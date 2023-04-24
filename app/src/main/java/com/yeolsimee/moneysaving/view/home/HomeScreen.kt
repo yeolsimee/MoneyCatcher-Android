@@ -132,7 +132,7 @@ fun HomeScreen(
             RoutinesOfDay()
         )
 
-        if (routinesOfDayState.getRoutineDay().isEmpty()) {
+        if (routinesOfDayState.categoryDatas.isEmpty()) {
             EmptyRoutine()
         } else {
             RoutineItem(routinesOfDayState)

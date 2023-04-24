@@ -16,6 +16,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yeolsimee.moneysaving.App
@@ -39,21 +41,27 @@ class RoutineActivity : ComponentActivity() {
 
         setContent {
             val categoryViewModel: CategoryViewModel = hiltViewModel()
+            val routineViewModel: RoutineModifyViewModel = hiltViewModel()
 
             val categoryList = categoryViewModel.container.stateFlow.collectAsState()
+
+            val selectedCategoryId = remember { mutableStateOf("") }
             RoutineScreen(
                 routineType = routineType,
                 categoryList = categoryList.value,
+                selectedCategoryId = selectedCategoryId,
                 closeCallback = {
                     finish()
                 },
-                onCompleteCallback = {
-                    // 1. API 전송
-                    val routineId = 1   // TODO 생성된 루틴의 결과에서 routineId 값을 가지고 와서 알람 ID 생성할 때 이용 하기
-                    // 2. Alarm 추가
-                    if (it.alarmStatus == "ON") {
-                        RoutineAlarmManager.set(this@RoutineActivity, it, routineId)
-                    }
+                onCompleteCallback = { req ->
+                    routineViewModel.addRoutine(
+                        routineRequest = req,
+                        onSetAlarmCallback = { id ->
+                            RoutineAlarmManager.set(this@RoutineActivity, req, id)
+                        },
+                        onFinishCallback = {
+                            finish()
+                        })
                 },
                 hasNotificationPermission = {
                     checkNotificationPermission()

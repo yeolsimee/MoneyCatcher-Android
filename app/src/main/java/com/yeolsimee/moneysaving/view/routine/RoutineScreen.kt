@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +26,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
-import com.yeolsimee.moneysaving.domain.entity.routine.NewRoutine
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
+import com.yeolsimee.moneysaving.utils.getTwoDigits
 import com.yeolsimee.moneysaving.utils.getWeekTypes
 import com.yeolsimee.moneysaving.view.category.CategoryGridView
 
@@ -37,8 +39,9 @@ import com.yeolsimee.moneysaving.view.category.CategoryGridView
 fun RoutineScreen(
     routineType: RoutineModifyOption?,
     categoryList: MutableList<TextItem>,
+    selectedCategoryId: MutableState<String>,
     closeCallback: () -> Unit,
-    onCompleteCallback: (NewRoutine) -> Unit,
+    onCompleteCallback: (RoutineRequest) -> Unit,
     hasNotificationPermission: () -> Boolean,
     onCategoryAdded: (String) -> Unit,
 ) {
@@ -48,7 +51,10 @@ fun RoutineScreen(
         val scrollState = rememberScrollState()
 
         val routineName = remember { mutableStateOf("") }
-        val selectedCategoryId = remember { mutableStateOf("1") }
+
+        if (categoryList.isNotEmpty()) {
+            selectedCategoryId.value = categoryList.last().id
+        }
 
         val repeatSelectList =
             remember { mutableStateListOf(false, false, false, false, false, false, false) }
@@ -66,13 +72,13 @@ fun RoutineScreen(
             bottomBar = {
                 RoutineBottomAppBar(routineType) {
                     onCompleteCallback(
-                        NewRoutine(
+                        RoutineRequest(
                             alarmStatus = if (alarmState.value) "ON" else "OFF",
-                            alarmTime = if (alarmState.value) "${hourState.value}${minuteState.value}" else "",
+                            alarmTime = getAlarmTime(alarmState, hourState, minuteState),
                             routineName = routineName.value,
-                            categoryId = selectedCategoryId.value.toInt(),
+                            categoryId = selectedCategoryId.value,
                             routineTimeZone = selectedRoutineTimeZoneId.value,
-                            weekTypes = getWeekTypes(repeatSelectList.toList())
+                            weekTypes = getWeekTypes(repeatSelectList),
                         )
                     )
                 }
@@ -122,6 +128,20 @@ fun RoutineScreen(
     }
 }
 
+private fun getAlarmTime(
+    alarmState: MutableState<Boolean>,
+    hourState: MutableState<Int>,
+    minuteState: MutableState<Int>
+): String {
+    return if (alarmState.value) {
+        val hour = hourState.value.getTwoDigits()
+        val minute = minuteState.value.getTwoDigits()
+        "${hour}${minute}"
+    } else {
+        ""
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalLayoutApi
 @Preview(showBackground = true)
@@ -129,12 +149,15 @@ fun RoutineScreen(
 fun RoutineScreenPreview() {
     RoutineScreen(
         routineType = RoutineModifyOption.add,
-        categoryList = remember { mutableListOf(
-            TextItem("1", "💰아껴쓰기"),
-            TextItem("2", "주린이 성장일기"),
-            TextItem("3", "임티는 사용자 자유"),
-            TextItem("4", "열네글자까지들어가요일이삼사")
-        ) },
+        categoryList = remember {
+            mutableListOf(
+                TextItem("1", "💰아껴쓰기"),
+                TextItem("2", "주린이 성장일기"),
+                TextItem("3", "임티는 사용자 자유"),
+                TextItem("4", "열네글자까지들어가요일이삼사")
+            )
+        },
+        selectedCategoryId = remember { mutableStateOf("") },
         closeCallback = {},
         onCompleteCallback = {},
         hasNotificationPermission = {

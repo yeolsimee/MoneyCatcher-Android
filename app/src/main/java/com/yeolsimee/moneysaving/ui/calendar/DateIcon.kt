@@ -90,7 +90,7 @@ fun PreviousMonthIcon() {
     ) {
         PrText(
             text = "₩",
-            style = TextStyle(fontSize = 15.sp, color = Gray17, fontWeight = FontWeight.W800),
+            fontSize = 15.sp, color = Gray17, fontWeight = FontWeight.W800,
             modifier = Modifier.align(Alignment.Center)
         )
     }
@@ -108,7 +108,11 @@ fun NextMonthIcon() {
 }
 
 @Composable
-fun DayOfWeekIcon(@IntRange(from = 0, to = 6) dayOfWeek: Int, initialSelected: Boolean, onClick: (Int) -> Unit) {
+fun DayOfWeekIcon(
+    @IntRange(from = 0, to = 6) dayOfWeek: Int,
+    initialSelected: Boolean,
+    onClick: (Int) -> Unit
+) {
     val text = getTextFromDayOfWeek(dayOfWeek)
     val selected = remember { mutableStateOf(initialSelected) }
 

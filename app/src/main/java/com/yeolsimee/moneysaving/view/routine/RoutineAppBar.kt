@@ -41,6 +41,7 @@ fun RoutineTopAppBar(routineType: RoutineModifyOption?, onClick: () -> Unit) {
         IconButton(onClick = onClick) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
+                tint = Color.Black,
                 contentDescription = "뒤로가기"
             )
         }
@@ -54,15 +55,18 @@ private fun setTitle(routineType: RoutineModifyOption?): String {
 @Composable
 fun RoutineBottomAppBar(routineType: RoutineModifyOption?, onClick: () -> Unit) {
     val buttonText = setButtonText(routineType)
-    BottomAppBar(Modifier.height(60.dp), contentPadding = PaddingValues(0.dp)) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = { onClick() }
-            )) {
+    BottomAppBar(Modifier
+        .height(60.dp)
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = { onClick() }
+        ), contentPadding = PaddingValues(0.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
             PrText(
                 text = buttonText,
                 fontWeight = FontWeight.W800,

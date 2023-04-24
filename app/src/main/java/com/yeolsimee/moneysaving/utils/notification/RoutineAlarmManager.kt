@@ -5,7 +5,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import com.yeolsimee.moneysaving.domain.entity.routine.NewRoutine
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.utils.getIntDayOfWeekFromEnglish
 import java.util.Calendar
 
@@ -16,7 +16,7 @@ class RoutineAlarmManager {
 
         fun set(
             activity: Activity,
-            newRoutine: NewRoutine,
+            newRoutine: RoutineRequest,
             routineId: Int,
         ) {
             val dayOfWeeks = newRoutine.weekTypes
