@@ -37,6 +37,7 @@ fun getTextFromDayOfWeek(dayOfWeek: Int): String {
 }
 
 fun Int.getTwoDigitsHour(): String {
+    if (this < 0 || 24 < this) throw NumberFormatException("시간 표현 범위 초과")
     val prefix = if (this > 12) "오후" else "오전"
     val hour = if (this > 12) this - 12 else this
     return String.format("$prefix %02d", hour)
