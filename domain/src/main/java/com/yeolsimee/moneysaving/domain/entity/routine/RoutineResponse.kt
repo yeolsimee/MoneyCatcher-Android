@@ -1,5 +1,7 @@
 package com.yeolsimee.moneysaving.domain.entity.routine
 
+import java.io.Serializable
+
 data class RoutineResponse(
     val routineId: Int = -1,
     val routineName: String = "",
@@ -9,7 +11,7 @@ data class RoutineResponse(
     val alarmTime: String = "",
     val routineTimeZone: String = "",
     val weekTypes: Array<String> = arrayOf()
-) {
+): Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

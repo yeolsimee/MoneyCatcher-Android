@@ -16,10 +16,11 @@ import retrofit2.Response
 class RoutineApiTest: BehaviorSpec({
 
     val service = mockk<RoutineApiService>()
+    val source = RoutineSource(service)
+    val repository = RoutineApiRepository(source)
 
-    given("특정 날짤 루틴 조회를 하면") {
-        val source = RoutineSource(service)
-        val repository = RoutineApiRepository(source)
+    given("특정 날짜의 루틴 조회를 하면") {
+
         `when`("2023년 04월 25일 때") {
             val date = "20230425"
 

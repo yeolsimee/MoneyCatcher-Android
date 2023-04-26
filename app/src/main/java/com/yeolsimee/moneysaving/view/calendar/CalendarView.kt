@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.view.calendar
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -124,7 +123,6 @@ private fun CalendarSpreadButton(
             },
             indication = null,
             onClick = {
-                Log.i("CalendarSpreadButton", "month: ${calendarMonth.value - 1}, ${month}")
                 if (spread.value && (selected.value.year != year || calendarMonth.value - 1 != month)) {
                     restoreSelected(calendarMonth.value - 1)
                 }
@@ -142,7 +140,7 @@ private fun CalendarSpreadButton(
 fun ComposeCalendarPreview() {
     val days = getWeekDays(Calendar.getInstance())
     val selected = remember { mutableStateOf(CalendarDay(2023, 4, 12)) }
-    val spread = remember { mutableStateOf(false) }
+    val spread = remember { mutableStateOf(true) }
     val calendarMonth = remember { mutableStateOf(4) }
     ComposeCalendar(days, selected, spread, 2023, 4, calendarMonth, {}) {}
 }

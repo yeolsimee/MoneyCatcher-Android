@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -54,6 +55,9 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var callback: OnBackPressedCallback
     private var pressedTime: Long = 0
+    private val routineActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+//        result.data?.getEx
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,7 +115,18 @@ class MainActivity : ComponentActivity() {
 
                             floatingButtonVisible.value = true
 
-                            HomeScreen(calendarViewModel, selectedDateViewModel, findAllMyRoutineViewModel)
+                            HomeScreen(
+                                calendarViewModel = calendarViewModel,
+                                selectedDateViewModel = selectedDateViewModel,
+                                findAllMyRoutineViewModel = findAllMyRoutineViewModel,
+                                onItemClick = { routine, categoryId ->
+                                    val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                                    intent.putExtra("routine", routine)
+                                    intent.putExtra("routineType", RoutineModifyOption.update)
+                                    intent.putExtra("categoryId", categoryId)
+                                    routineActivityLauncher.launch(intent)
+                                }
+                            )
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
                             floatingButtonVisible.value = false
@@ -130,7 +145,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             val intent = Intent(this@MainActivity, RoutineActivity::class.java)
                             intent.putExtra("routineType", RoutineModifyOption.add)
-                            startActivity(intent)
+                            routineActivityLauncher.launch(intent)
                         },
                         containerColor = Color.Black,
                         shape = CircleShape,

@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
+import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
@@ -37,6 +38,7 @@ import com.yeolsimee.moneysaving.view.category.CategoryGridView
 @ExperimentalLayoutApi
 @Composable
 fun RoutineScreen(
+    initialData: Routine? = null,
     routineType: RoutineModifyOption?,
     categoryList: MutableList<TextItem>,
     selectedCategoryId: MutableState<String>,
@@ -50,18 +52,21 @@ fun RoutineScreen(
         val focusManager = LocalFocusManager.current
         val scrollState = rememberScrollState()
 
-        val routineName = remember { mutableStateOf("") }
+        val routineName = remember { mutableStateOf(initialData?.routineName ?: "") }
 
-        if (categoryList.isNotEmpty()) {
+        if (categoryList.isNotEmpty() && selectedCategoryId.value.isEmpty()) {
             selectedCategoryId.value = categoryList.last().id
         }
 
+        // TODO 선택된 요일 정보 가져와야 함.
         val repeatSelectList =
             remember { mutableStateListOf(false, false, false, false, false, false, false) }
-        val selectedRoutineTimeZoneId = remember { mutableStateOf("1") }
-        val alarmState = remember { mutableStateOf(false) }
-        val hourState = remember { mutableStateOf(13) }
-        val minuteState = remember { mutableStateOf(0) }
+        val selectedRoutineTimeZoneId = remember { mutableStateOf(initialData?.routineTimeZone ?: "1") }
+
+        // TODO alarm 상태 가져와야 함.
+        val alarmState = remember { mutableStateOf(initialData?.alarmTimeHour?.isNotEmpty() ?: false) }
+        val hourState = remember { mutableStateOf(if (initialData?.alarmTimeHour?.isNotEmpty() == true) initialData.alarmTimeHour.toInt() else 13) }
+        val minuteState = remember { mutableStateOf(if (initialData?.alarmTimeMinute?.isNotEmpty() == true) initialData.alarmTimeMinute.toInt() else 0) }
 
         val addCategoryState = remember { mutableStateOf(false) }
 

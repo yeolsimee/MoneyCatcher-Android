@@ -18,4 +18,8 @@ class RoutineUseCase(private val repository: IRoutineApiRepository) {
     suspend fun createRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
         return repository.createRoutine(routineRequest)
     }
+
+    suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
+        return repository.updateRoutine(routineRequest)
+    }
 }

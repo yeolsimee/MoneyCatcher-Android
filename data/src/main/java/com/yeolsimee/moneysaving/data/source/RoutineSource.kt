@@ -26,4 +26,8 @@ class RoutineSource(
     fun createRoutine(routineRequest: RoutineRequest): Flow<Response<ApiResponse<RoutineResponse>>> = flow {
         emit(api.createRoutine(routineRequest))
     }
+
+    fun updateRoutine(routineRequest: RoutineRequest): Flow<Response<ApiResponse<RoutineResponse>>> = flow {
+        emit(api.updateRoutine(routineRequest))
+    }
 }

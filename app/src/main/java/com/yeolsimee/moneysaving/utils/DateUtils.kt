@@ -59,6 +59,27 @@ fun getWeekTypes(checkList: List<Boolean>): Array<String> {
     return result.toTypedArray()
 }
 
+fun getWeekTypeCheckList(weekTypes: MutableList<String>): MutableList<Boolean> {
+    val result = Array(7) { false }
+
+    weekTypes.forEach {
+        val index = when (it) {
+            "MONDAY"  -> 0
+            "TUESDAY"  -> 1
+            "WEDNESDAY"  -> 2
+            "THURSDAY"  -> 3
+            "FRIDAY"  -> 4
+            "SATURDAY"  -> 5
+            "SUNDAY"  -> 6
+            else -> -1
+        }
+        if (index != -1) {
+            result[index] = true
+        }
+    }
+    return result.toMutableList()
+}
+
 private fun getEnglishDayOfWeekByInt(dayOfWeek: Int) = when (dayOfWeek) {
     0 -> "MONDAY"
     1 -> "TUESDAY"

@@ -44,4 +44,14 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
             Result.failure(ApiException(response.code(), result?.message))
         }
     }
+
+    override suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
+        val response = source.updateRoutine(routineRequest).last()
+        val result = response.body()
+        return if (result != null && result.success) {
+            Result.success(result.data)
+        } else {
+            Result.failure(ApiException(response.code(), result?.message))
+        }
+    }
 }

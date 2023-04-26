@@ -11,4 +11,6 @@ interface IRoutineApiRepository {
     suspend fun findRoutineDay(date: String): Result<RoutinesOfDay>
 
     suspend fun createRoutine(routineRequest: RoutineRequest): Result<RoutineResponse>
+
+    suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse>
 }

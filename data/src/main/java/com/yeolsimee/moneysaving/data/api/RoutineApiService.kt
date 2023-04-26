@@ -9,6 +9,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface RoutineApiService {
@@ -26,6 +27,11 @@ interface RoutineApiService {
 
     @POST("routine")
     suspend fun createRoutine(
+        @Body body: RoutineRequest
+    ): Response<ApiResponse<RoutineResponse>>
+
+    @PUT("routine/{id}")
+    suspend fun updateRoutine(
         @Body body: RoutineRequest
     ): Response<ApiResponse<RoutineResponse>>
 }

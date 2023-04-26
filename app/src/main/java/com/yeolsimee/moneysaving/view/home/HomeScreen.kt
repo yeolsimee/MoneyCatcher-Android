@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
+import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
@@ -52,7 +53,8 @@ import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
 fun HomeScreen(
     calendarViewModel: CalendarViewModel,
     selectedDateViewModel: SelectedDateViewModel,
-    findAllMyRoutineViewModel: FindAllMyRoutineViewModel
+    findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
+    onItemClick: (Routine, String) -> Unit = { _, _ -> }
 ) {
     val year = calendarViewModel.year()
     val month = calendarViewModel.month()
@@ -70,8 +72,6 @@ fun HomeScreen(
         val dialogState = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf(today) }
         val calendarMonth = remember { mutableStateOf(today.month) }
-
-//        val dayList = calendarViewModel.dayList.observeAsState().value!!
 
         val confirmButtonListener: (Int, Int) -> Unit =
             { selectedYear, selectedMonth ->
@@ -113,8 +113,12 @@ fun HomeScreen(
             month,
             calendarMonth,
             restoreSelected = {
-                Log.i(App.TAG, "restoreSelected ${selected.value.month}, ${it + 1}, ${calendarMonth.value}")
-                val resultDayList = calendarViewModel.setDate(selected.value.year, selected.value.month - 1)
+                Log.i(
+                    App.TAG,
+                    "restoreSelected ${selected.value.month}, ${it + 1}, ${calendarMonth.value}"
+                )
+                val resultDayList =
+                    calendarViewModel.setDate(selected.value.year, selected.value.month - 1)
                 findAllMyRoutineViewModel.find(
                     calendarViewModel.getFirstAndLastDate(resultDayList),
                     selected.value.month,
@@ -137,7 +141,10 @@ fun HomeScreen(
         if (routinesOfDayState.categoryDatas.isEmpty()) {
             EmptyRoutine()
         } else {
-            RoutineItem(routinesOfDayState)
+            RoutineItem(
+                routinesOfDayState = routinesOfDayState,
+                onItemClick = onItemClick
+            )
         }
     }
 }
@@ -216,8 +223,6 @@ private fun YearMonthSelectBox(
         }
     }
 }
-
-
 
 
 @Composable
