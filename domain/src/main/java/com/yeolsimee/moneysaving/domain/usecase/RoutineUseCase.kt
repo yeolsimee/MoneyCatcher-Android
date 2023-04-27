@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.domain.usecase
 
 import com.yeolsimee.moneysaving.domain.calendar.DateIconState
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
@@ -21,5 +22,9 @@ class RoutineUseCase(private val repository: IRoutineApiRepository) {
 
     suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
         return repository.updateRoutine(routineRequest)
+    }
+
+    suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<Any> {
+        return repository.routineCheck(routineCheckRequest)
     }
 }

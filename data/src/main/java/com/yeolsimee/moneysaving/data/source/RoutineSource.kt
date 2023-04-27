@@ -2,6 +2,7 @@ package com.yeolsimee.moneysaving.data.source
 
 import com.yeolsimee.moneysaving.data.api.RoutineApiService
 import com.yeolsimee.moneysaving.domain.entity.ApiResponse
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineDays
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
@@ -29,5 +30,9 @@ class RoutineSource(
 
     fun updateRoutine(routineRequest: RoutineRequest): Flow<Response<ApiResponse<RoutineResponse>>> = flow {
         emit(api.updateRoutine(routineRequest))
+    }
+
+    fun routineCheck(routineCheckRequest: RoutineCheckRequest): Flow<Response<ApiResponse<Any>>> = flow {
+        emit(api.routineCheck(routineCheckRequest))
     }
 }

@@ -42,18 +42,19 @@ import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
-import com.yeolsimee.moneysaving.ui.routine.RoutineItem
+import com.yeolsimee.moneysaving.ui.routine.RoutineItems
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
-import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.calendar.ComposeCalendar
-import com.yeolsimee.moneysaving.view.calendar.FindAllMyRoutineViewModel
-import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 
 @Composable
 fun HomeScreen(
     calendarViewModel: CalendarViewModel,
     selectedDateViewModel: SelectedDateViewModel,
     findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
+    routineCheckViewModel: RoutineCheckViewModel,
     onItemClick: (Routine, String) -> Unit = { _, _ -> }
 ) {
     val year = calendarViewModel.year()
@@ -141,9 +142,13 @@ fun HomeScreen(
         if (routinesOfDayState.categoryDatas.isEmpty()) {
             EmptyRoutine()
         } else {
-            RoutineItem(
+            RoutineItems(
+                date = selected.value.toString(),
                 routinesOfDayState = routinesOfDayState,
-                onItemClick = onItemClick
+                onItemClick = onItemClick,
+                onRoutineCheck = { check ->
+                    routineCheckViewModel.check(check)
+                }
             )
         }
     }

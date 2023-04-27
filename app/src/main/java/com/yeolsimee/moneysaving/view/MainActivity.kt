@@ -39,10 +39,11 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
-import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
-import com.yeolsimee.moneysaving.view.calendar.FindAllMyRoutineViewModel
-import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
+import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
@@ -89,6 +90,7 @@ class MainActivity : ComponentActivity() {
         val calendarViewModel: CalendarViewModel = hiltViewModel()
         val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
         val findAllMyRoutineViewModel: FindAllMyRoutineViewModel = hiltViewModel()
+        val routineCheckViewModel: RoutineCheckViewModel = hiltViewModel()
 
         val today = calendarViewModel.today
         selectedDateViewModel.find(today)
@@ -119,6 +121,7 @@ class MainActivity : ComponentActivity() {
                                 calendarViewModel = calendarViewModel,
                                 selectedDateViewModel = selectedDateViewModel,
                                 findAllMyRoutineViewModel = findAllMyRoutineViewModel,
+                                routineCheckViewModel = routineCheckViewModel,
                                 onItemClick = { routine, categoryId ->
                                     val intent = Intent(this@MainActivity, RoutineActivity::class.java)
                                     intent.putExtra("routine", routine)

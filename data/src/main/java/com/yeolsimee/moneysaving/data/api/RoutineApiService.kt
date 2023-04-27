@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.data.api
 
 import com.yeolsimee.moneysaving.domain.entity.ApiResponse
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineDays
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
@@ -34,4 +35,9 @@ interface RoutineApiService {
     suspend fun updateRoutine(
         @Body body: RoutineRequest
     ): Response<ApiResponse<RoutineResponse>>
+
+    @PUT("routinecheck")
+    suspend fun routineCheck(
+        @Body body: RoutineCheckRequest
+    ): Response<ApiResponse<Any>>
 }

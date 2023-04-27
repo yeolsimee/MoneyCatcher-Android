@@ -67,15 +67,19 @@ fun RoutineScreen(
         val alarmState = remember { mutableStateOf(initialData?.alarmTimeHour?.isNotEmpty() ?: false) }
         val hourState = remember { mutableStateOf(if (initialData?.alarmTimeHour?.isNotEmpty() == true) initialData.alarmTimeHour.toInt() else 13) }
         val minuteState = remember { mutableStateOf(if (initialData?.alarmTimeMinute?.isNotEmpty() == true) initialData.alarmTimeMinute.toInt() else 0) }
-
         val addCategoryState = remember { mutableStateOf(false) }
+        val buttonState = remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
                 RoutineTopAppBar(routineType) { closeCallback() }
             },
             bottomBar = {
-                RoutineBottomAppBar(routineType) {
+                if (canSaveRoutine(routineName, selectedCategoryId)) {
+                    buttonState.value = true
+                }
+
+                RoutineBottomAppBar(routineType, buttonState) {
                     onCompleteCallback(
                         RoutineRequest(
                             alarmStatus = if (alarmState.value) "ON" else "OFF",
@@ -132,6 +136,12 @@ fun RoutineScreen(
         }
     }
 }
+
+@Composable
+private fun canSaveRoutine(
+    routineName: MutableState<String>,
+    selectedCategoryId: MutableState<String>
+) = routineName.value.isNotEmpty() && selectedCategoryId.value.isNotEmpty()
 
 private fun getAlarmTime(
     alarmState: MutableState<Boolean>,
