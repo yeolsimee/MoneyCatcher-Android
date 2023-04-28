@@ -25,3 +25,7 @@ val GrayF0 = Color(0xFFF0F0F0)
 val Gold = Color(0xFFFAE74E)
 val Silver = Color(0xFF989898)
 val Bronze = Color(0xFF9F7B60)
+
+// Login Color
+val NaverGreen = Color(0xFF03C75A)
+val GoogleGray = Color(0xFFE6E6EA)
