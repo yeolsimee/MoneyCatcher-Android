@@ -3,6 +3,7 @@ package com.yeolsimee.moneysaving.data
 import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.yeolsimee.moneysaving.data.api.CategoryApiService
 import com.yeolsimee.moneysaving.data.api.RoutineApiService
 import com.yeolsimee.moneysaving.data.api.UserApiService
 import com.yeolsimee.moneysaving.data.interceptor.ConnectivityInterceptor
@@ -79,7 +80,13 @@ class NetModule {
         return retrofit.create(RoutineApiService::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideCategoryApiService(retrofit: Retrofit): CategoryApiService {
+        return retrofit.create(CategoryApiService::class.java)
+    }
+
     companion object {
-        private const val BASE_URL: String = BuildConfig.MOCK_URL
+        private const val BASE_URL: String = BuildConfig.REAL_URL
     }
 }

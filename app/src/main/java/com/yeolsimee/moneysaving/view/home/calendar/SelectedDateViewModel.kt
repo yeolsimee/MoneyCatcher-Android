@@ -1,4 +1,4 @@
-package com.yeolsimee.moneysaving.view.calendar
+package com.yeolsimee.moneysaving.view.home.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,13 +22,12 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
 
     override val container = container<RoutinesOfDay, ToastSideEffect>(RoutinesOfDay())
 
-    fun findRoutineDay(calendarDay: CalendarDay) = intent {
+    fun find(calendarDay: CalendarDay) = intent {
         viewModelScope.launch {
             val result = routineUseCase.findRoutineDay(calendarDay.toString())
             result.onSuccess {
                 reduce { it }
             }.onFailure {
-                reduce { RoutinesOfDay() }
                 showSideEffect(it.message)
             }
         }
@@ -36,6 +35,7 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
 
     override fun showSideEffect(message: String?) {
         intent {
+            reduce { RoutinesOfDay() }
             postSideEffect(ToastSideEffect.Toast(message ?: "Unknown Error Message"))
         }
     }

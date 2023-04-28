@@ -85,12 +85,12 @@ fun PreviousMonthIcon() {
     Box(
         Modifier
             .size(28.dp)
-            .border(width = 1.5.dp, color = Grey17, shape = CircleShape)
+            .border(width = 1.5.dp, color = Gray17, shape = CircleShape)
             .clip(CircleShape)
     ) {
         PrText(
             text = "₩",
-            style = TextStyle(fontSize = 15.sp, color = Grey17, fontWeight = FontWeight.W800),
+            fontSize = 15.sp, color = Gray17, fontWeight = FontWeight.W800,
             modifier = Modifier.align(Alignment.Center)
         )
     }
@@ -102,13 +102,17 @@ fun NextMonthIcon() {
     Box(
         Modifier
             .size(28.dp)
-            .border(width = 1.5.dp, color = Grey17, shape = CircleShape)
+            .border(width = 1.5.dp, color = Gray17, shape = CircleShape)
             .clip(CircleShape)
     )
 }
 
 @Composable
-fun DayOfWeekIcon(@IntRange(from = 0, to = 6) dayOfWeek: Int, initialSelected: Boolean, onClick: (Int) -> Unit) {
+fun DayOfWeekIcon(
+    @IntRange(from = 0, to = 6) dayOfWeek: Int,
+    initialSelected: Boolean,
+    onClick: (Int) -> Unit
+) {
     val text = getTextFromDayOfWeek(dayOfWeek)
     val selected = remember { mutableStateOf(initialSelected) }
 
@@ -136,7 +140,7 @@ private fun SelectedDayOfWeek(
             .size(32.dp)
             .border(width = 1.5.dp, color = Color.Black, shape = CircleShape)
             .clip(CircleShape)
-            .background(color = GreyF0)
+            .background(color = GrayF0)
             .clickable(
                 interactionSource = remember {
                     MutableInteractionSource()
@@ -165,7 +169,7 @@ private fun UnSelectedDayOfWeek(
     Box(
         Modifier
             .size(32.dp)
-            .border(width = 1.5.dp, color = GreyF0, shape = CircleShape)
+            .border(width = 1.5.dp, color = GrayF0, shape = CircleShape)
             .clip(CircleShape)
             .clickable(
                 interactionSource = remember {
@@ -178,7 +182,7 @@ private fun UnSelectedDayOfWeek(
             text = text,
             fontWeight = FontWeight.W500,
             fontSize = 13.sp,
-            color = Grey66,
+            color = Gray66,
             modifier = Modifier.align(
                 Alignment.Center
             )

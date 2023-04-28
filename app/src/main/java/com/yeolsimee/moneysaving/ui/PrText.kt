@@ -2,6 +2,7 @@ package com.yeolsimee.moneysaving.ui
 
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +24,7 @@ import com.yeolsimee.moneysaving.ui.theme.pretendard
 fun PrText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
+    color: Color = Color.Black,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
@@ -35,6 +36,7 @@ fun PrText(
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
@@ -53,11 +55,11 @@ fun PrText(
         overflow,
         softWrap,
         maxLines,
+        minLines,
         onTextLayout,
         style.copy(
             platformStyle = PlatformTextStyle(includeFontPadding = false),
             letterSpacing = (-0.1).sp,
-            color = Color.Black
         )
     )
 }

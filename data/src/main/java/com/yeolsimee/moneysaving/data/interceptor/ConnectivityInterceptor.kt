@@ -10,8 +10,18 @@ import java.io.IOException
 class ConnectivityInterceptor: Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         return try {
-            val response: Response = chain.proceed(chain.request())
+            val request = chain.request()
+            val response: Response = chain.proceed(request)
             val content = response.body()?.string() ?: ""
+            Log.d("OkHttp Request", response.request().url().url().toString())
+
+            val copy = request.newBuilder().build()
+            val buffer = okio.Buffer()
+            val body = copy.body()
+            if (body != null) {
+                body.writeTo(buffer)
+                Log.d("OkHttp Request body", "Request Body: " + buffer.readUtf8())
+            }
             Log.d("OkHttp", content)
             response.newBuilder()
                 .body(ResponseBody.create(response.body()?.contentType(), content)).build()

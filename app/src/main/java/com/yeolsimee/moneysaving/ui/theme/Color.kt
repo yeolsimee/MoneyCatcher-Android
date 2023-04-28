@@ -10,14 +10,16 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
+val DismissRed = Color(0xFFFF4741)
+
 // Black
 val Black17 = Color(0xFF171717)
 
-// Grey
-val Grey17 = Color(0x66171717)
-val Grey99 = Color(0xFF999999)
-val Grey66 = Color(0xFF666666)
-val GreyF0 = Color(0xFFF0F0F0)
+// Gray
+val Gray17 = Color(0x66171717)
+val Gray99 = Color(0xFF999999)
+val Gray66 = Color(0xFF666666)
+val GrayF0 = Color(0xFFF0F0F0)
 
 // MoneyIconColor
 val Gold = Color(0xFFFAE74E)

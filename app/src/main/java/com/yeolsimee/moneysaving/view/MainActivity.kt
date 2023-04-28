@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.yeolsimee.moneysaving.view
 
@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -36,11 +37,13 @@ import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.theme.Grey99
+import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
-import com.yeolsimee.moneysaving.view.calendar.CalendarViewModel
-import com.yeolsimee.moneysaving.view.calendar.SelectedDateViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
+import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
@@ -53,6 +56,9 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var callback: OnBackPressedCallback
     private var pressedTime: Long = 0
+    private val routineActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+//        result.data?.getEx
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +87,21 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val floatingButtonVisible = remember { mutableStateOf(false) }
 
+        val calendarViewModel: CalendarViewModel = hiltViewModel()
+        val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
+        val findAllMyRoutineViewModel: FindAllMyRoutineViewModel = hiltViewModel()
+        val routineCheckViewModel: RoutineCheckViewModel = hiltViewModel()
+
+        val today = calendarViewModel.today
+        selectedDateViewModel.find(today)
+        val dayList = calendarViewModel.dayList.value!!
+
+        findAllMyRoutineViewModel.find(
+            calendarViewModel.getFirstAndLastDate(dayList),
+            today.month,
+            dayList
+        )
+
         Scaffold(
             content = {
                 Box(
@@ -93,10 +114,22 @@ class MainActivity : ComponentActivity() {
                         startDestination = BottomNavItem.Home.screenRoute
                     ) {
                         composable(BottomNavItem.Home.screenRoute) {
-                            val calendarViewModel: CalendarViewModel = hiltViewModel()
-                            val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
+
                             floatingButtonVisible.value = true
-                            HomeScreen(calendarViewModel, selectedDateViewModel)
+
+                            HomeScreen(
+                                calendarViewModel = calendarViewModel,
+                                selectedDateViewModel = selectedDateViewModel,
+                                findAllMyRoutineViewModel = findAllMyRoutineViewModel,
+                                routineCheckViewModel = routineCheckViewModel,
+                                onItemClick = { routine, categoryId ->
+                                    val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                                    intent.putExtra("routine", routine)
+                                    intent.putExtra("routineType", RoutineModifyOption.update)
+                                    intent.putExtra("categoryId", categoryId)
+                                    routineActivityLauncher.launch(intent)
+                                }
+                            )
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
                             floatingButtonVisible.value = false
@@ -115,7 +148,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             val intent = Intent(this@MainActivity, RoutineActivity::class.java)
                             intent.putExtra("routineType", RoutineModifyOption.add)
-                            startActivity(intent)
+                            routineActivityLauncher.launch(intent)
                         },
                         containerColor = Color.Black,
                         shape = CircleShape,
@@ -154,7 +187,7 @@ class MainActivity : ComponentActivity() {
                 val isSelected = currentRoute == item.screenRoute
                 val resId = if (isSelected) item.pressedResId else item.normalResId
                 val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.W400
-                val labelColor = if (isSelected) Color.White else Grey99
+                val labelColor = if (isSelected) Color.White else Gray99
 
                 NavigationBarItem(
                     icon = {

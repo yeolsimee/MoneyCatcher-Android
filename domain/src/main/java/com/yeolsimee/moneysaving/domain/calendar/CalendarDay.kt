@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.domain.calendar
 
-import java.util.*
+import android.util.Log
+import java.util.Calendar
 import kotlin.math.abs
 
 data class CalendarDay(
@@ -45,32 +46,9 @@ data class CalendarDay(
         return calendar
     }
 
-    fun getWeekOfMonth(): Int {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, year)
-        calendar.set(Calendar.MONTH, month + 1)
-        calendar.set(Calendar.DAY_OF_MONTH, day)
-        return calendar.get(Calendar.WEEK_OF_MONTH)
-    }
-
-    fun getNextDayOfWeekOfMonth(): Int {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, year)
-        calendar.set(Calendar.MONTH, month + 1)
-        calendar.set(Calendar.DAY_OF_MONTH, day + 1)
-        val weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH)
-
-        if (weekOfMonth == 1 && day > 6) {
-            calendar.set(Calendar.DAY_OF_MONTH, day - 1)
-            return calendar.get(Calendar.WEEK_OF_MONTH)
-        }
-
-        return weekOfMonth
-    }
-
     fun isSameWeek(selectedDay: CalendarDay): Boolean {
         val thisCalendar = getCalendar()
-        val selected = getCalendarFrom(selectedDay)
+        val selected = getCalendarFromCalendarDay(selectedDay)
 
         val diff = abs(thisCalendar.time.time - selected.time.time)
         val days = diff / (1000 * 60 * 60 * 24)
@@ -94,12 +72,19 @@ data class CalendarDay(
         }
     }
 
-    private fun getCalendarFrom(calendarDay: CalendarDay): Calendar {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, calendarDay.year)
-        calendar.set(Calendar.MONTH, calendarDay.month - 1)
-        calendar.set(Calendar.DAY_OF_MONTH, calendarDay.day)
-        return calendar
+    companion object {
+        fun getDayList(
+            initialDayList: MutableList<CalendarDay>,
+            iconStateList: MutableList<DateIconState>
+        ): MutableList<CalendarDay> {
+            Log.i("CalendarDay", "${iconStateList.size} is ${initialDayList.size}")
+            if (iconStateList.isNotEmpty() && iconStateList.size == initialDayList.size) {
+                for (i in iconStateList.indices) {
+                    initialDayList[i].iconState = iconStateList[i]
+                }
+            }
+            return initialDayList
+        }
     }
 
     override fun equals(other: Any?): Boolean {
