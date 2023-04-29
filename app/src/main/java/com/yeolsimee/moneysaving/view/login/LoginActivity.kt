@@ -39,6 +39,10 @@ class LoginActivity : ComponentActivity() {
                 },
                 onAppleLogin = {
                     viewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
+                },
+                onEmailButtonClick = {
+                    val intent = Intent(this@LoginActivity, EmailLoginActivity::class.java)
+                    startActivity(intent)
                 }
             )
         }

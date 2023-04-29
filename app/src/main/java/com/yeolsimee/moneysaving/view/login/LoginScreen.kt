@@ -43,6 +43,7 @@ fun LoginScreen(
     onNaverLogin: () -> Unit = {},
     onGoogleLogin: () -> Unit = {},
     onAppleLogin: () -> Unit = {},
+    onEmailButtonClick: () -> Unit = {}
 ) {
     RoumoTheme {
         Surface(
@@ -101,14 +102,14 @@ fun LoginScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
-                EmailLoginButton()
+                EmailLoginButton(onClick = onEmailButtonClick)
             }
         }
     }
 }
 
 @Composable
-private fun EmailLoginButton() {
+private fun EmailLoginButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .widthIn(min = 144.dp, max = 319.dp)
@@ -117,7 +118,7 @@ private fun EmailLoginButton() {
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = { moveToEmailLoginActivity() }
+                onClick = onClick
             )
     ) {
         PrText(
@@ -128,10 +129,6 @@ private fun EmailLoginButton() {
             modifier = Modifier.align(Alignment.Center)
         )
     }
-}
-
-fun moveToEmailLoginActivity() {
-    TODO("Not yet implemented")
 }
 
 @Composable
