@@ -36,7 +36,7 @@ interface RoutineApiService {
         @Body body: RoutineRequest
     ): Response<ApiResponse<RoutineResponse>>
 
-    @PUT("routinecheck")
+    @POST("routinecheck")
     suspend fun routineCheck(
         @Body body: RoutineCheckRequest
     ): Response<ApiResponse<Any>>
