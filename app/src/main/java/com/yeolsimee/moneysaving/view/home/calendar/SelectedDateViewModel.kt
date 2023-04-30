@@ -33,6 +33,10 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
         }
     }
 
+    fun refresh(routinesOfDay: RoutinesOfDay) = intent {
+        viewModelScope.launch { reduce { routinesOfDay } }
+    }
+
     override fun showSideEffect(message: String?) {
         intent {
             reduce { RoutinesOfDay() }

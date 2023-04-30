@@ -15,5 +15,5 @@ interface IRoutineApiRepository {
 
     suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse>
 
-    suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<Any>
+    suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<RoutinesOfDay>
 }

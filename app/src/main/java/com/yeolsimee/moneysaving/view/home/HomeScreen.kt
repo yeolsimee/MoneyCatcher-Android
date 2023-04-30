@@ -147,7 +147,11 @@ fun HomeScreen(
                 routinesOfDayState = routinesOfDayState,
                 onItemClick = onItemClick,
                 onRoutineCheck = { check ->
-                    routineCheckViewModel.check(check)
+                    routineCheckViewModel.check(check) { routinesOfDay ->
+                        selectedDateViewModel.refresh(
+                            routinesOfDay
+                        )
+                    }
                 }
             )
         }

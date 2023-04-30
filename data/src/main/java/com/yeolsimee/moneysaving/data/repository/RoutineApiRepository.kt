@@ -56,7 +56,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
         }
     }
 
-    override suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<Any> {
+    override suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<RoutinesOfDay> {
         val response = source.routineCheck(routineCheckRequest).last()
         val result = response.body()
         return if (result != null && result.success) {

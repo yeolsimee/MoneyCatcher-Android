@@ -32,7 +32,7 @@ class RoutineSource(
         emit(api.updateRoutine(routineRequest))
     }
 
-    fun routineCheck(routineCheckRequest: RoutineCheckRequest): Flow<Response<ApiResponse<Any>>> = flow {
+    fun routineCheck(routineCheckRequest: RoutineCheckRequest): Flow<Response<ApiResponse<RoutinesOfDay>>> = flow {
         emit(api.routineCheck(routineCheckRequest))
     }
 }
