@@ -35,4 +35,8 @@ class RoutineSource(
     fun routineCheck(routineCheckRequest: RoutineCheckRequest): Flow<Response<ApiResponse<RoutinesOfDay>>> = flow {
         emit(api.routineCheck(routineCheckRequest))
     }
+
+    fun deleteRoutine(routineId: String): Flow<Response<ApiResponse<Any>>> = flow {
+        emit(api.deleteRoutine(routineId))
+    }
 }

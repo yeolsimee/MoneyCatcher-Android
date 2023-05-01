@@ -8,9 +8,11 @@ import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RoutineApiService {
@@ -40,4 +42,9 @@ interface RoutineApiService {
     suspend fun routineCheck(
         @Body body: RoutineCheckRequest
     ): Response<ApiResponse<RoutinesOfDay>>
+
+    @DELETE("routine/{id}")
+    suspend fun deleteRoutine(
+        @Path("id") id: String
+    ): Response<ApiResponse<Any>>
 }

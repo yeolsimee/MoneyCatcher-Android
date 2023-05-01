@@ -53,7 +53,8 @@ fun RoutineItems(
     date: String = "",
     routinesOfDayState: RoutinesOfDay,
     onItemClick: (Routine, String) -> Unit = { _, _ -> },
-    onRoutineCheck: (RoutineCheckRequest) -> Unit = {}
+    onRoutineCheck: (RoutineCheckRequest) -> Unit = {},
+    onItemDelete: (Routine) -> Unit = {},
 ) {
     val categories = routinesOfDayState.categoryDatas
 
@@ -74,15 +75,18 @@ fun RoutineItems(
 
                 val swipeState = rememberDismissState(
                     confirmValueChange = { dismissValue ->
-                        if (dismissValue == DismissValue.DismissedToEnd) {
-                            // TODO API 호출
+                        if (dismissValue == DismissValue.DismissedToStart) {
+                            onItemDelete(routine)
+                            true
+                        } else {
+                            false
                         }
-                        true
                     },
                 )
 
                 SwipeToDismiss(
-                    state = swipeState, background = {
+                    state = swipeState,
+                    background = {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()

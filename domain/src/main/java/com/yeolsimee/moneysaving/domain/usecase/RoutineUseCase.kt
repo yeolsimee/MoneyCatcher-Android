@@ -27,4 +27,8 @@ class RoutineUseCase(private val repository: IRoutineApiRepository) {
     suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<RoutinesOfDay> {
         return repository.routineCheck(routineCheckRequest)
     }
+
+    suspend fun deleteRoutine(routineId: String): Result<Boolean> {
+        return repository.deleteRoutine(routineId)
+    }
 }

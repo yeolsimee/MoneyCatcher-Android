@@ -55,6 +55,7 @@ fun HomeScreen(
     selectedDateViewModel: SelectedDateViewModel,
     findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
     routineCheckViewModel: RoutineCheckViewModel,
+    routineDeleteViewModel: RoutineDeleteViewModel,
     onItemClick: (Routine, String) -> Unit = { _, _ -> }
 ) {
     val year = calendarViewModel.year()
@@ -151,6 +152,11 @@ fun HomeScreen(
                         selectedDateViewModel.refresh(
                             routinesOfDay
                         )
+                    }
+                },
+                onItemDelete = {
+                    routineDeleteViewModel.delete(it.routineId) {
+                        selectedDateViewModel.find(selected.value)
                     }
                 }
             )
