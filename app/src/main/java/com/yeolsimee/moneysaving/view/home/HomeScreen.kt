@@ -56,6 +56,7 @@ fun HomeScreen(
     findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
     routineCheckViewModel: RoutineCheckViewModel,
     routineDeleteViewModel: RoutineDeleteViewModel,
+    floatingButtonVisible: MutableState<Boolean>,
     onItemClick: (Routine, String) -> Unit = { _, _ -> }
 ) {
     val year = calendarViewModel.year()
@@ -74,6 +75,8 @@ fun HomeScreen(
         val dialogState = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf(today) }
         val calendarMonth = remember { mutableStateOf(today.month) }
+
+        floatingButtonVisible.value = selected.value.toString() == today.toString()
 
         val confirmButtonListener: (Int, Int) -> Unit =
             { selectedYear, selectedMonth ->

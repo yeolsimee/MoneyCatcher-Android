@@ -46,8 +46,8 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
         }
     }
 
-    override suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
-        val response = source.updateRoutine(routineRequest).last()
+    override suspend fun updateRoutine(routineId: String, routineRequest: RoutineRequest): Result<RoutineResponse> {
+        val response = source.updateRoutine(routineId, routineRequest).last()
         val result = response.body()
         return if (result != null && result.success) {
             Result.success(result.data)

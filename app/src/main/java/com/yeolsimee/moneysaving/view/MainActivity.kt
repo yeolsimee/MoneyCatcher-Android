@@ -8,13 +8,28 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,12 +54,12 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
-import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
-import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
-import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
@@ -57,12 +72,19 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var callback: OnBackPressedCallback
     private var pressedTime: Long = 0
-    private val routineActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-//        result.data?.getEx
-    }
+    private val calendarViewModel: CalendarViewModel by viewModels()
+    private val selectedDateViewModel: SelectedDateViewModel by viewModels()
+    private lateinit var routineActivityLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        routineActivityLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    selectedDateViewModel.find(calendarViewModel.today)
+                }
+            }
 
         setContent {
             RoumoTheme(navigationBarColor = Color.Black) {
@@ -88,8 +110,6 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val floatingButtonVisible = remember { mutableStateOf(false) }
 
-        val calendarViewModel: CalendarViewModel = hiltViewModel()
-        val selectedDateViewModel: SelectedDateViewModel = hiltViewModel()
         val findAllMyRoutineViewModel: FindAllMyRoutineViewModel = hiltViewModel()
         val routineCheckViewModel: RoutineCheckViewModel = hiltViewModel()
         val routineDeleteViewModel: RoutineDeleteViewModel = hiltViewModel()
@@ -125,8 +145,10 @@ class MainActivity : ComponentActivity() {
                                 findAllMyRoutineViewModel = findAllMyRoutineViewModel,
                                 routineCheckViewModel = routineCheckViewModel,
                                 routineDeleteViewModel = routineDeleteViewModel,
+                                floatingButtonVisible = floatingButtonVisible,
                                 onItemClick = { routine, categoryId ->
-                                    val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                                    val intent =
+                                        Intent(this@MainActivity, RoutineActivity::class.java)
                                     intent.putExtra("routine", routine)
                                     intent.putExtra("routineType", RoutineModifyOption.update)
                                     intent.putExtra("categoryId", categoryId)

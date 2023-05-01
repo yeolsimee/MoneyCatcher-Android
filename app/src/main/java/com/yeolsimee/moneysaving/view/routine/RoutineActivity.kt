@@ -22,7 +22,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
-import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,17 +61,18 @@ class RoutineActivity : ComponentActivity() {
                                 RoutineAlarmManager.set(this@RoutineActivity, req, id)
                             },
                             onFinishCallback = {
-                                sendResultAndFinish(it)
+                                sendResultAndFinish()
                             }
                         )
                     } else {
                         routineViewModel.updateRoutine(
+                            routineId = routine?.routineId,
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
                                 RoutineAlarmManager.set(this@RoutineActivity, req, id)
                             },
                             onFinishCallback = {
-                                sendResultAndFinish(it)
+                                sendResultAndFinish()
                             }
                         )
                     }
@@ -87,10 +87,8 @@ class RoutineActivity : ComponentActivity() {
         }
     }
 
-    private fun sendResultAndFinish(it: RoutineResponse) {
-        val intent = Intent()
-        intent.putExtra("routine", it)
-        setResult(RESULT_OK, intent)
+    private fun sendResultAndFinish() {
+        setResult(RESULT_OK)
         finish()
     }
 

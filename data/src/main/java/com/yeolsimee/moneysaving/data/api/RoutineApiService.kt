@@ -35,6 +35,7 @@ interface RoutineApiService {
 
     @PUT("routine/{id}")
     suspend fun updateRoutine(
+        @Path("id") id: String,
         @Body body: RoutineRequest
     ): Response<ApiResponse<RoutineResponse>>
 
