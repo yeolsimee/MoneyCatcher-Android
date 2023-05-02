@@ -14,14 +14,14 @@ data class Routine(
         return when (routineTimeZone) {
             "1" -> "하루종일"
             "2" -> "아무때나"
-            "3" -> "아침"
-            "4" -> "점심"
-            "5" -> "저녁"
-            "6" -> "밤"
-            "7" -> "취침직전"
-            "8" -> "기상직후"
-            "9" -> "오전"
-            "10" -> "오후"
+            "3" -> "기상직후"
+            "4" -> "아침"
+            "5" -> "오전"
+            "6" -> "점심"
+            "7" -> "오후"
+            "8" -> "저녁"
+            "9" -> "밤"
+            "10" -> "취침직전"
             else -> routineTimeZone
         }
     }
@@ -31,9 +31,5 @@ data class Routine(
         val prefix = if (12 < hour) "오후" else "오전"
         hour = if (12 < hour) hour - 12 else hour
         return "$prefix $hour:$alarmTimeMinute"
-    }
-
-    fun isEmpty(): Boolean {
-        return routineId.isEmpty()
     }
 }

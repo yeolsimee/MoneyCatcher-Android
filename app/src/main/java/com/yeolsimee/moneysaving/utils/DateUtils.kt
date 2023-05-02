@@ -59,7 +59,7 @@ fun getWeekTypes(checkList: List<Boolean>): Array<String> {
     return result.toTypedArray()
 }
 
-fun getWeekTypeCheckList(weekTypes: MutableList<String>): MutableList<Boolean> {
+fun getWeekTypeCheckList(weekTypes: Array<String>): MutableList<Boolean> {
     val result = Array(7) { false }
 
     weekTypes.forEach {

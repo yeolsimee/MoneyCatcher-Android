@@ -12,6 +12,21 @@ data class CalendarDay(
     var iconState: DateIconState = DateIconState.Empty,
 ) {
 
+    companion object {
+        fun getDayList(
+            initialDayList: MutableList<CalendarDay>,
+            iconStateList: MutableList<DateIconState>
+        ): MutableList<CalendarDay> {
+            Log.i("CalendarDay", "${iconStateList.size} is ${initialDayList.size}")
+            if (iconStateList.isNotEmpty() && iconStateList.size == initialDayList.size) {
+                for (i in iconStateList.indices) {
+                    initialDayList[i].iconState = iconStateList[i]
+                }
+            }
+            return initialDayList
+        }
+    }
+
     fun getNextDay(): CalendarDay {
         val calendar = getCalendar()
         calendar.add(Calendar.DAY_OF_MONTH, 1)
@@ -72,19 +87,8 @@ data class CalendarDay(
         }
     }
 
-    companion object {
-        fun getDayList(
-            initialDayList: MutableList<CalendarDay>,
-            iconStateList: MutableList<DateIconState>
-        ): MutableList<CalendarDay> {
-            Log.i("CalendarDay", "${iconStateList.size} is ${initialDayList.size}")
-            if (iconStateList.isNotEmpty() && iconStateList.size == initialDayList.size) {
-                for (i in iconStateList.indices) {
-                    initialDayList[i].iconState = iconStateList[i]
-                }
-            }
-            return initialDayList
-        }
+    fun isToday(): Boolean {
+        return getCalendar().isToday()
     }
 
     override fun equals(other: Any?): Boolean {

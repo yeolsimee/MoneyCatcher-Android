@@ -2,23 +2,13 @@ package com.yeolsimee.moneysaving.view.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import com.yeolsimee.moneysaving.auth.*
-import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.yeolsimee.moneysaving.view.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,7 +22,8 @@ class LoginActivity : ComponentActivity() {
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
     private lateinit var naverLoginLauncher: ActivityResultLauncher<Intent>
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val emailLoginViewModel: EmailLoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,61 +31,28 @@ class LoginActivity : ComponentActivity() {
         initAuth()
 
         setContent {
-            RoumoTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Button(onClick = {
-                            viewModel.googleLogin(googleLoginLauncher)
-                        }) {
-                            Text(text = "Google Login")
-                        }
-
-                        Button(onClick = {
-                            viewModel.naverLogin(applicationContext, naverLoginLauncher)
-                        }) {
-                            Text(text = "Naver Login")
-                        }
-
-                        val textState = remember { mutableStateOf("") }
-
-                        TextField(value = textState.value, onValueChange = {
-                            textState.value = it
-                        })
-
-                        Button(onClick = {
-                            val email = textState.value
-                            Toast.makeText(applicationContext, email, Toast.LENGTH_SHORT).show()
-                            Email.send(email)
-                        }) {
-                            Text(text = "Email Login")
-                        }
-
-                        Button(onClick = {
-                            viewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
-                        }) {
-                            Text(text = "Apple Login")
-                        }
-                        Button(onClick = {
-                            viewModel.logout()
-                        }) {
-                            Text(text = "Logout")
-                        }
-                    }
+            LoginScreen(
+                onNaverLogin = {
+                    loginViewModel.naverLogin(applicationContext, naverLoginLauncher)
+                },
+                onGoogleLogin = {
+                    loginViewModel.googleLogin(googleLoginLauncher)
+                },
+                onAppleLogin = {
+                    loginViewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
+                },
+                onEmailButtonClick = {
+                    val intent = Intent(this@LoginActivity, EmailLoginActivity::class.java)
+                    startActivity(intent)
                 }
-            }
+            )
         }
     }
 
     private fun initAuth() {
         initGoogleLogin()
         initNaverLogin()
-        viewModel.autoLogin {
+        loginViewModel.autoLogin {
             moveToMainActivity()
         }
     }
@@ -106,23 +64,24 @@ class LoginActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.receiveEmailResult(intent, this@LoginActivity) {
-            moveToMainActivity()
-        }
+        emailLoginViewModel.receiveEmailResult(
+            intent,
+            this@LoginActivity,
+            onSuccess = { moveToMainActivity() })
     }
 
     private fun initNaverLogin() {
         naverLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                viewModel.naverInit(result) { moveToMainActivity() }
+                loginViewModel.naverInit(result) { moveToMainActivity() }
             }
     }
 
     private fun initGoogleLogin() {
-        viewModel.init(this@LoginActivity) { moveToMainActivity() }
+        loginViewModel.init(this@LoginActivity) { moveToMainActivity() }
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                viewModel.googleInit(it)
+                loginViewModel.googleInit(it)
             }
     }
 }

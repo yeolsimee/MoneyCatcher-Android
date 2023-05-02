@@ -46,8 +46,8 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
         }
     }
 
-    override suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
-        val response = source.updateRoutine(routineRequest).last()
+    override suspend fun updateRoutine(routineId: String, routineRequest: RoutineRequest): Result<RoutineResponse> {
+        val response = source.updateRoutine(routineId, routineRequest).last()
         val result = response.body()
         return if (result != null && result.success) {
             Result.success(result.data)
@@ -56,7 +56,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
         }
     }
 
-    override suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<Any> {
+    override suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<RoutinesOfDay> {
         val response = source.routineCheck(routineCheckRequest).last()
         val result = response.body()
         return if (result != null && result.success) {
@@ -65,4 +65,26 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
             Result.failure(ApiException(response.code(), result?.message))
         }
     }
+
+    override suspend fun deleteRoutine(routineId: String): Result<Boolean> {
+        val response = source.deleteRoutine(routineId).last()
+        val result = response.body()
+        return if (result != null && result.success && result.code == 0) {
+            Result.success(true)
+        } else {
+            Result.failure(ApiException(response.code(), result?.message))
+        }
+    }
+
+    override suspend fun getRoutine(routineId: String): Result<RoutineResponse> {
+        val response = source.getRoutine(routineId).last()
+        val result = response.body()
+        return if (result != null && result.success) {
+            Result.success(result.data)
+        } else {
+            Result.failure(ApiException(response.code(), result?.message))
+        }
+    }
+
+
 }

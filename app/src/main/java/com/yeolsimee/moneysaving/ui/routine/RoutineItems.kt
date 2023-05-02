@@ -27,6 +27,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,11 +40,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.dialog.OneButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
@@ -50,12 +54,15 @@ import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineItems(
-    date: String = "",
+    selectedDate: CalendarDay,
     routinesOfDayState: RoutinesOfDay,
-    onItemClick: (Routine, String) -> Unit = { _, _ -> },
-    onRoutineCheck: (RoutineCheckRequest) -> Unit = {}
+    onItemClick: (String, String) -> Unit = { _, _ -> },
+    onRoutineCheck: (RoutineCheckRequest) -> Unit = {},
+    onItemDelete: (Routine) -> Unit = {},
 ) {
     val categories = routinesOfDayState.categoryDatas
+    val date = selectedDate.toString()
+    val cantEditDialogState = remember { mutableStateOf(false) }
 
     Spacer(Modifier.height(18.dp))
 
@@ -72,17 +79,12 @@ fun RoutineItems(
                 val checked = routine.routineCheckYN == "Y"
 
 
-                val swipeState = rememberDismissState(
-                    confirmValueChange = { dismissValue ->
-                        if (dismissValue == DismissValue.DismissedToEnd) {
-                            // TODO API 호출
-                        }
-                        true
-                    },
-                )
+                val swipeState =
+                    setRoutineSwipeState(selectedDate, onItemDelete, routine, cantEditDialogState)
 
                 SwipeToDismiss(
-                    state = swipeState, background = {
+                    state = swipeState,
+                    background = {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -113,7 +115,11 @@ fun RoutineItems(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
-                                        onItemClick(routine, category.categoryId)
+                                        if (selectedDate.isToday()) {
+                                            onItemClick(routine.routineId, category.categoryId)
+                                        } else {
+                                            cantEditDialogState.value = true
+                                        }
                                     }
                                 )
                         ) {
@@ -139,29 +145,31 @@ fun RoutineItems(
                                         AlarmIconAndText(routine)
                                     }
                                 }
-                                Box(modifier = Modifier
-                                    .width(60.dp)
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null,
-                                        onClick = {
-                                            onRoutineCheck(
-                                                RoutineCheckRequest(
-                                                    routineCheckYN = if (checked) "N" else "Y",
-                                                    routineId = routine.routineId.toInt(),
-                                                    routineDay = date
+                                if (selectedDate.isToday()) {
+                                    Box(modifier = Modifier
+                                        .width(60.dp)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null,
+                                            onClick = {
+                                                onRoutineCheck(
+                                                    RoutineCheckRequest(
+                                                        routineCheckYN = if (checked) "N" else "Y",
+                                                        routineId = routine.routineId.toInt(),
+                                                        routineDay = date
+                                                    )
                                                 )
-                                            )
-                                        }
-                                    )) {
-                                    Image(
-                                        painter = painterResource(
-                                            id = if (checked) R.drawable.icon_check
-                                            else R.drawable.icon_nonecheck
-                                        ),
-                                        contentDescription = "루틴 체크",
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
+                                            }
+                                        )) {
+                                        Image(
+                                            painter = painterResource(
+                                                id = if (checked) R.drawable.icon_check
+                                                else R.drawable.icon_nonecheck
+                                            ),
+                                            contentDescription = "루틴 체크",
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -172,7 +180,37 @@ fun RoutineItems(
         }
         Spacer(Modifier.height(20.dp))
     }
+
+    if (cantEditDialogState.value) {
+        OneButtonOneTitleDialog(
+            dialogState = cantEditDialogState,
+            text = "현재 날짜에서만 루틴을 수정할 수 있습니다"
+        )
+    }
 }
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun setRoutineSwipeState(
+    selectedDate: CalendarDay,
+    onItemDelete: (Routine) -> Unit,
+    routine: Routine,
+    cantEditDialogState: MutableState<Boolean>
+) = rememberDismissState(
+    confirmValueChange = { dismissValue ->
+        if (dismissValue == DismissValue.DismissedToStart) {
+            if (selectedDate.isToday()) {
+                onItemDelete(routine)
+                true
+            } else {
+                cantEditDialogState.value = true
+                false
+            }
+        } else {
+            false
+        }
+    },
+)
 
 @Preview(showBackground = true)
 @Composable
@@ -180,6 +218,7 @@ fun RoutineItemPreview() {
     RoumoTheme {
         Box(modifier = Modifier.padding(10.dp)) {
             RoutineItems(
+                selectedDate = CalendarDay(2023, 5, 2),
                 routinesOfDayState = RoutinesOfDay(
                     routineDay = "20230424",
                     categoryDatas = arrayOf(

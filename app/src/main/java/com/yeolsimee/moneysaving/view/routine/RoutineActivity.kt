@@ -13,15 +13,14 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.yeolsimee.moneysaving.App
-import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
@@ -32,47 +31,46 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class RoutineActivity : ComponentActivity() {
 
+    private val categoryViewModel: CategoryViewModel by viewModels()
+    private val routineViewModel: RoutineModifyViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val routineType = getRoutineType()
-        val routine = getRoutine()
+        val routineResponse = getRoutineResponse()
         val categoryId = intent.getStringExtra("categoryId") ?: ""
 
         setContent {
-            val categoryViewModel: CategoryViewModel = hiltViewModel()
-            val routineViewModel: RoutineModifyViewModel = hiltViewModel()
-
-            val categoryList = categoryViewModel.container.stateFlow.collectAsState()
-
             val selectedCategoryId = remember { mutableStateOf(categoryId) }
             RoutineScreen(
-                initialData = routine,
+                initialData = routineResponse,
                 routineType = routineType,
-                categoryList = categoryList.value,
+                categoryList = categoryViewModel.container.stateFlow.collectAsState().value,
                 selectedCategoryId = selectedCategoryId,
                 closeCallback = {
                     finish()
                 },
                 onCompleteCallback = { req ->
-                    if (routineType == RoutineModifyOption.add) {
+                    if (routineType == RoutineModifyOption.Add) {
                         routineViewModel.addRoutine(
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
                                 RoutineAlarmManager.set(this@RoutineActivity, req, id)
                             },
                             onFinishCallback = {
-                                sendResultAndFinish(it)
+                                sendResultAndFinish()
                             }
                         )
                     } else {
                         routineViewModel.updateRoutine(
+                            routineId = routineResponse?.routineId,
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
                                 RoutineAlarmManager.set(this@RoutineActivity, req, id)
                             },
                             onFinishCallback = {
-                                sendResultAndFinish(it)
+                                sendResultAndFinish()
                             }
                         )
                     }
@@ -87,18 +85,16 @@ class RoutineActivity : ComponentActivity() {
         }
     }
 
-    private fun sendResultAndFinish(it: RoutineResponse) {
-        val intent = Intent()
-        intent.putExtra("routine", it)
-        setResult(RESULT_OK, intent)
+    private fun sendResultAndFinish() {
+        setResult(RESULT_OK)
         finish()
     }
 
-    private fun getRoutine() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.getSerializableExtra("routine", Routine::class.java)
+    private fun getRoutineResponse() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.getSerializableExtra("routine", RoutineResponse::class.java)
     } else {
         @Suppress("DEPRECATION")
-        intent.getSerializableExtra("routine") as Routine?
+        intent.getSerializableExtra("routine") as RoutineResponse?
     }
 
     private fun getRoutineType() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

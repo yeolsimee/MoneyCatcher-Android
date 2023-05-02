@@ -28,11 +28,19 @@ class RoutineSource(
         emit(api.createRoutine(routineRequest))
     }
 
-    fun updateRoutine(routineRequest: RoutineRequest): Flow<Response<ApiResponse<RoutineResponse>>> = flow {
-        emit(api.updateRoutine(routineRequest))
+    fun updateRoutine(routineId: String, routineRequest: RoutineRequest): Flow<Response<ApiResponse<RoutineResponse>>> = flow {
+        emit(api.updateRoutine(routineId, routineRequest))
     }
 
-    fun routineCheck(routineCheckRequest: RoutineCheckRequest): Flow<Response<ApiResponse<Any>>> = flow {
+    fun routineCheck(routineCheckRequest: RoutineCheckRequest): Flow<Response<ApiResponse<RoutinesOfDay>>> = flow {
         emit(api.routineCheck(routineCheckRequest))
+    }
+
+    fun deleteRoutine(routineId: String): Flow<Response<ApiResponse<Any>>> = flow {
+        emit(api.deleteRoutine(routineId))
+    }
+
+    fun getRoutine(routineId: String): Flow<Response<ApiResponse<RoutineResponse>>> = flow {
+        emit(api.getRoutine(routineId))
     }
 }

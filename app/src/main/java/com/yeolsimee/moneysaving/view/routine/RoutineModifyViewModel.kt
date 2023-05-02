@@ -20,27 +20,34 @@ class RoutineModifyViewModel @Inject constructor(private val routineUseCase: Rou
 
     override val container = container<RoutineResponse, ToastSideEffect>(RoutineResponse())
 
-    fun addRoutine(routineRequest: RoutineRequest, onSetAlarmCallback: (Int) -> Unit = {}, onFinishCallback: (RoutineResponse) -> Unit = {}) = intent {
+    fun addRoutine(
+        routineRequest: RoutineRequest,
+        onSetAlarmCallback: (Int) -> Unit = {},
+        onFinishCallback: (RoutineResponse) -> Unit = {}
+    ) = intent {
         val result = routineUseCase.createRoutine(routineRequest)
         result.onSuccess {
             if (it.alarmStatus == "ON") {
                 onSetAlarmCallback(it.routineId)
             }
             onFinishCallback(it)
-            reduce { it }
         }.onFailure {
             showSideEffect(it.message)
         }
     }
 
-    fun updateRoutine(routineRequest: RoutineRequest, onSetAlarmCallback: (Int) -> Unit = {}, onFinishCallback: (RoutineResponse) -> Unit = {}) = intent {
-        val result = routineUseCase.updateRoutine(routineRequest)
+    fun updateRoutine(
+        routineId: Int?,
+        routineRequest: RoutineRequest,
+        onSetAlarmCallback: (Int) -> Unit = {},
+        onFinishCallback: (RoutineResponse) -> Unit = {}
+    ) = intent {
+        val result = routineUseCase.updateRoutine(routineId.toString(), routineRequest)
         result.onSuccess {
             if (it.alarmStatus == "ON") {
                 onSetAlarmCallback(it.routineId)
             }
             onFinishCallback(it)
-            reduce { it }
         }.onFailure {
             showSideEffect(it.message)
         }

@@ -20,11 +20,19 @@ class RoutineUseCase(private val repository: IRoutineApiRepository) {
         return repository.createRoutine(routineRequest)
     }
 
-    suspend fun updateRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
-        return repository.updateRoutine(routineRequest)
+    suspend fun updateRoutine(routineId: String?, routineRequest: RoutineRequest): Result<RoutineResponse> {
+        return repository.updateRoutine(routineId ?: "", routineRequest)
     }
 
-    suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<Any> {
+    suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<RoutinesOfDay> {
         return repository.routineCheck(routineCheckRequest)
+    }
+
+    suspend fun deleteRoutine(routineId: String): Result<Boolean> {
+        return repository.deleteRoutine(routineId)
+    }
+
+    suspend fun getRoutine(routineId: String): Result<RoutineResponse> {
+        return repository.getRoutine(routineId)
     }
 }

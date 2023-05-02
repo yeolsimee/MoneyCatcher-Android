@@ -45,7 +45,7 @@ fun YearMonthDialog(
     dialogState: MutableState<Boolean>,
     year: Int,
     month: Int,
-    confirmButtonListener: (Int, Int) -> Unit
+    onConfirmClick: (Int, Int) -> Unit
 ) {
     val yearState = remember { mutableStateOf(year) }
     val monthState = remember { mutableStateOf(month) }
@@ -91,7 +91,7 @@ fun YearMonthDialog(
                         }
                         TextButton(onClick = {
                             dialogState.value = false
-                            confirmButtonListener(yearState.value, monthState.value)
+                            onConfirmClick(yearState.value, monthState.value)
                         }) {
                             PrText(
                                 text = "확인",
@@ -237,7 +237,7 @@ fun YearMonthDialogPreview() {
         dialogState = remember { mutableStateOf(true) },
         year = 2023,
         month = 4,
-        confirmButtonListener = { year, month ->
+        onConfirmClick = { year, month ->
             Toast.makeText(context, "${year}년 ${month}월", Toast.LENGTH_SHORT).show()
         }
     )

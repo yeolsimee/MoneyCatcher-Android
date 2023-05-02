@@ -1,4 +1,6 @@
-package com.yeolsimee.moneysaving.view.routine
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package com.yeolsimee.moneysaving.ui.appbar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
@@ -27,43 +29,39 @@ import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 
-@ExperimentalMaterial3Api
 @Composable
-fun RoutineTopAppBar(routineType: RoutineModifyOption?, onClick: () -> Unit) {
-    val title = setTitle(routineType)
-
-    TopAppBar(title = {
-        PrText(
-            text = title,
-            fontWeight = FontWeight.W700,
-            fontSize = 18.sp,
-            letterSpacing = (-0.1).sp
-        )
-    }, navigationIcon = {
-        IconButton(onClick = onClick) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                tint = Color.Black,
-                contentDescription = "뒤로가기"
+fun TopBackButtonTitleAppBar(text: String? = "", onClick: () -> Unit) {
+    TopAppBar(
+        title = {
+            PrText(
+                text = text!!,
+                fontWeight = FontWeight.W700,
+                fontSize = 18.sp,
+                letterSpacing = (-0.1).sp
             )
-        }
-    }, colors = topAppBarColors(
-        containerColor = Color.White
-    )
+        },
+        navigationIcon = {
+            IconButton(onClick = onClick) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    tint = Color.Black,
+                    contentDescription = "뒤로가기"
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.White
+        )
     )
 }
 
-private fun setTitle(routineType: RoutineModifyOption?): String {
-    return if (routineType == RoutineModifyOption.add) "루틴 추가하기" else "루틴 수정하기"
-}
 
 @Composable
-fun RoutineBottomAppBar(
-    routineType: RoutineModifyOption?,
+fun BottomButtonAppBar(
+    buttonText: String? = "",
     buttonState: MutableState<Boolean>,
     onClick: () -> Unit
 ) {
-    val buttonText = setButtonText(routineType)
     BottomAppBar(Modifier
         .height(60.dp)
         .clickable(
@@ -81,7 +79,7 @@ fun RoutineBottomAppBar(
                 )
         ) {
             PrText(
-                text = buttonText,
+                text = buttonText!!,
                 fontWeight = FontWeight.W800,
                 color = Color.White,
                 fontSize = 16.sp,
@@ -92,7 +90,3 @@ fun RoutineBottomAppBar(
         }
     }
 }
-
-@Composable
-private fun setButtonText(routineType: RoutineModifyOption?) =
-    if (routineType == RoutineModifyOption.add) "저장하기" else "수정하기"

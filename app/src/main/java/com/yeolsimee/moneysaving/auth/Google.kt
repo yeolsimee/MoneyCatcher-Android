@@ -18,7 +18,7 @@ import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 
-class Google(activity: Activity, private val tokenCallback: (String) -> Unit) {
+class Google(activity: Activity, private val tokenCallback: (String) -> Unit = {}) {
 
     private var googleSignInClient: GoogleSignInClient
 

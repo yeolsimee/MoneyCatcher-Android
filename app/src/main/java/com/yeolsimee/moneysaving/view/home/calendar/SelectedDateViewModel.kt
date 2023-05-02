@@ -23,6 +23,8 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
     override val container = container<RoutinesOfDay, ToastSideEffect>(RoutinesOfDay())
 
     fun find(calendarDay: CalendarDay) = intent {
+        reduce { RoutinesOfDay("loading") }
+
         viewModelScope.launch {
             val result = routineUseCase.findRoutineDay(calendarDay.toString())
             result.onSuccess {
@@ -31,6 +33,10 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
                 showSideEffect(it.message)
             }
         }
+    }
+
+    fun refresh(routinesOfDay: RoutinesOfDay) = intent {
+        viewModelScope.launch { reduce { routinesOfDay } }
     }
 
     override fun showSideEffect(message: String?) {
