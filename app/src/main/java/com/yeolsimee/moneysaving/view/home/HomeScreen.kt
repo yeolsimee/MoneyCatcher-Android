@@ -41,11 +41,12 @@ import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.dialog.DeleteRoutineDialog
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
-import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.calendar.ComposeCalendar
+import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 
@@ -64,6 +65,10 @@ fun HomeScreen(
     val today = calendarViewModel.today
 
     val scrollState = rememberScrollState()
+
+    val deleteDialogState = remember { mutableStateOf(false) }
+    val deleteRoutineId = remember { mutableStateOf("") }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -158,11 +163,15 @@ fun HomeScreen(
                     }
                 },
                 onItemDelete = {
-                    routineDeleteViewModel.delete(it.routineId) {
-                        selectedDateViewModel.find(selected.value)
-                    }
+                    deleteDialogState.value = true
+                    deleteRoutineId.value = it.routineId
                 }
             )
+        }
+        DeleteRoutineDialog(deleteDialogState) {
+            routineDeleteViewModel.delete(deleteRoutineId.value) {
+                selectedDateViewModel.find(selected.value)
+            }
         }
     }
 }

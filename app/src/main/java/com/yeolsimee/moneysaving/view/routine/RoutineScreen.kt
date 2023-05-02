@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
+import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
 import com.yeolsimee.moneysaving.utils.getTwoDigits
@@ -47,7 +48,9 @@ fun RoutineScreen(
     hasNotificationPermission: () -> Boolean,
     onCategoryAdded: (String) -> Unit,
 ) {
-    RoumoTheme(navigationBarColor = Color.Black) {
+    val buttonState = remember { mutableStateOf(false) }
+
+    RoumoTheme(navigationBarColor = if (buttonState.value) Color.Black else Gray99) {
         val focusRequester by remember { mutableStateOf(FocusRequester()) }
         val focusManager = LocalFocusManager.current
         val scrollState = rememberScrollState()
@@ -55,7 +58,7 @@ fun RoutineScreen(
         val routineName = remember { mutableStateOf(initialData?.routineName ?: "") }
 
         if (categoryList.isNotEmpty() && selectedCategoryId.value.isEmpty()) {
-            selectedCategoryId.value = categoryList.last().id
+            selectedCategoryId.value = categoryList.first().id
         }
 
         // TODO 선택된 요일 정보 가져와야 함.
@@ -68,16 +71,13 @@ fun RoutineScreen(
         val hourState = remember { mutableStateOf(if (initialData?.alarmTimeHour?.isNotEmpty() == true) initialData.alarmTimeHour.toInt() else 13) }
         val minuteState = remember { mutableStateOf(if (initialData?.alarmTimeMinute?.isNotEmpty() == true) initialData.alarmTimeMinute.toInt() else 0) }
         val addCategoryState = remember { mutableStateOf(false) }
-        val buttonState = remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
                 RoutineTopAppBar(routineType) { closeCallback() }
             },
             bottomBar = {
-                if (canSaveRoutine(routineName, selectedCategoryId)) {
-                    buttonState.value = true
-                }
+                buttonState.value = canSaveRoutine(routineName, selectedCategoryId)
 
                 RoutineBottomAppBar(routineType, buttonState) {
                     onCompleteCallback(

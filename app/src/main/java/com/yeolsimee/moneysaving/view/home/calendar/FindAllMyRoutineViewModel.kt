@@ -1,9 +1,7 @@
 package com.yeolsimee.moneysaving.view.home.calendar
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.usecase.RoutineUseCase
 import com.yeolsimee.moneysaving.view.ISideEffect
@@ -45,9 +43,7 @@ class FindAllMyRoutineViewModel @Inject constructor(private val routineUseCase: 
             val result = routineUseCase.findAllMyRoutineDays(startDate.toString(), endDate.toString(), selectedMonth)
             result.onSuccess {
                 reduce {
-                    val days = CalendarDay.getDayList(dayList, it)
-                    days.forEach { Log.i(App.TAG, it.toString() + it.iconState.name) }
-                    days
+                    CalendarDay.getDayList(dayList, it)
                 }
             }.onFailure {
                 showSideEffect(it.message)

@@ -95,7 +95,7 @@ fun CategoryGridView(
                 }
                 AddCategoryDialog(
                     dialogState = addCategoryState,
-                    confirmButtonListener = { addCallback(it) })
+                    onConfirmClick = { addCallback(it) })
             }
         }
     }
