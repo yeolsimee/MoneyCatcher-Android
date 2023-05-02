@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
 
 package com.yeolsimee.moneysaving.view
 
@@ -155,7 +157,7 @@ class MainActivity : ComponentActivity() {
                                     val intent =
                                         Intent(this@MainActivity, RoutineActivity::class.java)
                                     intent.putExtra("routine", routine)
-                                    intent.putExtra("routineType", RoutineModifyOption.update)
+                                    intent.putExtra("routineType", RoutineModifyOption.Update)
                                     intent.putExtra("categoryId", categoryId)
                                     routineActivityLauncher.launch(intent)
                                 }
@@ -177,7 +179,7 @@ class MainActivity : ComponentActivity() {
                     FloatingActionButton(
                         onClick = {
                             val intent = Intent(this@MainActivity, RoutineActivity::class.java)
-                            intent.putExtra("routineType", RoutineModifyOption.add)
+                            intent.putExtra("routineType", RoutineModifyOption.Add)
                             routineActivityLauncher.launch(intent)
                         },
                         containerColor = Color.Black,

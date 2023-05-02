@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
+import com.yeolsimee.moneysaving.ui.appbar.BottomButtonAppBar
+import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
@@ -80,12 +82,12 @@ fun RoutineScreen(
 
         Scaffold(
             topBar = {
-                RoutineTopAppBar(routineType) { closeCallback() }
+                TopBackButtonTitleAppBar(routineType?.title) { closeCallback() }
             },
             bottomBar = {
                 buttonState.value = canSaveRoutine(routineName, selectedCategoryId)
 
-                RoutineBottomAppBar(routineType, buttonState) {
+                BottomButtonAppBar(routineType?.title, buttonState) {
                     onCompleteCallback(
                         RoutineRequest(
                             alarmStatus = if (alarmState.value) "ON" else "OFF",
@@ -105,12 +107,9 @@ fun RoutineScreen(
                     .padding(it)
                     .padding(horizontal = 28.dp)
                     .background(Color.White)
+                    .addFocusCleaner(focusManager)
             ) {
-                Column(
-                    Modifier
-                        .verticalScroll(scrollState)
-                        .addFocusCleaner(focusManager)
-                ) {
+                Column(Modifier.verticalScroll(scrollState)) {
                     InputRoutineName(routineName, focusRequester)
                     Spacer(Modifier.height(20.dp))
                     CategoryGridView(
@@ -177,7 +176,7 @@ private fun getAlarmTime(
 @Composable
 fun RoutineScreenPreview() {
     RoutineScreen(
-        routineType = RoutineModifyOption.add,
+        routineType = RoutineModifyOption.Add,
         categoryList = remember {
             mutableListOf(
                 TextItem("1", "💰아껴쓰기"),

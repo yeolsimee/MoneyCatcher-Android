@@ -40,7 +40,7 @@ import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.dialog.TwoButtonDialog
+import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
@@ -159,7 +159,7 @@ fun HomeScreen(
                 }
             )
         }
-        TwoButtonDialog(deleteDialogState, "해당 아이템을 삭제하시겠습니까?") {
+        TwoButtonOneTitleDialog(deleteDialogState, "해당 아이템을 삭제하시겠습니까?") {
             routineDeleteViewModel.delete(deleteRoutineId.value) {
                 findAllMyRoutineViewModel.refresh {
                     selectedDateViewModel.find(selected.value)

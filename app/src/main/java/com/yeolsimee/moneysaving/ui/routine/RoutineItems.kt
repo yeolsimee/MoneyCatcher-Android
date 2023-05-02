@@ -46,7 +46,7 @@ import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.dialog.OneButtonDialog
+import com.yeolsimee.moneysaving.ui.dialog.OneButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
@@ -182,7 +182,7 @@ fun RoutineItems(
     }
 
     if (cantEditDialogState.value) {
-        OneButtonDialog(
+        OneButtonOneTitleDialog(
             dialogState = cantEditDialogState,
             text = "현재 날짜에서만 루틴을 수정할 수 있습니다"
         )

@@ -52,7 +52,7 @@ class RoutineActivity : ComponentActivity() {
                     finish()
                 },
                 onCompleteCallback = { req ->
-                    if (routineType == RoutineModifyOption.add) {
+                    if (routineType == RoutineModifyOption.Add) {
                         routineViewModel.addRoutine(
                             routineRequest = req,
                             onSetAlarmCallback = { id ->

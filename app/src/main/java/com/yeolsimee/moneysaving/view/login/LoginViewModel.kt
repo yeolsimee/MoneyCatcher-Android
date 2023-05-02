@@ -75,28 +75,6 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Naver.login(applicationContext, naverLoginLauncher)
     }
 
-    fun receiveEmailResult(intent: Intent, activity: LoginActivity, callback: () -> Unit) {
-        // 1. Email SignIn
-        Email.receive(intent, activity)
-
-        // 2. 1번 결과 처리
-        Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
-            if (authResult.credential != null) {
-                val task = Firebase.auth.signInWithCredential(authResult.credential!!)
-                AuthFunctions.getAuthResult(task, tokenCallback = { _ ->
-                    viewModelScope.launch {
-                        userUseCase.login().onSuccess {
-                            showLoginSuccess(it)
-                            callback()
-                        }.onFailure {
-                            showLoginFailed(it.message)
-                        }
-                    }
-                })
-            }
-        }
-    }
-
     private fun showLoginSuccess(result: LoginResult) {
         Log.i(App.TAG, "로그인 성공: ${result.name} 가입여부: ${result.isNewUser}")
     }

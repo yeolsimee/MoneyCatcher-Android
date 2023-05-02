@@ -24,7 +24,7 @@ import androidx.compose.ui.window.Dialog
 import com.yeolsimee.moneysaving.ui.PrText
 
 @Composable
-fun OneButtonDialog(dialogState: MutableState<Boolean>, text: String = "", onConfirmClick: () -> Unit = {}) {
+fun OneButtonOneTitleDialog(dialogState: MutableState<Boolean>, text: String = "", onConfirmClick: () -> Unit = {}) {
     if (dialogState.value) {
         Dialog(onDismissRequest = { dialogState.value = false }) {
             Box(
@@ -66,6 +66,6 @@ fun OneButtonDialog(dialogState: MutableState<Boolean>, text: String = "", onCon
 
 @Preview(showBackground = true)
 @Composable
-fun OneButtonDialogPreview() {
-    OneButtonDialog(dialogState = remember { mutableStateOf(true) }, text = "현재 날짜에서만 루틴을 수정할 수 있습니다") {}
+fun OneButtonOneTitleDialogPreview() {
+    OneButtonOneTitleDialog(dialogState = remember { mutableStateOf(true) }, text = "현재 날짜에서만 루틴을 수정할 수 있습니다") {}
 }

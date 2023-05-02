@@ -22,7 +22,8 @@ class LoginActivity : ComponentActivity() {
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
     private lateinit var naverLoginLauncher: ActivityResultLauncher<Intent>
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val emailLoginViewModel: EmailLoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,13 +33,13 @@ class LoginActivity : ComponentActivity() {
         setContent {
             LoginScreen(
                 onNaverLogin = {
-                    viewModel.naverLogin(applicationContext, naverLoginLauncher)
+                    loginViewModel.naverLogin(applicationContext, naverLoginLauncher)
                 },
                 onGoogleLogin = {
-                    viewModel.googleLogin(googleLoginLauncher)
+                    loginViewModel.googleLogin(googleLoginLauncher)
                 },
                 onAppleLogin = {
-                    viewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
+                    loginViewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
                 },
                 onEmailButtonClick = {
                     val intent = Intent(this@LoginActivity, EmailLoginActivity::class.java)
@@ -51,10 +52,10 @@ class LoginActivity : ComponentActivity() {
     private fun initAuth() {
         initGoogleLogin()
         initNaverLogin()
-//        viewModel.logout()
-        viewModel.autoLogin {
-            moveToMainActivity()
-        }
+        loginViewModel.logout()
+//        viewModel.autoLogin {
+//            moveToMainActivity()
+//        }
     }
 
     private fun moveToMainActivity() {
@@ -64,23 +65,24 @@ class LoginActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.receiveEmailResult(intent, this@LoginActivity) {
-            moveToMainActivity()
-        }
+        emailLoginViewModel.receiveEmailResult(
+            intent,
+            this@LoginActivity,
+            onSuccess = { moveToMainActivity() })
     }
 
     private fun initNaverLogin() {
         naverLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                viewModel.naverInit(result) { moveToMainActivity() }
+                loginViewModel.naverInit(result) { moveToMainActivity() }
             }
     }
 
     private fun initGoogleLogin() {
-        viewModel.init(this@LoginActivity) { moveToMainActivity() }
+        loginViewModel.init(this@LoginActivity) { moveToMainActivity() }
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                viewModel.googleInit(it)
+                loginViewModel.googleInit(it)
             }
     }
 }

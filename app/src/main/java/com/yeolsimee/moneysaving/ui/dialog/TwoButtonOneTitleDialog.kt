@@ -25,7 +25,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray66
 
 @Composable
-fun TwoButtonDialog(
+fun TwoButtonOneTitleDialog(
     dialogState: MutableState<Boolean>,
     text: String = "",
     onConfirmClick: () -> Unit
@@ -81,8 +81,8 @@ fun TwoButtonDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun TwoButtonDialogPreview() {
-    TwoButtonDialog(
+fun TwoButtonOneTitleDialogPreview() {
+    TwoButtonOneTitleDialog(
         dialogState = remember { mutableStateOf(true) },
         text = "해당 아이템을 삭제하시겠습니까?",
         onConfirmClick = {}
