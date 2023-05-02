@@ -21,6 +21,8 @@ jobs:
         run: bundle install
       - run: echo '${{ secrets.SIGNING_PROPERTIES }}' | base64 -d > ./signing.properties
       - run: echo '${{ secrets.PLAYSTORE_API_KEY }}' | base64 -d > ./playstore-api-key.json
+      - run: echo '${{ secrets.SERVER_PROPERTIES }}' | base64 -d > ./server.properties
+      - run: echo '${{ secrets.STRINGS_SECRET }}' | base64 -d > ./app/src/main/res/values/strings_secret.xml
       - run: mkdir keystore
       - run: echo '${{ secrets.KEYSTORE }}' | base64 -d > ./keystore/moneysaving_key
       - name: Execute Fastlane Command
