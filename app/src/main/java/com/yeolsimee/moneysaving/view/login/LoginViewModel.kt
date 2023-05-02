@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.view.login
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -25,7 +26,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) : ViewModel() {
     private lateinit var google: Google
 
-    fun init(activity: LoginActivity, callback: () -> Unit) {
+    fun init(activity: Activity, callback: () -> Unit) {
         google = Google(activity) {
             loginUsingToken(callback)
         }
@@ -79,10 +80,10 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Log.i(App.TAG, "로그인 성공: ${result.name} 가입여부: ${result.isNewUser}")
     }
 
-    fun logout() {
+    fun logout(activity: Activity) {
         Firebase.auth.signOut()
         Naver.logout()
-        google.logout()
+        Google(activity).logout()
     }
 
     fun autoLogin(callback: () -> Unit) {

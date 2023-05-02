@@ -52,10 +52,9 @@ class LoginActivity : ComponentActivity() {
     private fun initAuth() {
         initGoogleLogin()
         initNaverLogin()
-        loginViewModel.logout()
-//        viewModel.autoLogin {
-//            moveToMainActivity()
-//        }
+        loginViewModel.autoLogin {
+            moveToMainActivity()
+        }
     }
 
     private fun moveToMainActivity() {

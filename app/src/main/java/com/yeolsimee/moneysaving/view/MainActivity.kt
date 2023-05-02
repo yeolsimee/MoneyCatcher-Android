@@ -62,6 +62,8 @@ import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
+import com.yeolsimee.moneysaving.view.login.LoginActivity
+import com.yeolsimee.moneysaving.view.login.LoginViewModel
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.GetRoutineViewModel
@@ -75,11 +77,16 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var callback: OnBackPressedCallback
     private var pressedTime: Long = 0
+
+    // Home
     private val calendarViewModel: CalendarViewModel by viewModels()
     private val selectedDateViewModel: SelectedDateViewModel by viewModels()
     private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
     private val getRoutineViewModel: GetRoutineViewModel by viewModels()
     private lateinit var routineActivityLauncher: ActivityResultLauncher<Intent>
+
+    // MyPage
+    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,7 +176,12 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(BottomNavItem.MyPage.screenRoute) {
                             floatingButtonVisible.value = false
-                            MyPageScreen()
+                            MyPageScreen {
+                                loginViewModel.logout(this@MainActivity)
+                                val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                startActivity(intent)
+                                finishAffinity()
+                            }
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.view.mypage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -12,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun MyPageScreen() {
+fun MyPageScreen(onLogout: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -24,6 +25,9 @@ fun MyPageScreen() {
             textAlign = TextAlign.Center,
             color = Color.White,
             modifier = Modifier.align(Alignment.Center)
+                .clickable {
+                    onLogout()
+                }
         )
     }
 }
