@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
@@ -50,13 +51,14 @@ import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineItems(
-    date: String = "",
+    selectedDate: CalendarDay,
     routinesOfDayState: RoutinesOfDay,
-    onItemClick: (Routine, String) -> Unit = { _, _ -> },
+    onItemClick: (String, String) -> Unit = { _, _ -> },
     onRoutineCheck: (RoutineCheckRequest) -> Unit = {},
     onItemDelete: (Routine) -> Unit = {},
 ) {
     val categories = routinesOfDayState.categoryDatas
+    val date = selectedDate.toString()
 
     Spacer(Modifier.height(18.dp))
 
@@ -117,7 +119,7 @@ fun RoutineItems(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
-                                        onItemClick(routine, category.categoryId)
+                                        onItemClick(routine.routineId, category.categoryId)
                                     }
                                 )
                         ) {
@@ -143,29 +145,31 @@ fun RoutineItems(
                                         AlarmIconAndText(routine)
                                     }
                                 }
-                                Box(modifier = Modifier
-                                    .width(60.dp)
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null,
-                                        onClick = {
-                                            onRoutineCheck(
-                                                RoutineCheckRequest(
-                                                    routineCheckYN = if (checked) "N" else "Y",
-                                                    routineId = routine.routineId.toInt(),
-                                                    routineDay = date
+                                if (selectedDate.isToday()) {
+                                    Box(modifier = Modifier
+                                        .width(60.dp)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null,
+                                            onClick = {
+                                                onRoutineCheck(
+                                                    RoutineCheckRequest(
+                                                        routineCheckYN = if (checked) "N" else "Y",
+                                                        routineId = routine.routineId.toInt(),
+                                                        routineDay = date
+                                                    )
                                                 )
-                                            )
-                                        }
-                                    )) {
-                                    Image(
-                                        painter = painterResource(
-                                            id = if (checked) R.drawable.icon_check
-                                            else R.drawable.icon_nonecheck
-                                        ),
-                                        contentDescription = "루틴 체크",
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
+                                            }
+                                        )) {
+                                        Image(
+                                            painter = painterResource(
+                                                id = if (checked) R.drawable.icon_check
+                                                else R.drawable.icon_nonecheck
+                                            ),
+                                            contentDescription = "루틴 체크",
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -184,6 +188,7 @@ fun RoutineItemPreview() {
     RoumoTheme {
         Box(modifier = Modifier.padding(10.dp)) {
             RoutineItems(
+                selectedDate = CalendarDay(2023, 5, 2),
                 routinesOfDayState = RoutinesOfDay(
                     routineDay = "20230424",
                     categoryDatas = arrayOf(

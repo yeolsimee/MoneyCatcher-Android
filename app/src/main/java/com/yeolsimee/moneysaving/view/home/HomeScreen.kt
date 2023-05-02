@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
-import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
@@ -45,8 +44,8 @@ import com.yeolsimee.moneysaving.ui.dialog.DeleteRoutineDialog
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
-import com.yeolsimee.moneysaving.view.calendar.ComposeCalendar
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.ComposeCalendar
 import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 
@@ -58,7 +57,7 @@ fun HomeScreen(
     routineCheckViewModel: RoutineCheckViewModel,
     routineDeleteViewModel: RoutineDeleteViewModel,
     floatingButtonVisible: MutableState<Boolean>,
-    onItemClick: (Routine, String) -> Unit = { _, _ -> }
+    onItemClick: (String, String) -> Unit = { _, _ -> }
 ) {
     val year = calendarViewModel.year()
     val month = calendarViewModel.month()
@@ -111,22 +110,14 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        val calendarDayList by findAllMyRoutineViewModel.container.stateFlow.collectAsState(
-            mutableListOf()
-        )
-
         ComposeCalendar(
-            calendarDayList,
-            selected,
-            spread,
-            year,
-            month,
-            calendarMonth,
+            days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
+            selected = selected,
+            spread = spread,
+            year = year,
+            month = month,
+            calendarMonth = calendarMonth,
             restoreSelected = {
-                Log.i(
-                    App.TAG,
-                    "restoreSelected ${selected.value.month}, ${it + 1}, ${calendarMonth.value}"
-                )
                 val resultDayList =
                     calendarViewModel.setDate(selected.value.year, selected.value.month - 1)
                 findAllMyRoutineViewModel.find(
@@ -144,15 +135,15 @@ fun HomeScreen(
 
         DateText(selected)
 
-        val routinesOfDayState: RoutinesOfDay by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
-            RoutinesOfDay()
+        val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            RoutinesOfDay("loading")
         )
 
-        if (routinesOfDayState.categoryDatas.isEmpty()) {
+        if (routinesOfDayState.isEmpty()) {
             EmptyRoutine()
-        } else {
+        } else if (routinesOfDayState.isNotLoading()) {
             RoutineItems(
-                date = selected.value.toString(),
+                selectedDate = selected.value,
                 routinesOfDayState = routinesOfDayState,
                 onItemClick = onItemClick,
                 onRoutineCheck = { check ->
@@ -170,7 +161,9 @@ fun HomeScreen(
         }
         DeleteRoutineDialog(deleteDialogState) {
             routineDeleteViewModel.delete(deleteRoutineId.value) {
-                selectedDateViewModel.find(selected.value)
+                findAllMyRoutineViewModel.refresh {
+                    selectedDateViewModel.find(selected.value)
+                }
             }
         }
     }

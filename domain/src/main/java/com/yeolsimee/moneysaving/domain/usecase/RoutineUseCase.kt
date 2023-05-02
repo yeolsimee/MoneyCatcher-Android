@@ -31,4 +31,8 @@ class RoutineUseCase(private val repository: IRoutineApiRepository) {
     suspend fun deleteRoutine(routineId: String): Result<Boolean> {
         return repository.deleteRoutine(routineId)
     }
+
+    suspend fun getRoutine(routineId: String): Result<RoutineResponse> {
+        return repository.getRoutine(routineId)
+    }
 }

@@ -21,6 +21,11 @@ class FindAllMyRoutineViewModel @Inject constructor(private val routineUseCase: 
 
     override val container = container<MutableList<CalendarDay>, ToastSideEffect>(mutableListOf())
 
+    private var startDate: CalendarDay? = null
+    private var endDate: CalendarDay? = null
+    private var month: Int = -1
+    private var days: MutableList<CalendarDay> = mutableListOf()
+
     override fun showSideEffect(message: String?) {
         intent {
             reduce { mutableListOf() }
@@ -37,16 +42,41 @@ class FindAllMyRoutineViewModel @Inject constructor(private val routineUseCase: 
             reduce { mutableListOf() }
             return@intent
         }
-        val startDate = dateRange.first
-        val endDate = dateRange.second
+        startDate = dateRange.first
+        endDate = dateRange.second
+        month = selectedMonth
+        days = dayList
+
         viewModelScope.launch {
-            val result = routineUseCase.findAllMyRoutineDays(startDate.toString(), endDate.toString(), selectedMonth)
+            val result =
+                routineUseCase.findAllMyRoutineDays(startDate.toString(), endDate.toString(), month)
             result.onSuccess {
                 reduce {
                     CalendarDay.getDayList(dayList, it)
                 }
             }.onFailure {
                 showSideEffect(it.message)
+            }
+        }
+    }
+
+    fun refresh(callback: () -> Unit) = intent {
+        if (startDate != null && endDate != null && month != -1) {
+            viewModelScope.launch {
+                reduce { mutableListOf() }  // 리스트를 한번 비웠다가 다시 추가한다.
+
+                val result = routineUseCase.findAllMyRoutineDays(
+                    startDate.toString(), endDate.toString(),
+                    month
+                )
+                result.onSuccess {
+                    reduce {
+                        CalendarDay.getDayList(days, it)
+                    }
+                    callback()
+                }.onFailure {
+                    showSideEffect(it.message)
+                }
             }
         }
     }

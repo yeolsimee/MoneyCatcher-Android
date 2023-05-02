@@ -24,7 +24,7 @@ class RoutineCheckViewModel @Inject constructor(private val routineUseCase: Rout
         val result = routineUseCase.routineCheck(routineCheckRequest)
         result.onSuccess {
             reduce {
-            refresh(it)
+                refresh(it)
                 it
             }
         }.onFailure { showSideEffect(it.message) }

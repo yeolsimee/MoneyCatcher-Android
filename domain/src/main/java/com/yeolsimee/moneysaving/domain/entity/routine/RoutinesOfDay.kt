@@ -6,8 +6,12 @@ data class RoutinesOfDay(
     private val routineDay: String? = "",
     val categoryDatas: Array<CategoryWithRoutines> = arrayOf()
 ) {
-    fun getRoutineDay(): String {
-        return routineDay ?: ""
+    fun isNotLoading(): Boolean {
+        return routineDay != "loading"
+    }
+
+    fun isEmpty(): Boolean {
+        return routineDay != "loading" && categoryDatas.isEmpty()
     }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

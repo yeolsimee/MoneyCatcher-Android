@@ -1,4 +1,4 @@
-package com.yeolsimee.moneysaving.view.calendar
+package com.yeolsimee.moneysaving.view.home.calendar
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image

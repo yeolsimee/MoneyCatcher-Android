@@ -16,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,12 +25,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
-import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
 import com.yeolsimee.moneysaving.utils.getTwoDigits
+import com.yeolsimee.moneysaving.utils.getWeekTypeCheckList
 import com.yeolsimee.moneysaving.utils.getWeekTypes
 import com.yeolsimee.moneysaving.view.category.CategoryGridView
 
@@ -39,7 +39,7 @@ import com.yeolsimee.moneysaving.view.category.CategoryGridView
 @ExperimentalLayoutApi
 @Composable
 fun RoutineScreen(
-    initialData: Routine? = null,
+    initialData: RoutineResponse? = null,
     routineType: RoutineModifyOption?,
     categoryList: MutableList<TextItem>,
     selectedCategoryId: MutableState<String>,
@@ -61,15 +61,21 @@ fun RoutineScreen(
             selectedCategoryId.value = categoryList.first().id
         }
 
-        // TODO 선택된 요일 정보 가져와야 함.
-        val repeatSelectList =
-            remember { mutableStateListOf(false, false, false, false, false, false, false) }
-        val selectedRoutineTimeZoneId = remember { mutableStateOf(initialData?.routineTimeZone ?: "1") }
+        val repeatSelectList = getRoutineRepeatList(initialData)
+        val selectedRoutineTimeZoneId =
+            remember { mutableStateOf(initialData?.routineTimeZone ?: "1") }
 
-        // TODO alarm 상태 가져와야 함.
-        val alarmState = remember { mutableStateOf(initialData?.alarmTimeHour?.isNotEmpty() ?: false) }
-        val hourState = remember { mutableStateOf(if (initialData?.alarmTimeHour?.isNotEmpty() == true) initialData.alarmTimeHour.toInt() else 13) }
-        val minuteState = remember { mutableStateOf(if (initialData?.alarmTimeMinute?.isNotEmpty() == true) initialData.alarmTimeMinute.toInt() else 0) }
+        val alarmState = remember { mutableStateOf(initialData?.alarmStatus == "ON") }
+        val hourState = remember {
+            mutableStateOf(
+                if (alarmState.value) initialData!!.alarmTime.substring(0, 2).toInt() else 13
+            )
+        }
+        val minuteState = remember {
+            mutableStateOf(
+                if (alarmState.value) initialData!!.alarmTime.substring(2, 4).toInt() else 0
+            )
+        }
         val addCategoryState = remember { mutableStateOf(false) }
 
         Scaffold(
@@ -136,6 +142,14 @@ fun RoutineScreen(
         }
     }
 }
+
+@Composable
+private fun getRoutineRepeatList(initialData: RoutineResponse?) =
+
+    remember {
+        if (initialData != null) getWeekTypeCheckList(initialData.weekTypes)
+        else (1..7).map { false }.toMutableList()
+    }
 
 @Composable
 private fun canSaveRoutine(

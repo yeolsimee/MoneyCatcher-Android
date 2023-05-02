@@ -48,4 +48,9 @@ interface RoutineApiService {
     suspend fun deleteRoutine(
         @Path("id") id: String
     ): Response<ApiResponse<Any>>
+
+    @GET("routine/{id}")
+    suspend fun getRoutine(
+        @Path("id") id: String
+    ): Response<ApiResponse<RoutineResponse>>
 }

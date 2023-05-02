@@ -39,4 +39,8 @@ class RoutineSource(
     fun deleteRoutine(routineId: String): Flow<Response<ApiResponse<Any>>> = flow {
         emit(api.deleteRoutine(routineId))
     }
+
+    fun getRoutine(routineId: String): Flow<Response<ApiResponse<RoutineResponse>>> = flow {
+        emit(api.getRoutine(routineId))
+    }
 }

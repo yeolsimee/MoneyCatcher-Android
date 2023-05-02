@@ -62,6 +62,7 @@ import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
+import com.yeolsimee.moneysaving.view.routine.GetRoutineViewModel
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
 import com.yeolsimee.moneysaving.view.routine.RoutineModifyOption
 import dagger.hilt.android.AndroidEntryPoint
@@ -74,6 +75,8 @@ class MainActivity : ComponentActivity() {
     private var pressedTime: Long = 0
     private val calendarViewModel: CalendarViewModel by viewModels()
     private val selectedDateViewModel: SelectedDateViewModel by viewModels()
+    private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
+    private val getRoutineViewModel: GetRoutineViewModel by viewModels()
     private lateinit var routineActivityLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +85,9 @@ class MainActivity : ComponentActivity() {
         routineActivityLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
-                    selectedDateViewModel.find(calendarViewModel.today)
+                    findAllMyRoutineViewModel.refresh {
+                        selectedDateViewModel.find(calendarViewModel.today)
+                    }
                 }
             }
 
@@ -110,7 +115,6 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val floatingButtonVisible = remember { mutableStateOf(false) }
 
-        val findAllMyRoutineViewModel: FindAllMyRoutineViewModel = hiltViewModel()
         val routineCheckViewModel: RoutineCheckViewModel = hiltViewModel()
         val routineDeleteViewModel: RoutineDeleteViewModel = hiltViewModel()
 
@@ -145,8 +149,9 @@ class MainActivity : ComponentActivity() {
                                 findAllMyRoutineViewModel = findAllMyRoutineViewModel,
                                 routineCheckViewModel = routineCheckViewModel,
                                 routineDeleteViewModel = routineDeleteViewModel,
-                                floatingButtonVisible = floatingButtonVisible,
-                                onItemClick = { routine, categoryId ->
+                                floatingButtonVisible = floatingButtonVisible
+                            ) { routineId, categoryId ->
+                                getRoutineViewModel.getRoutine(routineId) { routine ->
                                     val intent =
                                         Intent(this@MainActivity, RoutineActivity::class.java)
                                     intent.putExtra("routine", routine)
@@ -154,7 +159,7 @@ class MainActivity : ComponentActivity() {
                                     intent.putExtra("categoryId", categoryId)
                                     routineActivityLauncher.launch(intent)
                                 }
-                            )
+                            }
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
                             floatingButtonVisible.value = false
