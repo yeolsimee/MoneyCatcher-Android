@@ -27,6 +27,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +46,7 @@ import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.dialog.OneButtonDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
@@ -59,6 +62,7 @@ fun RoutineItems(
 ) {
     val categories = routinesOfDayState.categoryDatas
     val date = selectedDate.toString()
+    val cantEditDialogState = remember { mutableStateOf(false) }
 
     Spacer(Modifier.height(18.dp))
 
@@ -75,16 +79,8 @@ fun RoutineItems(
                 val checked = routine.routineCheckYN == "Y"
 
 
-                val swipeState = rememberDismissState(
-                    confirmValueChange = { dismissValue ->
-                        if (dismissValue == DismissValue.DismissedToStart) {
-                            onItemDelete(routine)
-                            true
-                        } else {
-                            false
-                        }
-                    },
-                )
+                val swipeState =
+                    setRoutineSwipeState(selectedDate, onItemDelete, routine, cantEditDialogState)
 
                 SwipeToDismiss(
                     state = swipeState,
@@ -119,7 +115,11 @@ fun RoutineItems(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
-                                        onItemClick(routine.routineId, category.categoryId)
+                                        if (selectedDate.isToday()) {
+                                            onItemClick(routine.routineId, category.categoryId)
+                                        } else {
+                                            cantEditDialogState.value = true
+                                        }
                                     }
                                 )
                         ) {
@@ -180,7 +180,37 @@ fun RoutineItems(
         }
         Spacer(Modifier.height(20.dp))
     }
+
+    if (cantEditDialogState.value) {
+        OneButtonDialog(
+            dialogState = cantEditDialogState,
+            text = "현재 날짜에서만 루틴을 수정할 수 있습니다"
+        )
+    }
 }
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun setRoutineSwipeState(
+    selectedDate: CalendarDay,
+    onItemDelete: (Routine) -> Unit,
+    routine: Routine,
+    cantEditDialogState: MutableState<Boolean>
+) = rememberDismissState(
+    confirmValueChange = { dismissValue ->
+        if (dismissValue == DismissValue.DismissedToStart) {
+            if (selectedDate.isToday()) {
+                onItemDelete(routine)
+                true
+            } else {
+                cantEditDialogState.value = true
+                false
+            }
+        } else {
+            false
+        }
+    },
+)
 
 @Preview(showBackground = true)
 @Composable

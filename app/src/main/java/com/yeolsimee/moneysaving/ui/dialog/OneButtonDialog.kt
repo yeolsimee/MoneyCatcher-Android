@@ -22,13 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.theme.Gray66
 
 @Composable
-fun DeleteRoutineDialog(
-    dialogState: MutableState<Boolean>,
-    onConfirmClick: () -> Unit
-) {
+fun OneButtonDialog(dialogState: MutableState<Boolean>, text: String = "", onConfirmClick: () -> Unit = {}) {
     if (dialogState.value) {
         Dialog(onDismissRequest = { dialogState.value = false }) {
             Box(
@@ -39,7 +35,7 @@ fun DeleteRoutineDialog(
             ) {
                 Column {
                     PrText(
-                        text = "해당 아이템을 삭제하시겠습니까?",
+                        text = text,
                         fontWeight = FontWeight.W500,
                         fontSize = 14.sp,
                         color = Color.Black
@@ -50,16 +46,6 @@ fun DeleteRoutineDialog(
                             .fillMaxWidth()
                             .padding(top = 8.dp, end = 8.dp)
                     ) {
-                        TextButton(onClick = {
-                            dialogState.value = false
-                        }) {
-                            PrText(
-                                text = "취소",
-                                color = Gray66,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.W400
-                            )
-                        }
                         TextButton(onClick = {
                             dialogState.value = false
                             onConfirmClick()
@@ -80,6 +66,6 @@ fun DeleteRoutineDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun DeleteRoutineDialogPreview() {
-    DeleteRoutineDialog(dialogState = remember { mutableStateOf(true) }, onConfirmClick = {})
+fun OneButtonDialogPreview() {
+    OneButtonDialog(dialogState = remember { mutableStateOf(true) }, text = "현재 날짜에서만 루틴을 수정할 수 있습니다") {}
 }
