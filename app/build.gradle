@@ -107,10 +107,9 @@ dependencies {
     // Firebase 로그인, Functions, Dynamic Links
     implementation platform('com.google.firebase:firebase-bom:31.2.2')
     implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation ('com.google.firebase:firebase-functions-ktx') {
-        exclude group: 'com.google.android.gms', module: 'play-services-safetynet'
-    }
+    implementation 'com.google.firebase:firebase-functions-ktx'
     implementation 'com.google.firebase:firebase-dynamic-links-ktx'
+
     // Google 로그인
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
 
@@ -149,4 +148,8 @@ dependencies {
 
     // kotest
     testImplementation 'io.kotest:kotest-runner-junit5:4.3.2'
+}
+
+configurations.all {
+    exclude group: 'com.google.android.gms', module: 'play-services-safetynet'
 }
