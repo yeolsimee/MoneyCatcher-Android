@@ -10,9 +10,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
     }
 }
-rootProject.name = "MoneySaving"
+rootProject.name = "ROUMO"
 include ':app'
 include ':domain'
 include ':data'

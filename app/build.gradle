@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
 }
 
 def signingProperties = new Properties()
@@ -16,6 +17,10 @@ def _keyAlias = signingProperties.getProperty('key.alias')
 def _keyPassword = signingProperties.getProperty('key.password')
 def _storePassword = signingProperties.getProperty('store.password')
 
+def _naverClientId = signingProperties.getProperty('naver.client.id')
+def _naverClientSecret = signingProperties.getProperty('naver.client.secret')
+def _naverClientName = signingProperties.getProperty('naver.client.name')
+
 android {
     namespace 'com.yeolsimee.moneysaving'
     compileSdk 33
@@ -24,10 +29,15 @@ android {
         applicationId "com.yeolsimee.moneysaving"
         minSdk 24
         targetSdk 33
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.0.4"
         ndk.debugSymbolLevel 'FULL'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "OAUTH_CLIENT_ID", "\"$_naverClientId\""
+        buildConfigField "String", "OAUTH_CLIENT_SECRET", "\"$_naverClientSecret\""
+        buildConfigField "String", "OAUTH_CLIENT_NAME", "\"$_naverClientName\""
+
         vectorDrawables {
             useSupportLibrary true
         }
@@ -60,12 +70,18 @@ android {
     buildFeatures {
         compose true
     }
+
     composeOptions {
-        kotlinCompilerExtensionVersion '1.2.0'
+        kotlinCompilerExtensionVersion '1.4.3'
     }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
         }
     }
 }
@@ -74,20 +90,40 @@ dependencies {
     implementation project(path: ':data')
     implementation project(path: ':domain')
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
-    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.activity:activity-compose:1.7.1'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.0.1'
+    implementation 'androidx.compose.material3:material3:1.1.0-rc01'
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.1"
+
+    // ui
+    implementation "io.coil-kt:coil-compose:2.3.0"
+    implementation "io.coil-kt:coil-svg:2.3.0"
+
+    // status bar color
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
+
+    // Firebase 로그인, Functions, Dynamic Links
+    implementation platform('com.google.firebase:firebase-bom:31.2.2')
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-functions-ktx'
+    implementation 'com.google.firebase:firebase-dynamic-links-ktx'
+    // Google 로그인
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+
+    // naver
+    implementation "com.navercorp.nid:oauth:5.4.0"
 
     // Jetpack LiveData
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
 
     // ViewModel-Compose 사용
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
 
     // hilt, dagger
+    implementation "androidx.navigation:navigation-compose:2.5.3"
     implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
@@ -108,4 +144,7 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    // kotest
+    testImplementation 'io.kotest:kotest-runner-junit5:4.3.2'
 }

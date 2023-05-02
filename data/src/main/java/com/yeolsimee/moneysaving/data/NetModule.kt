@@ -1,24 +1,26 @@
 package com.yeolsimee.moneysaving.data
 
 import android.app.Application
-import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.yeolsimee.moneysaving.data.api.TestApiService
+import com.yeolsimee.moneysaving.data.api.CategoryApiService
+import com.yeolsimee.moneysaving.data.api.RoutineApiService
+import com.yeolsimee.moneysaving.data.api.UserApiService
+import com.yeolsimee.moneysaving.data.interceptor.ConnectivityInterceptor
+import com.yeolsimee.moneysaving.data.interceptor.FirebaseUserIdTokenInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.*
+import okhttp3.Cache
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 class NetModule {
-
     @Provides
     @Singleton
     fun provideHttpCache(application: Application): Cache {
@@ -30,22 +32,31 @@ class NetModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create()
     }
 
     @Provides
     @Singleton
-    fun provideOkhttpClient(connectivityInterceptor: ConnectivityInterceptor, cache: Cache? = null): OkHttpClient {
+    fun provideOkhttpClient(
+        connectivityInterceptor: ConnectivityInterceptor,
+        authInterceptor: FirebaseUserIdTokenInterceptor,
+        cache: Cache? = null
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .cache(cache)
             .addInterceptor(connectivityInterceptor)
+            .addInterceptor(authInterceptor)
             .build()
     }
 
     @Provides
     @Singleton
     internal fun interceptor(): ConnectivityInterceptor = ConnectivityInterceptor()
+
+    @Provides
+    @Singleton
+    internal fun authInterceptor(): FirebaseUserIdTokenInterceptor =
+        FirebaseUserIdTokenInterceptor()
 
     @Provides
     @Singleton
@@ -59,11 +70,23 @@ class NetModule {
 
     @Provides
     @Singleton
-    fun provideTestApiService(retrofit: Retrofit): TestApiService {
-        return retrofit.create(TestApiService::class.java)
+    fun provideUserService(retrofit: Retrofit): UserApiService {
+        return retrofit.create(UserApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRoutineApiService(retrofit: Retrofit): RoutineApiService {
+        return retrofit.create(RoutineApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCategoryApiService(retrofit: Retrofit): CategoryApiService {
+        return retrofit.create(CategoryApiService::class.java)
     }
 
     companion object {
-        private const val BASE_URL: String = "https://www.dhlottery.co.kr"
+        private const val BASE_URL: String = BuildConfig.REAL_URL
     }
 }

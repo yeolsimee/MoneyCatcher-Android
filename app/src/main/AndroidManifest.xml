@@ -2,28 +2,65 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MoneySaving"
-        android:name=".App"
+        android:theme="@style/Theme.Roumo"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.MoneySaving">
+            android:name=".view.login.LoginActivity"
+            android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".view.login.EmailLoginActivity"
+            android:exported="true">
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="moneysaving.page.link"
+                    android:scheme="https" />
+
+            </intent-filter>
+
+        </activity>
+
+        <activity android:name=".view.MainActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".view.routine.RoutineActivity"/>
+
+        <activity android:name=".view.notification.TestActivity"
+            android:exported="false">
+        </activity>
+
+        <receiver android:name=".utils.notification.NotificationReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.yeolsimee.moneysaving.ALARM_TEST"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
