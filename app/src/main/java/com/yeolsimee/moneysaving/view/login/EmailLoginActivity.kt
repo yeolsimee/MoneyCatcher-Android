@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class)
 
 package com.yeolsimee.moneysaving.view.login
 
@@ -67,11 +67,18 @@ class EmailLoginActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.receiveEmailResult(intent, this@EmailLoginActivity, onSuccess = {
-            val intent = Intent(this@EmailLoginActivity, MainActivity::class.java)
-            startActivity(intent)
-            finishAffinity()
-        }) {
+        viewModel.receiveEmailResult(
+            intent,
+            activity = this@EmailLoginActivity,
+            signedUserCallback = {
+                val intent = Intent(this@EmailLoginActivity, MainActivity::class.java)
+                startActivity(intent)
+                finishAffinity()
+            },
+            newUserCallback = {
+
+            }
+        ) {
             setContent {
                 OneButtonTwoTitleDialog(
                     title = "오류",

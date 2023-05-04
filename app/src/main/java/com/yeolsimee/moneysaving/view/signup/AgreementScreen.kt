@@ -34,7 +34,7 @@ import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 
 @Composable
-fun AgreementScreen() {
+fun AgreementScreen(onClick: () -> Unit = {}) {
     RoumoTheme {
         val buttonState = remember { mutableStateOf(false) }
         Scaffold(
@@ -45,7 +45,7 @@ fun AgreementScreen() {
                 BottomButtonAppBar(
                     buttonState = buttonState,
                     buttonText = "동의하고 계속하기",
-                    onClick = {})
+                    onClick = onClick)
             })
         {
 
