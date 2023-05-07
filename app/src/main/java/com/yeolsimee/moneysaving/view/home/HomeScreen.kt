@@ -175,11 +175,12 @@ private fun EmptyRoutine() {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(45.dp))
+        Spacer(Modifier.height(77.dp))
         Image(
-            painter = painterResource(id = R.drawable.empty_routine),
+            painter = painterResource(id = R.drawable.middle_empty_icon),
             contentDescription = "루틴이 비어 있어요!"
         )
+        Spacer(Modifier.height(13.dp))
         PrText(
             text = stringResource(R.string.routine_is_empty),
             fontSize = 20.sp,
