@@ -87,7 +87,7 @@ fun RoutineScreen(
             bottomBar = {
                 buttonState.value = canSaveRoutine(routineName, selectedCategoryId)
 
-                BottomButtonAppBar(routineType?.title, buttonState) {
+                BottomButtonAppBar(routineType?.title, buttonState.value) {
                     onCompleteCallback(
                         RoutineRequest(
                             alarmStatus = if (alarmState.value) "ON" else "OFF",

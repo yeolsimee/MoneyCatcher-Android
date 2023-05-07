@@ -61,6 +61,10 @@
                 <action android:name="com.yeolsimee.moneysaving.ALARM_TEST"/>
             </intent-filter>
         </receiver>
+
+        <activity android:name=".view.signup.AgreementActivity"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

@@ -19,7 +19,7 @@ class AgreementActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AgreementScreen {
+            AgreementScreen(onFinish = { finish() }) {
                 viewModel.signUp(onSuccess = {
                     val intent = Intent(this@AgreementActivity, MainActivity::class.java)
                     startActivity(intent)

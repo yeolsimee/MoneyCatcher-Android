@@ -1,6 +1,8 @@
 package com.yeolsimee.moneysaving.view.signup
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,27 +33,25 @@ import com.yeolsimee.moneysaving.ui.appbar.BottomButtonAppBar
 import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
 import com.yeolsimee.moneysaving.ui.theme.Black33
 import com.yeolsimee.moneysaving.ui.theme.Gray66
+import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
-fun AgreementScreen(onClick: () -> Unit = {}) {
-    RoumoTheme {
-        val buttonState = remember { mutableStateOf(false) }
-        Scaffold(
-            topBar = {
-                TopBackButtonTitleAppBar {}
-            },
-            bottomBar = {
-                BottomButtonAppBar(
-                    buttonState = buttonState,
-                    buttonText = "동의하고 계속하기",
-                    onClick = onClick)
-            })
-        {
-
-            val firstCheck = remember { mutableStateOf(false) }
-            val secondCheck = remember { mutableStateOf(false) }
+fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}) {
+    val firstCheck = remember { mutableStateOf(false) }
+    val secondCheck = remember { mutableStateOf(false) }
+    RoumoTheme(navigationBarColor = if (firstCheck.value && secondCheck.value) Color.Black else Gray99) {
+        Scaffold(topBar = {
+            TopBackButtonTitleAppBar { onFinish() }
+        }, bottomBar = {
+            BottomButtonAppBar(
+                buttonState = firstCheck.value && secondCheck.value,
+                buttonText = "동의하고 계속하기",
+                onClick = onClick
+            )
+        }) {
 
             Box(
                 modifier = Modifier
@@ -67,8 +68,13 @@ fun AgreementScreen(onClick: () -> Unit = {}) {
                     )
                     Spacer(Modifier.height(44.dp))
                     Row(
-                        Modifier.padding(vertical = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        Modifier
+                            .padding(vertical = 16.dp)
+                            .clickable(interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {
+                                    checkAll(firstCheck, secondCheck)
+                                }), verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
                             painter = painterResource(
@@ -92,7 +98,9 @@ fun AgreementScreen(onClick: () -> Unit = {}) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row {
+                        Row(modifier = Modifier.onClick {
+                            firstCheck.value = !firstCheck.value
+                        }) {
                             Image(
                                 painter = painterResource(
                                     id = if (firstCheck.value) R.drawable.icon_check
@@ -119,7 +127,9 @@ fun AgreementScreen(onClick: () -> Unit = {}) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row {
+                        Row(modifier = Modifier.onClick {
+                            secondCheck.value = !secondCheck.value
+                        }) {
                             Image(
                                 painter = painterResource(
                                     id = if (secondCheck.value) R.drawable.icon_check
@@ -142,6 +152,18 @@ fun AgreementScreen(onClick: () -> Unit = {}) {
                 }
             }
         }
+    }
+}
+
+private fun checkAll(
+    firstCheck: MutableState<Boolean>, secondCheck: MutableState<Boolean>
+) {
+    if (firstCheck.value && secondCheck.value) {
+        firstCheck.value = false
+        secondCheck.value = false
+    } else {
+        firstCheck.value = true
+        secondCheck.value = true
     }
 }
 

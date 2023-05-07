@@ -52,7 +52,6 @@ class LoginActivity : ComponentActivity() {
 
     private fun moveToAgreementActivity() {
         startActivity(Intent(this@LoginActivity, AgreementActivity::class.java))
-        finish()
     }
 
     private fun initAuth() {

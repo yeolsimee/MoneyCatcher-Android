@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class,
+    ExperimentalLayoutApi::class
+)
 
 package com.yeolsimee.moneysaving.view.login
 
@@ -12,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.yeolsimee.moneysaving.ui.dialog.OneButtonTwoTitleDialog
 import com.yeolsimee.moneysaving.view.MainActivity
+import com.yeolsimee.moneysaving.view.signup.AgreementActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -76,7 +79,8 @@ class EmailLoginActivity : ComponentActivity() {
                 finishAffinity()
             },
             newUserCallback = {
-
+                val intent = Intent(this@EmailLoginActivity, AgreementActivity::class.java)
+                startActivity(intent)
             }
         ) {
             setContent {
