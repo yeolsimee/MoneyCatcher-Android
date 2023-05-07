@@ -105,4 +105,8 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
             }
         }
     }
+
+    fun withdraw(activity: Activity, onSuccess: () -> Unit) {
+
+    }
 }

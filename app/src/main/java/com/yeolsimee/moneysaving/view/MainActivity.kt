@@ -1,5 +1,5 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
 package com.yeolsimee.moneysaving.view
@@ -176,12 +176,21 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(BottomNavItem.MyPage.screenRoute) {
                             floatingButtonVisible.value = false
-                            MyPageScreen {
-                                loginViewModel.logout(this@MainActivity)
-                                val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                                startActivity(intent)
-                                finishAffinity()
-                            }
+                            MyPageScreen(
+                                onLogout = {
+                                    loginViewModel.logout(this@MainActivity)
+                                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                    startActivity(intent)
+                                    finishAffinity()
+                                },
+                                onWithdraw = {
+                                    loginViewModel.withdraw(this@MainActivity) {
+                                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                        startActivity(intent)
+                                        finishAffinity()
+                                    }
+                                }
+                            )
                         }
                     }
                 }
