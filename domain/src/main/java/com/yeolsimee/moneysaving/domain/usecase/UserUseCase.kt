@@ -12,4 +12,8 @@ class UserUseCase(private val userApiRepository: IUserApiRepository) {
     suspend fun signUp(): Result<ApiUser> {
         return userApiRepository.signUp()
     }
+
+    suspend fun withdraw(): Result<Boolean> {
+        return userApiRepository.withdraw()
+    }
 }

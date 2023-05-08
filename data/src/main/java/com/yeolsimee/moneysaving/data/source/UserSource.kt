@@ -15,4 +15,5 @@ class UserSource(
         flow { emit(api.login()) }
 
     fun signUp(): Flow<Response<ApiResponse<ApiUser>>> = flow { emit(api.signUp()) }
+    fun withdraw(): Flow<Response<ApiResponse<Any>>> = flow { emit(api.withdraw()) }
 }

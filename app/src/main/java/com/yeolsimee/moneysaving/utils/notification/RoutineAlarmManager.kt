@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.utils.notification
 
-import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -14,7 +13,7 @@ import java.util.Calendar
 
 class RoutineAlarmManager {
     companion object {
-        fun setAll(
+        fun setRoutine(
             context: Context,
             dayOfWeeks: Array<String>,
             alarmTime: String,
@@ -34,14 +33,10 @@ class RoutineAlarmManager {
                 // TODO 루틴알림에 필요한 정보 입력하기
                 intent.putExtra("time", "${hour}시 ${minute}분")
                 val alarmId = getAlarmId(routineId, dayOfWeek)
-                val pIntent = PendingIntent.getBroadcast(
-                    context,
-                    alarmId, intent,
-                    PendingIntent.FLAG_IMMUTABLE
-                )
+                val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
                 val alarmManager = getAlarmManager(context)
 
-                alarmManager.setInexactRepeating(
+                alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
                     triggerTime.timeInMillis,
                     AlarmManager.INTERVAL_DAY * 7,
@@ -69,11 +64,7 @@ class RoutineAlarmManager {
             // TODO 루틴알림에 필요한 정보 입력하기
             intent.putExtra("time", "${hour}시 ${minute}분")
 
-            val pIntent = PendingIntent.getBroadcast(
-                context,
-                alarmId, intent,
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
             val alarmManager = getAlarmManager(context)
 
             alarmManager.setInexactRepeating(
@@ -106,30 +97,40 @@ class RoutineAlarmManager {
             return triggerTime
         }
 
-        fun delete(activity: Activity, res: RoutineResponse, onDelete: (Int) -> Unit = {}) {
-            val alarmManager = getAlarmManager(activity)
+        fun delete(context: Context, res: RoutineResponse, onDelete: (Int) -> Unit = {}) {
+            val alarmManager = getAlarmManager(context)
 
             val routineId = res.routineId
             val weekTypes = res.weekTypes
             for (dayOfWeek in weekTypes) {
                 val alarmId = getAlarmId(routineId, getIntDayOfWeekFromEnglish(dayOfWeek))
                 alarmManager.cancel(
-                    PendingIntent.getBroadcast(
-                        activity,
-                        alarmId,
-                        getRoutineAlarmIntent(activity),
-                        PendingIntent.FLAG_IMMUTABLE
-                    )
+                    makeAlarmPendingIntent(context, alarmId, getRoutineAlarmIntent(context))
                 )
                 onDelete(alarmId)
             }
 
         }
 
-        fun deleteAll(routineIdList: List<Int>) {
-
+        fun deleteAll(context: Context, alarmIdList: List<Int>) {
+            val alarmManager = getAlarmManager(context)
+            for (alarmId in alarmIdList) {
+                alarmManager.cancel(
+                    makeAlarmPendingIntent(context, alarmId, getRoutineAlarmIntent(context))
+                )
+            }
         }
 
+        private fun makeAlarmPendingIntent(
+            context: Context,
+            alarmId: Int,
+            intent: Intent
+        ): PendingIntent = PendingIntent.getBroadcast(
+            context,
+            alarmId,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         private fun getRoutineAlarmIntent(context: Context): Intent {
             val intent = Intent("com.yeolsimee.moneysaving.ROUTINE_ALARM")

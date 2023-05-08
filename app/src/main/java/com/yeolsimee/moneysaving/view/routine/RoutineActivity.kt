@@ -57,7 +57,7 @@ class RoutineActivity : ComponentActivity() {
                         routineViewModel.addRoutine(
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
-                                RoutineAlarmManager.setAll(
+                                RoutineAlarmManager.setRoutine(
                                     this@RoutineActivity,
                                     req.weekTypes,
                                     req.alarmTime,
@@ -75,7 +75,7 @@ class RoutineActivity : ComponentActivity() {
                             routineId = routineResponse?.routineId,
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
-                                RoutineAlarmManager.setAll(
+                                RoutineAlarmManager.setRoutine(
                                     this@RoutineActivity,
                                     req.weekTypes,
                                     req.alarmTime,

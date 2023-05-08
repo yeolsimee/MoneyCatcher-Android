@@ -28,4 +28,14 @@ class UserApiRepository(private val source: UserSource): IUserApiRepository {
             Result.failure(ApiException(response.code(), result?.message))
         }
     }
+
+    override suspend fun withdraw(): Result<Boolean> {
+        val response = source.withdraw().last()
+        val result = response.body()
+        return if (result != null && result.success) {
+            Result.success(true)
+        } else {
+            Result.failure(ApiException(response.code(), result?.message))
+        }
+    }
 }

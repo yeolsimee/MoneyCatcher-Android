@@ -16,4 +16,7 @@ interface UserApiService {
     @POST("isnewuser/update")
     suspend fun signUp(@Body userChecker: NewUserChecker = NewUserChecker("N")):
             Response<ApiResponse<ApiUser>>
+
+    @POST("withdraw")
+    suspend fun withdraw(): Response<ApiResponse<Any>>
 }

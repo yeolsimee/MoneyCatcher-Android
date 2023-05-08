@@ -7,4 +7,5 @@ interface IUserApiRepository {
     suspend fun login(): Result<LoginResult>
 
     suspend fun signUp(): Result<ApiUser>
+    suspend fun withdraw(): Result<Boolean>
 }
