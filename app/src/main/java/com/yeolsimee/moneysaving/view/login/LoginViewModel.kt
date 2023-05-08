@@ -16,6 +16,7 @@ import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.auth.Apple
 import com.yeolsimee.moneysaving.auth.Google
 import com.yeolsimee.moneysaving.auth.Naver
+import com.yeolsimee.moneysaving.data.db.AlarmDao
 import com.yeolsimee.moneysaving.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,7 +25,7 @@ import javax.inject.Inject
 @ExperimentalLayoutApi
 @ExperimentalMaterial3Api
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) : ViewModel() {
+class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase, private val dao: AlarmDao) : ViewModel() {
     private lateinit var google: Google
 
     fun init(activity: Activity, signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
@@ -89,6 +90,7 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     fun logout(activity: Activity) {
+        dao.deleteAll()
         Firebase.auth.signOut()
         Naver.logout()
         Google(activity).logout()
@@ -107,6 +109,16 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
     }
 
     fun withdraw(activity: Activity, onSuccess: () -> Unit) {
+        // TODO 로그아웃 먼저하고, API 회원탈퇴 후 로그인 화면으로 이동
+        logout(activity)
+    }
 
+    fun updateRoutineAlarms(callback: () -> Unit) {
+        /* TODO
+            1. API 루틴 알림 리스트 조회
+            2. 리스트로 받은 루틴 알림 모두 등록
+            3. 홈화면으로 이동
+         */
+        callback()
     }
 }

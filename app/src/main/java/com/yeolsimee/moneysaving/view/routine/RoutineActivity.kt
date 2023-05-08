@@ -33,6 +33,7 @@ class RoutineActivity : ComponentActivity() {
 
     private val categoryViewModel: CategoryViewModel by viewModels()
     private val routineViewModel: RoutineModifyViewModel by viewModels()
+    private val alarmViewModel: AlarmViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +57,14 @@ class RoutineActivity : ComponentActivity() {
                         routineViewModel.addRoutine(
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
-                                RoutineAlarmManager.set(this@RoutineActivity, req, id)
+                                RoutineAlarmManager.setAll(
+                                    this@RoutineActivity,
+                                    req.weekTypes,
+                                    req.alarmTime,
+                                    id
+                                ) { alarmId, dayOfWeek ->
+                                    alarmViewModel.addAlarm(alarmId, dayOfWeek, req.alarmTime)
+                                }
                             },
                             onFinishCallback = {
                                 sendResultAndFinish()
@@ -67,7 +75,17 @@ class RoutineActivity : ComponentActivity() {
                             routineId = routineResponse?.routineId,
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
-                                RoutineAlarmManager.set(this@RoutineActivity, req, id)
+                                RoutineAlarmManager.setAll(
+                                    this@RoutineActivity,
+                                    req.weekTypes,
+                                    req.alarmTime,
+                                    id
+                                )
+                            },
+                            onDeleteAlarmCallback = { res ->
+                                RoutineAlarmManager.delete(this@RoutineActivity, res) {
+                                    alarmViewModel.deleteAlarm(it)
+                                }
                             },
                             onFinishCallback = {
                                 sendResultAndFinish()

@@ -4,6 +4,6 @@ import androidx.annotation.Keep
 
 @Keep
 data class LoginResult(
-    val name: String,
-    val isNewUser: String
+    val name: String?,
+    val isNewUser: String?
 )
