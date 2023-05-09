@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".App"
@@ -16,7 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Roumo"
         android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="tiramisu">
         <activity
             android:name=".view.login.LoginActivity"
             android:exported="true">
@@ -28,7 +31,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.login.EmailLoginActivity"
+        <activity
+            android:name=".view.login.EmailLoginActivity"
             android:exported="true">
 
             <intent-filter android:autoVerify="true">
@@ -45,22 +49,37 @@
 
         </activity>
 
-        <activity android:name=".view.MainActivity"
-            android:exported="false">
-        </activity>
+        <activity
+            android:name=".view.MainActivity"
+            android:exported="false" />
 
-        <activity android:name=".view.routine.RoutineActivity"/>
+        <activity android:name=".view.routine.RoutineActivity"
+            android:exported="false"/>
 
-        <activity android:name=".view.notification.TestActivity"
-            android:exported="false">
-        </activity>
+        <activity
+            android:name=".view.notification.TestActivity"
+            android:exported="false" />
 
-        <receiver android:name=".utils.notification.NotificationReceiver"
+        <receiver
+            android:name=".utils.receiver.NotificationReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.yeolsimee.moneysaving.ALARM_TEST"/>
+                <action android:name="com.yeolsimee.moneysaving.ROUTINE_ALARM" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".utils.receiver.DeviceBootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".view.signup.AgreementActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

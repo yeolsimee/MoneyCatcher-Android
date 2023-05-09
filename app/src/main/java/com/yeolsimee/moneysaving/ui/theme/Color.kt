@@ -14,6 +14,7 @@ val DismissRed = Color(0xFFFF4741)
 
 // Black
 val Black17 = Color(0xFF171717)
+val Black33 = Color(0xFF333333)
 
 // Gray
 val Gray17 = Color(0x66171717)

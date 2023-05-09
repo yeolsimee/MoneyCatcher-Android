@@ -14,6 +14,7 @@ class ConnectivityInterceptor: Interceptor {
             val response: Response = chain.proceed(request)
             val content = response.body()?.string() ?: ""
             Log.d("OkHttp Request", response.request().url().url().toString())
+            Log.d("OkHttp Response", "code: ${response.code()}")
 
             val copy = request.newBuilder().build()
             val buffer = okio.Buffer()

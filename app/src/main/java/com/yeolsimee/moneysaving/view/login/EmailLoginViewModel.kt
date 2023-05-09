@@ -17,21 +17,20 @@ class EmailLoginViewModel @Inject constructor(private val userUseCase: UserUseCa
         Email.send(email, onComplete = onComplete, onFailure = onFailure, onError = onError)
     }
 
-    fun receiveEmailResult(intent: Intent, activity: Activity, onSuccess: () -> Unit, onFailure: () -> Unit = {}) {
+    fun receiveEmailResult(intent: Intent, activity: Activity, signedUserCallback: () -> Unit, newUserCallback: () -> Unit, onFailure: () -> Unit = {}) {
         // 1. Email SignIn
         Email.receive(intent, activity, onFailure) {
             viewModelScope.launch {
                 userUseCase.login().onSuccess {
-                    onSuccess()
+                    if (it.isNewUser == "Y") {
+                        newUserCallback()
+                    } else {
+                        signedUserCallback()
+                    }
                 }.onFailure {
                     onFailure()
                 }
             }
         }
-
-        // 2. 1번 결과 처리
-//        Firebase.auth.pendingAuthResult?.addOnSuccessListener { authResult ->
-//
-//        }
     }
 }

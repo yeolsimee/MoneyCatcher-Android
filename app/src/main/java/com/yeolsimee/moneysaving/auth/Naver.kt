@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.navercorp.nid.NaverIdLoginSDK
@@ -21,7 +22,9 @@ object Naver {
                     accessToken,
                     "naverCustomAuth"
                 ) { token ->
-                    tokenCallback(token)
+                    FirebaseAuth.getInstance().signInWithCustomToken(token).addOnCompleteListener {
+                        tokenCallback(token)
+                    }
                 }
             }
             ComponentActivity.RESULT_CANCELED -> {

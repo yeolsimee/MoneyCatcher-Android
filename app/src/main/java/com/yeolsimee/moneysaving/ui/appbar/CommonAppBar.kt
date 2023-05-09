@@ -18,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +58,7 @@ fun TopBackButtonTitleAppBar(text: String? = "", onClick: () -> Unit) {
 @Composable
 fun BottomButtonAppBar(
     buttonText: String? = "",
-    buttonState: MutableState<Boolean>,
+    buttonState: Boolean,
     onClick: () -> Unit
 ) {
     BottomAppBar(Modifier
@@ -67,14 +66,14 @@ fun BottomButtonAppBar(
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
-            enabled = buttonState.value,
+            enabled = buttonState,
             onClick = { onClick() }
         ), contentPadding = PaddingValues(0.dp)) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    if (buttonState.value) Color.Black
+                    if (buttonState) Color.Black
                     else Gray99
                 )
         ) {

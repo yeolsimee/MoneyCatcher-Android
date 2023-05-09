@@ -55,7 +55,7 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
             topBar = {
             TopBackButtonTitleAppBar { onBackClick() }
         }, bottomBar = {
-            BottomButtonAppBar(buttonState = buttonState, buttonText = "확인") {
+            BottomButtonAppBar(buttonState = buttonState.value, buttonText = "확인") {
                 onConfirmClick(emailState.value)
             }
         }) {

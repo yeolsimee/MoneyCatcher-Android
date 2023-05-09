@@ -13,8 +13,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.App
-import com.yeolsimee.moneysaving.auth.*
-import com.yeolsimee.moneysaving.domain.entity.LoginResult
+import com.yeolsimee.moneysaving.auth.Apple
+import com.yeolsimee.moneysaving.auth.Google
+import com.yeolsimee.moneysaving.auth.Naver
 import com.yeolsimee.moneysaving.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -23,12 +24,14 @@ import javax.inject.Inject
 @ExperimentalLayoutApi
 @ExperimentalMaterial3Api
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val userUseCase: UserUseCase
+) : ViewModel() {
     private lateinit var google: Google
 
-    fun init(activity: Activity, callback: () -> Unit) {
+    fun init(activity: Activity, signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
         google = Google(activity) {
-            loginUsingToken(callback)
+            loginUsingToken(signedUserCallback, newUserCallback)
         }
     }
 
@@ -36,12 +39,20 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Log.e(App.TAG, "login failed: $message")
     }
 
-    fun naverInit(result: ActivityResult, callback: () -> Unit) {
-        Naver.init(result, tokenCallback = {
-            loginUsingToken(callback)
-        }, failedCallback = {
-            showLoginFailed(it)
-        })
+    fun naverInit(
+        result: ActivityResult,
+        signedUserCallback: () -> Unit,
+        newUserCallback: () -> Unit
+    ) {
+        Naver.init(
+            result = result,
+            tokenCallback = {
+                loginUsingToken(signedUserCallback, newUserCallback)
+            },
+            failedCallback = {
+                showLoginFailed(it)
+            }
+        )
     }
 
     fun googleInit(it: ActivityResult) {
@@ -52,17 +63,24 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         google.login(launcher)
     }
 
-    fun appleLogin(loginActivity: LoginActivity, callback: () -> Unit) {
+    fun appleLogin(
+        loginActivity: LoginActivity,
+        signedUserCallback: () -> Unit,
+        newUserCallback: () -> Unit
+    ) {
         Apple.login(loginActivity) {
-            loginUsingToken(callback)
+            loginUsingToken(signedUserCallback, newUserCallback)
         }
     }
 
-    private fun loginUsingToken(callback: () -> Unit) {
+    private fun loginUsingToken(signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
         viewModelScope.launch {
             userUseCase.login().onSuccess {
-                showLoginSuccess(it)
-                callback()
+                if (it.isNewUser == "Y") {
+                    newUserCallback()
+                } else {
+                    signedUserCallback()
+                }
             }.onFailure {
                 showLoginFailed(it.message)
             }
@@ -76,25 +94,28 @@ class LoginViewModel @Inject constructor(private val userUseCase: UserUseCase) :
         Naver.login(applicationContext, naverLoginLauncher)
     }
 
-    private fun showLoginSuccess(result: LoginResult) {
-        Log.i(App.TAG, "로그인 성공: ${result.name} 가입여부: ${result.isNewUser}")
-    }
-
-    fun logout(activity: Activity) {
-        Firebase.auth.signOut()
-        Naver.logout()
-        Google(activity).logout()
-    }
-
-    fun autoLogin(callback: () -> Unit) {
+    fun autoLogin(signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
         val user = Firebase.auth.currentUser
         if (user != null && user.uid.isNotEmpty()) {
             user.getIdToken(false).addOnSuccessListener {
                 val token = it.token
                 if (token != null) {
-                    loginUsingToken(callback)
+                    loginUsingToken(signedUserCallback, newUserCallback)
                 }
             }
         }
+    }
+
+    fun updateRoutineAlarms(callback: () -> Unit) {
+        /* TODO
+            1. API 루틴 알림 리스트 조회
+            2. 리스트로 받은 루틴 알림 모두 등록 (forEach: RoutineAlarmManager.setRoutine()
+            3. 홈화면으로 이동
+         */
+        // userUseCase.getAlarmList().onSuccess { alarmList ->
+        //
+        //    callback()
+        // }
+        callback()
     }
 }

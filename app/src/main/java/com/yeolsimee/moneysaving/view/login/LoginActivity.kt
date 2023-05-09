@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.yeolsimee.moneysaving.view.MainActivity
+import com.yeolsimee.moneysaving.view.signup.AgreementActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -39,7 +40,10 @@ class LoginActivity : ComponentActivity() {
                     loginViewModel.googleLogin(googleLoginLauncher)
                 },
                 onAppleLogin = {
-                    loginViewModel.appleLogin(this@LoginActivity) { moveToMainActivity() }
+                    loginViewModel.appleLogin(
+                        this@LoginActivity,
+                        { moveToMainActivity() },
+                        { moveToAgreementActivity() })
                 },
                 onEmailButtonClick = {
                     val intent = Intent(this@LoginActivity, EmailLoginActivity::class.java)
@@ -49,36 +53,50 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    private fun initAuth() {
-        initGoogleLogin()
-        initNaverLogin()
-        loginViewModel.autoLogin {
-            moveToMainActivity()
-        }
-    }
-
-    private fun moveToMainActivity() {
-        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-        finish()
-    }
-
     override fun onResume() {
         super.onResume()
         emailLoginViewModel.receiveEmailResult(
-            intent,
-            this@LoginActivity,
-            onSuccess = { moveToMainActivity() })
+            intent = intent,
+            activity = this@LoginActivity,
+            signedUserCallback = { moveToMainActivity() },
+            newUserCallback = { moveToAgreementActivity() }
+        )
+    }
+
+    private fun moveToAgreementActivity() {
+        startActivity(Intent(this@LoginActivity, AgreementActivity::class.java))
+    }
+
+    private fun initAuth() {
+        initGoogleLogin()
+        initNaverLogin()
+        loginViewModel.autoLogin({
+            moveToMainActivity()
+        }, { moveToAgreementActivity() })
+    }
+
+    private fun moveToMainActivity() {
+        loginViewModel.updateRoutineAlarms {
+            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+            finish()
+        }
     }
 
     private fun initNaverLogin() {
         naverLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                loginViewModel.naverInit(result) { moveToMainActivity() }
+                loginViewModel.naverInit(
+                    result,
+                    { moveToMainActivity() },
+                    { moveToAgreementActivity() })
             }
     }
 
     private fun initGoogleLogin() {
-        loginViewModel.init(this@LoginActivity) { moveToMainActivity() }
+        loginViewModel.init(
+            this@LoginActivity,
+            { moveToMainActivity() },
+            { moveToAgreementActivity() })
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 loginViewModel.googleInit(it)

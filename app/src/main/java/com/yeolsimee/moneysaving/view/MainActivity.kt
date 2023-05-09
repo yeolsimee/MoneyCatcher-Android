@@ -1,6 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.yeolsimee.moneysaving.view
 
@@ -63,8 +61,8 @@ import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 import com.yeolsimee.moneysaving.view.login.LoginActivity
-import com.yeolsimee.moneysaving.view.login.LoginViewModel
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
+import com.yeolsimee.moneysaving.view.mypage.MyPageViewModel
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
 import com.yeolsimee.moneysaving.view.routine.GetRoutineViewModel
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
@@ -82,11 +80,7 @@ class MainActivity : ComponentActivity() {
     private val calendarViewModel: CalendarViewModel by viewModels()
     private val selectedDateViewModel: SelectedDateViewModel by viewModels()
     private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
-    private val getRoutineViewModel: GetRoutineViewModel by viewModels()
     private lateinit var routineActivityLauncher: ActivityResultLauncher<Intent>
-
-    // MyPage
-    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,6 +143,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = BottomNavItem.Home.screenRoute
                     ) {
                         composable(BottomNavItem.Home.screenRoute) {
+                            val getRoutineViewModel: GetRoutineViewModel = hiltViewModel()
 
                             floatingButtonVisible.value = true
 
@@ -175,13 +170,24 @@ class MainActivity : ComponentActivity() {
                             RecommendScreen()
                         }
                         composable(BottomNavItem.MyPage.screenRoute) {
+                            val myPageViewModel: MyPageViewModel = hiltViewModel()
                             floatingButtonVisible.value = false
-                            MyPageScreen {
-                                loginViewModel.logout(this@MainActivity)
-                                val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                                startActivity(intent)
-                                finishAffinity()
-                            }
+                            MyPageScreen(
+                                settings = myPageViewModel.settings,
+                                onLogout = {
+                                    myPageViewModel.logout(this@MainActivity)
+                                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                    startActivity(intent)
+                                    finishAffinity()
+                                },
+                                onWithdraw = {
+                                    myPageViewModel.withdraw(this@MainActivity) {
+                                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                        startActivity(intent)
+                                        finishAffinity()
+                                    }
+                                }
+                            )
                         }
                     }
                 }
