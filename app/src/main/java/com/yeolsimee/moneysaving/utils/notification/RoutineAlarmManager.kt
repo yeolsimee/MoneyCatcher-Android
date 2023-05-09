@@ -109,7 +109,6 @@ class RoutineAlarmManager {
                 )
                 onDelete(alarmId)
             }
-
         }
 
         fun deleteAll(context: Context, alarmIdList: List<Int>) {

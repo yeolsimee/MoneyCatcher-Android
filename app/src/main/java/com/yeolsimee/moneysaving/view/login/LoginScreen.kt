@@ -44,7 +44,7 @@ fun LoginScreen(
     onAppleLogin: () -> Unit = {},
     onEmailButtonClick: () -> Unit = {}
 ) {
-    RoumoTheme {
+    RoumoTheme(navigationBarColor = Color.White) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.White

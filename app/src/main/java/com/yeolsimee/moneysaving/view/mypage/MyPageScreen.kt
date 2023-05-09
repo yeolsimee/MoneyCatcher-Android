@@ -15,7 +15,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,35 +28,46 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.domain.entity.preference.SettingPreferences
 import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.dialog.TwoButtonTwoTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
-fun MyPageScreen(onLogout: () -> Unit = {}, onWithdraw: () -> Unit = {}) {
+fun MyPageScreen(
+    settings: LiveData<SettingPreferences>,
+    onLogout: () -> Unit = {},
+    onWithdraw: () -> Unit = {}
+) {
+    val alarmState = settings.observeAsState(SettingPreferences(false))
+    val logoutDialogState = remember { mutableStateOf(false) }
+    val withdrawDialogState = remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        val pushState = remember { mutableStateOf(false) }
         Column {
             MoveListItem("카테고리 수정") {}
             Divider(thickness = 1.5.dp, color = GrayF0)
-            AlarmItem(pushState)
+            AlarmItem(alarmState)
             Divider(thickness = 3.dp, color = GrayF0)
             MoveListItem("이용 약관") {}
             Divider(thickness = 1.5.dp, color = GrayF0)
             MoveListItem("개인정보 처리방침") {}
             Divider(thickness = 3.dp, color = GrayF0)
             MoveListItem("로그아웃", iconVisible = false) {
-                onLogout()
+                logoutDialogState.value = true
             }
             Divider(thickness = 1.5.dp, color = GrayF0)
             MoveListItem("회원탈퇴", color = DismissRed, iconVisible = false) {
-                onWithdraw()
+                withdrawDialogState.value = true
             }
             Divider(thickness = 1.5.dp, color = GrayF0)
         }
@@ -72,10 +84,28 @@ fun MyPageScreen(onLogout: () -> Unit = {}, onWithdraw: () -> Unit = {}) {
                 }
         )
     }
+
+    TwoButtonTwoTitleDialog(
+        dialogState = remember { logoutDialogState },
+        title = "로그아웃",
+        content = "계정을 로그아웃 하시겠어요?",
+        leftButtonText = "취소",
+        rightButtonText = "로그아웃",
+        onRightClick = { onLogout() }
+    )
+
+    TwoButtonTwoTitleDialog(
+        dialogState = remember { withdrawDialogState },
+        title = "회원탈퇴",
+        content = "지금 탈퇴하시면 모든 루틴들이 사라져요",
+        leftButtonText = "회원탈퇴",
+        rightButtonText = "역시 그만둘래요",
+        onLeftClick = { onWithdraw() }
+    )
 }
 
 @Composable
-private fun AlarmItem(pushState: MutableState<Boolean>) {
+private fun AlarmItem(settings: State<SettingPreferences>) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -91,7 +121,7 @@ private fun AlarmItem(pushState: MutableState<Boolean>) {
             color = Color.Black
         )
         Image(
-            painter = painterResource(id = if (pushState.value) R.drawable.toggle_on else R.drawable.toggle_off),
+            painter = painterResource(id = if (settings.value.alarmState) R.drawable.toggle_on else R.drawable.toggle_off),
             contentDescription = "푸쉬 토글 버튼"
         )
     }
@@ -127,5 +157,5 @@ private fun MoveListItem(title: String = "", color: Color = Color.Black, iconVis
 @Preview(showBackground = true)
 @Composable
 fun MyPageScreenPreview() {
-    MyPageScreen()
+    MyPageScreen(MutableLiveData(SettingPreferences(false)))
 }

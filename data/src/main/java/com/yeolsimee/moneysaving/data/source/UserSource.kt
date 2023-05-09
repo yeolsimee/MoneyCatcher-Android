@@ -11,9 +11,7 @@ import retrofit2.Response
 class UserSource(
     private val api: UserApiService
 ) {
-    fun login(): Flow<Response<ApiResponse<LoginResult>>> =
-        flow { emit(api.login()) }
-
+    fun login(): Flow<Response<ApiResponse<LoginResult>>> = flow { emit(api.login()) }
     fun signUp(): Flow<Response<ApiResponse<ApiUser>>> = flow { emit(api.signUp()) }
     fun withdraw(): Flow<Response<ApiResponse<Any>>> = flow { emit(api.withdraw()) }
 }

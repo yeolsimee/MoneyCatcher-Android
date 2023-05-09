@@ -5,8 +5,10 @@ import com.yeolsimee.moneysaving.data.api.RoutineApiService
 import com.yeolsimee.moneysaving.data.api.UserApiService
 import com.yeolsimee.moneysaving.data.repository.CategoryApiRepository
 import com.yeolsimee.moneysaving.data.repository.RoutineApiRepository
+import com.yeolsimee.moneysaving.data.repository.SettingsRepository
 import com.yeolsimee.moneysaving.data.repository.UserApiRepository
 import com.yeolsimee.moneysaving.data.source.RoutineSource
+import com.yeolsimee.moneysaving.data.source.SettingsSource
 import com.yeolsimee.moneysaving.data.source.UserSource
 import com.yeolsimee.moneysaving.domain.repository.ICategoryApiRepository
 import com.yeolsimee.moneysaving.domain.repository.IRoutineApiRepository
@@ -40,4 +42,16 @@ object DataModule {
     @Provides
     @Singleton
     fun provideCategoryApiRepository(api: CategoryApiService): ICategoryApiRepository = CategoryApiRepository(api)
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(source: SettingsSource) = SettingsRepository(source)
+
+    @Provides
+    @Singleton
+    fun provideSettingsSource() = SettingsSource()
+
+//    @Provides
+//    @Singleton
+//    fun provideSettingsSource() = SettingsSource()
 }

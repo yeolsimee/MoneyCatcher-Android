@@ -30,6 +30,4 @@ class CategoryApiRepository(private val api: CategoryApiService): ICategoryApiRe
             Result.failure(ApiException(response.code(), result?.message))
         }
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.data.interceptor
 
+import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
@@ -24,12 +25,11 @@ class FirebaseUserIdTokenInterceptor : Interceptor {
             val tokenResult: GetTokenResult =
                 Tasks.await(task, 10, TimeUnit.SECONDS) // Timeout 10 Seconds
             val idToken: String = tokenResult.token ?: return chain.proceed(request)
-            // No has auth header
-            chain.proceed(
-                request.newBuilder()
-                    .addHeader(X_FIREBASE_ID_TOKEN, idToken)
-                    .build()
-            ) // Has auth header
+            Log.d("Auth-Header", "x-auth: $idToken")
+            val newRequest = request.newBuilder()
+                .addHeader(X_FIREBASE_ID_TOKEN, idToken)
+                .build()
+            chain.proceed(newRequest) // Has auth header
         } catch (e: Exception) {
             chain.proceed(request) // No has auth header
         }

@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.view.signup
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,7 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(color = Color.White)
                     .padding(it)
                     .padding(28.dp)
             ) {
