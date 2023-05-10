@@ -1,8 +1,8 @@
 package com.yeolsimee.moneysaving.view.mypage
 
 import android.app.Activity
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -13,6 +13,8 @@ import com.yeolsimee.moneysaving.data.repository.SettingsRepository
 import com.yeolsimee.moneysaving.domain.usecase.UserUseCase
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,16 +22,37 @@ import javax.inject.Inject
 class MyPageViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val dao: AlarmDao,
-    settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    val settings = settingsRepository.getAlarmState().asLiveData()
+    val alarmState = MutableLiveData(false)
 
-    fun logout(activity: Activity) {
-        dao.deleteAll()
-        Firebase.auth.signOut()
-        Naver.logout()
-        Google(activity).logout()
+    init {
+        getSettings()
+    }
+    private fun getSettings() {
+        viewModelScope.launch {
+            settingsRepository.getAlarmState().collect {
+                alarmState.value = it.alarmState
+            }
+        }
+    }
+    fun changeAlarmState() {
+        viewModelScope.launch {
+            settingsRepository.toggleAlarmState().collect {
+                if (it) getSettings()
+            }
+        }
+    }
+
+    fun logout(activity: Activity, onSuccess: () -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            dao.deleteAll()
+            Firebase.auth.signOut()
+            Naver.logout()
+            Google(activity).logout()
+            onSuccess()
+        }
     }
 
 
@@ -41,8 +64,9 @@ class MyPageViewModel @Inject constructor(
             RoutineAlarmManager.deleteAll(activity, listOf())
             userUseCase.withdraw().onSuccess { withdrawResult ->  // 회원 탈퇴
                 if (withdrawResult) {
-                    logout(activity)    // firebase logout
-                    onSuccess() // move to login view
+                    logout(activity) {
+                        onSuccess() // move to login view
+                    }
                 }
             }
 //            }

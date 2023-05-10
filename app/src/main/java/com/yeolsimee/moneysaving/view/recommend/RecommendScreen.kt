@@ -35,17 +35,17 @@ fun RecommendScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.middle_empty_icon),
+                painter = painterResource(id = R.drawable.ready_image),
                 contentDescription = "앱 아이콘"
             )
-            Spacer(Modifier.height(11.dp))
+            Spacer(Modifier.height(13.dp))
             PrText(
                 text = "업데이트 예정이에요",
                 fontWeight = FontWeight.W800,
                 fontSize = 20.sp,
                 color = Color.Black
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(5.dp))
             PrText(
                 text = "추후 업데이트 예정이니 조금만 기다려주세요",
                 fontWeight = FontWeight.Bold,

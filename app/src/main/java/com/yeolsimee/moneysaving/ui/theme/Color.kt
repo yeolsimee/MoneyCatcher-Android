@@ -23,9 +23,8 @@ val Gray66 = Color(0xFF666666)
 val GrayF0 = Color(0xFFF0F0F0)
 
 // MoneyIconColor
-val Gold = Color(0xFFFAE74E)
-val Silver = Color(0xFF989898)
-val Bronze = Color(0xFF9F7B60)
+val Gold = Color(0xFFFFD876)
+val Silver = Color(0xFFAEAEAE)
 
 // Login Color
 val NaverGreen = Color(0xFF03C75A)

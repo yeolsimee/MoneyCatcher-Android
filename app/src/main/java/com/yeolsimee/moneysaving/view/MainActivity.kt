@@ -68,6 +68,9 @@ import com.yeolsimee.moneysaving.view.routine.GetRoutineViewModel
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
 import com.yeolsimee.moneysaving.view.routine.RoutineModifyOption
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @ExperimentalLayoutApi
 @AndroidEntryPoint
@@ -173,16 +176,23 @@ class MainActivity : ComponentActivity() {
                             val myPageViewModel: MyPageViewModel = hiltViewModel()
                             floatingButtonVisible.value = false
                             MyPageScreen(
-                                settings = myPageViewModel.settings,
+                                myPageViewModel = myPageViewModel,
                                 onLogout = {
-                                    myPageViewModel.logout(this@MainActivity)
-                                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                                    startActivity(intent)
-                                    finishAffinity()
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        myPageViewModel.logout(this@MainActivity) {
+                                            val intent = Intent(
+                                                this@MainActivity,
+                                                LoginActivity::class.java
+                                            )
+                                            startActivity(intent)
+                                            finishAffinity()
+                                        }
+                                    }
                                 },
                                 onWithdraw = {
                                     myPageViewModel.withdraw(this@MainActivity) {
-                                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                        val intent =
+                                            Intent(this@MainActivity, LoginActivity::class.java)
                                         startActivity(intent)
                                         finishAffinity()
                                     }

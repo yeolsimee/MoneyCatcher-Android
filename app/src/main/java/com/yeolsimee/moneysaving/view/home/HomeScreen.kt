@@ -43,6 +43,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
+import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.ComposeCalendar
@@ -101,10 +102,11 @@ fun HomeScreen(
             month,
             confirmButtonListener
         )
+        Spacer(Modifier.height(4.dp))
 
         AppLogoImage()
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(5.dp))
 
         YearMonthSelectBox(dialogState, calendarViewModel.date.observeAsState().value ?: "", spread)
 
@@ -133,31 +135,41 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        DateText(selected)
-
-        val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
-            RoutinesOfDay("loading")
-        )
-
-        if (routinesOfDayState.isEmpty()) {
-            EmptyRoutine()
-        } else if (routinesOfDayState.isNotLoading()) {
-            RoutineItems(
-                selectedDate = selected.value,
-                routinesOfDayState = routinesOfDayState,
-                onItemClick = onItemClick,
-                onRoutineCheck = { check ->
-                    routineCheckViewModel.check(check) { routinesOfDay ->
-                        selectedDateViewModel.refresh(
-                            routinesOfDay
-                        )
-                    }
-                },
-                onItemDelete = {
-                    deleteDialogState.value = true
-                    deleteRoutineId.value = it.routineId
-                }
+        Box(modifier = Modifier) {
+            val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+                RoutinesOfDay("loading")
             )
+            Column {
+                DateText(selected)
+
+                if (routinesOfDayState.isEmpty()) {
+                    EmptyRoutine()
+                } else if (routinesOfDayState.isNotLoading()) {
+                    RoutineItems(
+                        selectedDate = selected.value,
+                        routinesOfDayState = routinesOfDayState,
+                        onItemClick = onItemClick,
+                        onRoutineCheck = { check ->
+                            routineCheckViewModel.check(check) { routinesOfDay ->
+                                selectedDateViewModel.refresh(
+                                    routinesOfDay
+                                )
+                            }
+                        },
+                        onItemDelete = {
+                            deleteDialogState.value = true
+                            deleteRoutineId.value = it.routineId
+                        }
+                    )
+                }
+            }
+            if (!routinesOfDayState.isEmpty()) {
+                Image(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    painter = painterResource(id = R.drawable.coins),
+                    contentDescription = "동전더미"
+                )
+            }
         }
         TwoButtonOneTitleDialog(deleteDialogState, "해당 아이템을 삭제하시겠습니까?") {
             routineDeleteViewModel.delete(deleteRoutineId.value) {
@@ -175,9 +187,9 @@ private fun EmptyRoutine() {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(77.dp))
+        Spacer(Modifier.height(43.dp))
         Image(
-            painter = painterResource(id = R.drawable.middle_empty_icon),
+            painter = painterResource(id = R.drawable.empty_icon),
             contentDescription = "루틴이 비어 있어요!"
         )
         Spacer(Modifier.height(13.dp))
@@ -186,13 +198,14 @@ private fun EmptyRoutine() {
             fontSize = 20.sp,
             fontWeight = FontWeight.W800,
         )
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(5.dp))
         PrText(
             text = stringResource(R.string.please_add_routine_button),
             fontSize = 14.sp,
             fontWeight = FontWeight.W700,
+            color = Gray66
         )
-        Spacer(Modifier.height(200.dp))
+        Spacer(Modifier.height(430.dp))
     }
 }
 
@@ -267,4 +280,10 @@ fun YearMonthSelectBoxPreview() {
         dateText = "4월 12일 수요일",
         spread = spread
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmptyImagePreview() {
+    EmptyRoutine()
 }

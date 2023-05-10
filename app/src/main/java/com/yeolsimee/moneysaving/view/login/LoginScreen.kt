@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
@@ -51,21 +50,14 @@ fun LoginScreen(
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(it),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.login_logo),
+                    painter = painterResource(id = R.drawable.login_image),
                     contentDescription = "ROUMO",
                 )
-                Spacer(Modifier.height(10.dp))
-                Box(
-                    modifier = Modifier
-                        .width(196.dp)
-                        .height(60.dp)
-                        .background(Color.Yellow)
-                )
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(85.dp))
 
                 LoginButtonBox(
                     backgroundColor = NaverGreen,
@@ -103,6 +95,7 @@ fun LoginScreen(
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 EmailLoginButton(onClick = onEmailButtonClick)
+                Spacer(modifier = Modifier.height(60.dp))
             }
         }
     }
@@ -122,7 +115,7 @@ private fun EmailLoginButton(onClick: () -> Unit) {
             )
     ) {
         PrText(
-            text = "이메일로 로그인",
+            text = "그 외 이메일로 로그인",
             color = Gray66,
             fontWeight = FontWeight.W500,
             fontSize = 14.sp,

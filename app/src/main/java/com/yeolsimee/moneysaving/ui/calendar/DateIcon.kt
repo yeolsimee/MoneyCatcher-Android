@@ -43,7 +43,7 @@ fun SilverIcon() {
 
 @Composable
 fun BronzeIcon() {
-    RoundMoneyIcon(color = Bronze)
+    RoundMoneyIcon(color = Color.White)
 }
 
 @Composable

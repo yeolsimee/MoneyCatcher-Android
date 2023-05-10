@@ -15,7 +15,6 @@ object AuthFunctions {
         resultTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 val token = it.result["firebase_token"]
-                Log.i(App.TAG, "firebase 성공: $token")
                 if (token != null) {
                     tokenCallback(token)
                 }
@@ -40,7 +39,6 @@ object AuthFunctions {
         resultTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 val token = it.result.user?.getIdToken(false)?.result?.token
-                Log.i(App.TAG, "firebase 성공: $token")
                 if (token != null) {
                     tokenCallback?.invoke(token)
                 } else {

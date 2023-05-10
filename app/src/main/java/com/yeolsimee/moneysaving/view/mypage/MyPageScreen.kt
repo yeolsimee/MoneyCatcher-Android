@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -28,25 +29,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.yeolsimee.moneysaving.R
-import com.yeolsimee.moneysaving.domain.entity.preference.SettingPreferences
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonTwoTitleDialog
+import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.utils.onClick
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyPageScreen(
-    settings: LiveData<SettingPreferences>,
+    myPageViewModel: MyPageViewModel,
     onLogout: () -> Unit = {},
     onWithdraw: () -> Unit = {}
 ) {
-    val alarmState = settings.observeAsState(SettingPreferences(false))
+    val alarmState = myPageViewModel.alarmState.observeAsState(false)
     val logoutDialogState = remember { mutableStateOf(false) }
     val withdrawDialogState = remember { mutableStateOf(false) }
+    val snackbarState = remember { SnackbarHostState() }
 
     Box(
         modifier = Modifier
@@ -56,7 +59,9 @@ fun MyPageScreen(
         Column {
             MoveListItem("카테고리 수정") {}
             Divider(thickness = 1.5.dp, color = GrayF0)
-            AlarmItem(alarmState)
+            AlarmItem(alarmState, snackbarState) {
+                myPageViewModel.changeAlarmState()
+            }
             Divider(thickness = 3.dp, color = GrayF0)
             MoveListItem("이용 약관") {}
             Divider(thickness = 1.5.dp, color = GrayF0)
@@ -102,33 +107,51 @@ fun MyPageScreen(
         rightButtonText = "역시 그만둘래요",
         onLeftClick = { onWithdraw() }
     )
+
+    CustomSnackBarHost(snackbarState)
 }
 
 @Composable
-private fun AlarmItem(settings: State<SettingPreferences>) {
+private fun AlarmItem(
+    alarmState: State<Boolean>,
+    snackbarState: SnackbarHostState,
+    onChange: () -> Unit = {}
+) {
     Row(
         Modifier
             .fillMaxWidth()
             .height(52.dp)
-            .padding(vertical = 14.dp, horizontal = 24.dp),
+            .padding(vertical = 13.dp, horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         PrText(
             text = "푸쉬 알람",
-            fontWeight = FontWeight.W500,
+            fontWeight = FontWeight.W600,
             fontSize = 15.sp,
             color = Color.Black
         )
         Image(
-            painter = painterResource(id = if (settings.value.alarmState) R.drawable.toggle_on else R.drawable.toggle_off),
-            contentDescription = "푸쉬 토글 버튼"
+            painter = painterResource(id = if (alarmState.value) R.drawable.toggle_on else R.drawable.toggle_off),
+            contentDescription = "푸쉬 토글 버튼",
+            modifier = Modifier.onClick {
+                CoroutineScope(Dispatchers.Main).launch {
+                    onChange()
+                    val text = if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
+                    snackbarState.showSnackbar(text)
+                }
+            }
         )
     }
 }
 
 @Composable
-private fun MoveListItem(title: String = "", color: Color = Color.Black, iconVisible: Boolean = true, onClick: () -> Unit = {}) {
+private fun MoveListItem(
+    title: String = "",
+    color: Color = Color.Black,
+    iconVisible: Boolean = true,
+    onClick: () -> Unit = {}
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -136,13 +159,13 @@ private fun MoveListItem(title: String = "", color: Color = Color.Black, iconVis
             .onClick {
                 onClick()
             }
-            .padding(vertical = 14.dp, horizontal = 24.dp),
+            .padding(vertical = 13.dp, horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         PrText(
             text = title,
-            fontWeight = FontWeight.W500,
+            fontWeight = FontWeight.W600,
             fontSize = 15.sp,
             color = color
         )
@@ -156,6 +179,22 @@ private fun MoveListItem(title: String = "", color: Color = Color.Black, iconVis
 
 @Preview(showBackground = true)
 @Composable
-fun MyPageScreenPreview() {
-    MyPageScreen(MutableLiveData(SettingPreferences(false)))
+fun MoveListItemPreview() {
+    MoveListItem(title = "테스트")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AlarmItemPreview() {
+
+    val snackbarState = remember { SnackbarHostState() }
+
+    Column {
+        AlarmItem(alarmState = remember {
+            mutableStateOf(false)
+        }, snackbarState = snackbarState)
+        AlarmItem(alarmState = remember {
+            mutableStateOf(true)
+        }, snackbarState = snackbarState)
+    }
 }
