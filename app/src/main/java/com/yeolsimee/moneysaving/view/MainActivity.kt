@@ -3,6 +3,7 @@
 package com.yeolsimee.moneysaving.view
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -196,6 +197,11 @@ class MainActivity : ComponentActivity() {
                                         startActivity(intent)
                                         finishAffinity()
                                     }
+                                },
+                                openInternetBrowser = { url ->
+                                    startActivity(
+                                        Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                    )
                                 }
                             )
                         }

@@ -58,12 +58,13 @@ class RoutineActivity : ComponentActivity() {
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
                                 RoutineAlarmManager.setRoutine(
-                                    this@RoutineActivity,
-                                    req.weekTypes,
-                                    req.alarmTime,
-                                    id
+                                    context = this@RoutineActivity,
+                                    dayOfWeeks = req.weekTypes,
+                                    alarmTime = req.alarmTime,
+                                    routineId = id,
+                                    routineName = req.routineName
                                 ) { alarmId, dayOfWeek ->
-                                    alarmViewModel.addAlarm(alarmId, dayOfWeek, req.alarmTime)
+                                    alarmViewModel.addAlarm(alarmId, dayOfWeek, req.alarmTime, req.routineName)
                                 }
                             },
                             onFinishCallback = {
@@ -76,10 +77,11 @@ class RoutineActivity : ComponentActivity() {
                             routineRequest = req,
                             onSetAlarmCallback = { id ->
                                 RoutineAlarmManager.setRoutine(
-                                    this@RoutineActivity,
-                                    req.weekTypes,
-                                    req.alarmTime,
-                                    id
+                                    context = this@RoutineActivity,
+                                    dayOfWeeks = req.weekTypes,
+                                    alarmTime = req.alarmTime,
+                                    routineId = id,
+                                    routineName = req.routineName
                                 )
                             },
                             onDeleteAlarmCallback = { res ->

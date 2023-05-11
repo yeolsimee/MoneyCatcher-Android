@@ -7,6 +7,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
 import com.yeolsimee.moneysaving.App
+import com.yeolsimee.moneysaving.data.entity.AlarmEntity
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.getIntDayOfWeekFromEnglish
 import java.util.Calendar
@@ -18,6 +19,7 @@ class RoutineAlarmManager {
             dayOfWeeks: Array<String>,
             alarmTime: String,
             routineId: Int,
+            routineName: String,
             onAlarmAdded: (alarmId: Int, dayOfWeek: Int) -> Unit = { _, _ -> }
         ) {
             val hour = alarmTime.substring(0, 2).toInt()
@@ -30,8 +32,7 @@ class RoutineAlarmManager {
 
                 val intent = getRoutineAlarmIntent(context)
 
-                // TODO 루틴알림에 필요한 정보 입력하기
-                intent.putExtra("time", "${hour}시 ${minute}분")
+                intent.putExtra("routineName", routineName)
                 val alarmId = getAlarmId(routineId, dayOfWeek)
                 val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
                 val alarmManager = getAlarmManager(context)
@@ -49,22 +50,19 @@ class RoutineAlarmManager {
 
         fun setOneDay(
             context: Context,
-            dayOfWeek: Int,
-            alarmTime: String,
-            alarmId: Int,
+            alarm: AlarmEntity,
             onAlarmAdded: (alarmId: Int, dayOfWeek: Int) -> Unit = { _, _ -> }
         ) {
-            val hour = alarmTime.substring(0, 2).toInt()
-            val minute = alarmTime.substring(2, 4).toInt()
+            val hour = alarm.alarmTime.substring(0, 2).toInt()
+            val minute = alarm.alarmTime.substring(2, 4).toInt()
 
-            val triggerTime = setTriggerTime(dayOfWeek, hour, minute)
+            val triggerTime = setTriggerTime(alarm.dayOfWeek, hour, minute)
 
             val intent = getRoutineAlarmIntent(context)
 
-            // TODO 루틴알림에 필요한 정보 입력하기
-            intent.putExtra("time", "${hour}시 ${minute}분")
+            intent.putExtra("routineName", alarm.routineName)
 
-            val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
+            val pIntent = makeAlarmPendingIntent(context, alarm.alarmId, intent)
             val alarmManager = getAlarmManager(context)
 
             alarmManager.setInexactRepeating(
@@ -74,7 +72,7 @@ class RoutineAlarmManager {
                 pIntent
             )
 
-            onAlarmAdded(alarmId, dayOfWeek)
+            onAlarmAdded(alarm.alarmId, alarm.dayOfWeek)
         }
 
         private fun setTriggerTime(

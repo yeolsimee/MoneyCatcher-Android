@@ -35,6 +35,7 @@ import com.yeolsimee.moneysaving.ui.theme.GoogleGray
 import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.ui.theme.NaverGreen
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.getReactiveHeight
 
 @Composable
 fun LoginScreen(
@@ -49,15 +50,21 @@ fun LoginScreen(
             containerColor = Color.White
         ) {
             Column(
-                modifier = Modifier.fillMaxSize().padding(it),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.login_image),
                     contentDescription = "ROUMO",
+                    modifier = Modifier.padding(horizontal = 25.dp)
                 )
-                Spacer(modifier = Modifier.height(85.dp))
+
+                Spacer(
+                    modifier = Modifier.height(getReactiveHeight(85))
+                )
 
                 LoginButtonBox(
                     backgroundColor = NaverGreen,
@@ -95,7 +102,8 @@ fun LoginScreen(
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 EmailLoginButton(onClick = onEmailButtonClick)
-                Spacer(modifier = Modifier.height(60.dp))
+
+                Spacer(modifier = Modifier.height(getReactiveHeight(60)))
             }
         }
     }
@@ -136,9 +144,9 @@ fun LoginButtonBox(
 ) {
     Box(
         modifier = Modifier
-            .widthIn(min = 144.dp, max = 319.dp)
             .fillMaxWidth()
             .height(48.dp)
+            .padding(horizontal = 28.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(backgroundColor)
             .border(
@@ -160,7 +168,13 @@ fun LoginButtonBox(
             LoginImage()
         }
         Box(modifier = Modifier.align(Alignment.Center)) {
-            PrText(text = text, color = textColor, fontWeight = FontWeight.W600, fontSize = 16.sp)
+            PrText(
+                text = text,
+                color = textColor,
+                fontWeight = FontWeight.W600,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 1.dp)
+            )
         }
     }
 }

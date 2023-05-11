@@ -5,27 +5,38 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.yeolsimee.moneysaving.App
+import com.yeolsimee.moneysaving.data.repository.SettingsRepository
 import com.yeolsimee.moneysaving.utils.notification.NotificationHelper
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class NotificationReceiver : BroadcastReceiver() {
 
-    //수신되는 인텐트 - The Intent being received.
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.i(App.TAG, "Received: ${intent?.action}, ${intent?.dataString}")
         val notificationHelper = NotificationHelper(context)
 
-        if (intent != null && context != null) {
-            if (intent.action == "com.yeolsimee.moneysaving.ROUTINE_ALARM") {
-                // TODO 앱 알림 여부 확인해서 ON일 때만 동작하도록 구현하기
-
-                val time = intent.getStringExtra("time") ?: ""
-
-                val nb = notificationHelper.getChannelNotification("일림 제목 테스트", time)
-                notificationHelper.getManager().notify(createID(), nb.build())
+        if (intent != null && context != null && intent.action == "com.yeolsimee.moneysaving.ROUTINE_ALARM") {
+            // TODO 앱 알림 여부 확인해서 ON일 때만 동작하도록 구현하기
+            CoroutineScope(Dispatchers.IO).launch {
+                settingsRepository.getAlarmState().collect {
+                    if (it.alarmState) {
+                        val routineName = intent.getStringExtra("routineName") ?: ""
+                        val nb = notificationHelper.getChannelNotification("ROUMO", routineName)
+                        notificationHelper.getManager().notify(createID(), nb.build())
+                    }
+                }
             }
         }
     }

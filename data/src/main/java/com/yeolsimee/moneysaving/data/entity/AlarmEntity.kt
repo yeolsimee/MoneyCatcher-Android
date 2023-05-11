@@ -16,5 +16,8 @@ data class AlarmEntity(
     val dayOfWeek: Int,
 
     @ColumnInfo(name = "alarm_time")
-    val alarmTime: String
+    val alarmTime: String,
+
+    @ColumnInfo(name = "routine_name")
+    val routineName: String
 )

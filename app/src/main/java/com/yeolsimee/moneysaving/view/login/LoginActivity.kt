@@ -72,7 +72,7 @@ class LoginActivity : ComponentActivity() {
         initNaverLogin()
         loginViewModel.autoLogin({
             moveToMainActivity()
-        }, { moveToAgreementActivity() })
+        }, { moveToMainActivity() })
     }
 
     private fun moveToMainActivity() {

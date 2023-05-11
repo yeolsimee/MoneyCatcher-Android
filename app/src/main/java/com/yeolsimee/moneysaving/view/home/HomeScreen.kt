@@ -135,42 +135,33 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Box(modifier = Modifier) {
+        Column {
+            DateText(selected)
             val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
                 RoutinesOfDay("loading")
             )
-            Column {
-                DateText(selected)
-
-                if (routinesOfDayState.isEmpty()) {
-                    EmptyRoutine()
-                } else if (routinesOfDayState.isNotLoading()) {
-                    RoutineItems(
-                        selectedDate = selected.value,
-                        routinesOfDayState = routinesOfDayState,
-                        onItemClick = onItemClick,
-                        onRoutineCheck = { check ->
-                            routineCheckViewModel.check(check) { routinesOfDay ->
-                                selectedDateViewModel.refresh(
-                                    routinesOfDay
-                                )
-                            }
-                        },
-                        onItemDelete = {
-                            deleteDialogState.value = true
-                            deleteRoutineId.value = it.routineId
+            if (routinesOfDayState.isEmpty()) {
+                EmptyRoutine()
+            } else if (routinesOfDayState.isNotLoading()) {
+                RoutineItems(
+                    selectedDate = selected.value,
+                    routinesOfDayState = routinesOfDayState,
+                    onItemClick = onItemClick,
+                    onRoutineCheck = { check ->
+                        routineCheckViewModel.check(check) { routinesOfDay ->
+                            selectedDateViewModel.refresh(
+                                routinesOfDay
+                            )
                         }
-                    )
-                }
-            }
-            if (!routinesOfDayState.isEmpty()) {
-                Image(
-                    modifier = Modifier.align(Alignment.TopEnd),
-                    painter = painterResource(id = R.drawable.coins),
-                    contentDescription = "동전더미"
+                    },
+                    onItemDelete = {
+                        deleteDialogState.value = true
+                        deleteRoutineId.value = it.routineId
+                    }
                 )
             }
         }
+
         TwoButtonOneTitleDialog(deleteDialogState, "해당 아이템을 삭제하시겠습니까?") {
             routineDeleteViewModel.delete(deleteRoutineId.value) {
                 findAllMyRoutineViewModel.refresh {
