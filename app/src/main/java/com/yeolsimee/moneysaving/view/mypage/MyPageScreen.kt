@@ -120,7 +120,7 @@ private fun AlarmItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         PrText(
-            text = "푸쉬 알람",
+            text = "알림",
             fontWeight = FontWeight.W600,
             fontSize = 15.sp,
             color = Color.Black

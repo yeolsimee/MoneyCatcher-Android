@@ -8,6 +8,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -31,7 +32,7 @@ class LoginViewModel @Inject constructor(
 
     fun init(activity: Activity, signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
         google = Google(activity) {
-            loginUsingToken(signedUserCallback, newUserCallback)
+            login(signedUserCallback, newUserCallback)
         }
     }
 
@@ -47,12 +48,11 @@ class LoginViewModel @Inject constructor(
         Naver.init(
             result = result,
             tokenCallback = {
-                loginUsingToken(signedUserCallback, newUserCallback)
-            },
-            failedCallback = {
-                showLoginFailed(it)
+                login(signedUserCallback, newUserCallback)
             }
-        )
+        ) {
+            showLoginFailed(it)
+        }
     }
 
     fun googleInit(it: ActivityResult) {
@@ -65,15 +65,18 @@ class LoginViewModel @Inject constructor(
 
     fun appleLogin(
         loginActivity: LoginActivity,
+        loadingState: MutableLiveData<Boolean>,
         signedUserCallback: () -> Unit,
         newUserCallback: () -> Unit
     ) {
-        Apple.login(loginActivity) {
-            loginUsingToken(signedUserCallback, newUserCallback)
+        viewModelScope.launch {
+            Apple.login(loginActivity, loadingState) {
+                login(signedUserCallback, newUserCallback)
+            }
         }
     }
 
-    private fun loginUsingToken(signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
+    private fun login(signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
         viewModelScope.launch {
             userUseCase.login().onSuccess {
                 if (it.isNewUser == "Y") {
@@ -94,15 +97,17 @@ class LoginViewModel @Inject constructor(
         Naver.login(applicationContext, naverLoginLauncher)
     }
 
-    fun autoLogin(signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
+    fun autoLogin(signedUserCallback: () -> Unit, newUserCallback: () -> Unit, notLoggedInCallback: () -> Unit) {
         val user = Firebase.auth.currentUser
         if (user != null && user.uid.isNotEmpty()) {
             user.getIdToken(false).addOnSuccessListener {
                 val token = it.token
                 if (token != null) {
-                    loginUsingToken(signedUserCallback, newUserCallback)
+                    login(signedUserCallback, newUserCallback)
                 }
             }
+        } else {
+            notLoggedInCallback()
         }
     }
 
@@ -117,5 +122,11 @@ class LoginViewModel @Inject constructor(
         //    callback()
         // }
         callback()
+    }
+
+    fun logout() {
+        Firebase.auth.signOut()
+        Naver.logout()
+        google.logout()
     }
 }
