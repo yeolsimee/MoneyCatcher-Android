@@ -47,13 +47,25 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
         viewModelScope.launch {
             val result = categoryApi.addCategory(name)
             result.onSuccess { addedItem ->
-                val addedList = mutableListOf<TextItem>()
-                state.forEach { addedList.add(it) }
+                val addedList = state.map { it }.toMutableList()
                 addedList.add(addedItem)
                 reduce { addedList }
             }.onFailure {
                 showSideEffect(it.message)
             }
+        }
+    }
+
+    fun delete(category: TextItem) = intent {
+        viewModelScope.launch {
+            categoryApi.delete(category)
+                .onSuccess {
+                    val removedList = state.filter { it.id != category.id }.toMutableList()
+                    state.clear()
+                    reduce { removedList }
+                }.onFailure {
+                    showSideEffect(it.message)
+                }
         }
     }
 }

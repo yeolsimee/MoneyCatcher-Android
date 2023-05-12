@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,11 +39,11 @@ import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
+import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
-import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
+import com.yeolsimee.moneysaving.utils.getReactiveHeight
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.ComposeCalendar
 import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
@@ -65,9 +64,6 @@ fun HomeScreen(
     val today = calendarViewModel.today
 
     val scrollState = rememberScrollState()
-
-    val deleteDialogState = remember { mutableStateOf(false) }
-    val deleteRoutineId = remember { mutableStateOf("") }
 
     Column(
         Modifier
@@ -141,7 +137,9 @@ fun HomeScreen(
                 RoutinesOfDay("loading")
             )
             if (routinesOfDayState.isEmpty()) {
+                Spacer(Modifier.height(43.dp))
                 EmptyRoutine()
+                Spacer(Modifier.height(getReactiveHeight(200)))
             } else if (routinesOfDayState.isNotLoading()) {
                 RoutineItems(
                     selectedDate = selected.value,
@@ -155,48 +153,17 @@ fun HomeScreen(
                         }
                     },
                     onItemDelete = {
-                        deleteDialogState.value = true
-                        deleteRoutineId.value = it.routineId
+                        routineDeleteViewModel.delete(it.routineId) {
+                            findAllMyRoutineViewModel.refresh {
+                                selectedDateViewModel.find(selected.value)
+                            }
+                        }
                     }
                 )
             }
         }
 
-        TwoButtonOneTitleDialog(deleteDialogState, "해당 아이템을 삭제하시겠습니까?") {
-            routineDeleteViewModel.delete(deleteRoutineId.value) {
-                findAllMyRoutineViewModel.refresh {
-                    selectedDateViewModel.find(selected.value)
-                }
-            }
-        }
-    }
-}
 
-@Composable
-private fun EmptyRoutine() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(43.dp))
-        Image(
-            painter = painterResource(id = R.drawable.empty_icon),
-            contentDescription = "루틴이 비어 있어요!"
-        )
-        Spacer(Modifier.height(13.dp))
-        PrText(
-            text = stringResource(R.string.routine_is_empty),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.W800,
-        )
-        Spacer(Modifier.height(5.dp))
-        PrText(
-            text = stringResource(R.string.please_add_routine_button),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.W700,
-            color = Gray66
-        )
-        Spacer(Modifier.height(430.dp))
     }
 }
 

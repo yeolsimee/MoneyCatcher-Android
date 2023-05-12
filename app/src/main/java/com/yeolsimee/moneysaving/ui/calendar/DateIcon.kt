@@ -51,13 +51,13 @@ fun RoundMoneyIcon(color: Color) {
     Box(
         Modifier
             .size(28.dp)
-            .border(width = 1.5.dp, color = Black17, shape = CircleShape)
+            .border(width = 2.5.dp, color = Black17, shape = CircleShape)
             .clip(CircleShape)
             .background(color)
     ) {
         PrText(
             text = "₩",
-            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.W800),
+            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Black),
             modifier = Modifier.align(Alignment.Center)
         )
     }

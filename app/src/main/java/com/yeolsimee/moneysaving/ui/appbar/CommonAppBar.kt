@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.ui.PrText
@@ -34,9 +35,9 @@ fun TopBackButtonTitleAppBar(text: String? = "", onClick: () -> Unit) {
         title = {
             PrText(
                 text = text!!,
-                fontWeight = FontWeight.W700,
+                fontWeight = FontWeight.ExtraBold,
                 fontSize = 18.sp,
-                letterSpacing = (-0.1).sp
+                letterSpacing = (-0.1).sp,
             )
         },
         navigationIcon = {
@@ -88,4 +89,18 @@ fun BottomButtonAppBar(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TopBackButtonTitleAppBarPreview() {
+    TopBackButtonTitleAppBar("카테고리 수정") {
+        
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomButtonAppBarPreview() {
+    BottomButtonAppBar("확인", true) {}
 }

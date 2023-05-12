@@ -32,6 +32,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -55,6 +57,8 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.view.category.CategoryUpdateScreen
+import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -178,6 +182,9 @@ class MainActivity : ComponentActivity() {
                             floatingButtonVisible.value = false
                             MyPageScreen(
                                 myPageViewModel = myPageViewModel,
+                                onMoveToCategoryUpdateScreen = {
+                                    navController.navigate(BottomNavItem.UpdateCategory.screenRoute)
+                                },
                                 onLogout = {
                                     CoroutineScope(Dispatchers.Default).launch {
                                         myPageViewModel.logout(this@MainActivity) {
@@ -205,6 +212,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        categoryNavGraph(navController)
                     }
                 }
             },
@@ -250,7 +258,7 @@ class MainActivity : ComponentActivity() {
 
             items.forEach { item ->
 
-                val isSelected = currentRoute == item.screenRoute
+                val isSelected = getSelectedState(currentRoute, item)
                 val resId = if (isSelected) item.pressedResId else item.normalResId
                 val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.W400
                 val labelColor = if (isSelected) Color.White else Gray99
@@ -303,5 +311,28 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun getSelectedState(
+        currentRoute: String?,
+        item: BottomNavItem
+    ) = if (currentRoute == BottomNavItem.UpdateCategory.screenRoute) {
+        BottomNavItem.MyPage.screenRoute == item.screenRoute
+    } else {
+        currentRoute == item.screenRoute
+    }
+}
+
+fun NavGraphBuilder.categoryNavGraph(navController: NavHostController) {
+    composable(route = BottomNavItem.UpdateCategory.screenRoute) {
+        val categoryViewModel: CategoryViewModel = hiltViewModel()
+        val list = categoryViewModel.container.stateFlow.collectAsState().value
+        CategoryUpdateScreen(
+            onBackPressed = { navController.popBackStack() },
+            categoryList = list,
+            onDelete = {
+                categoryViewModel.delete(it)
+            }
+        )
     }
 }

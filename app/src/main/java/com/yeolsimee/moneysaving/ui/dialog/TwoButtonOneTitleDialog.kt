@@ -28,10 +28,14 @@ import com.yeolsimee.moneysaving.ui.theme.Gray66
 fun TwoButtonOneTitleDialog(
     dialogState: MutableState<Boolean>,
     text: String = "",
-    onConfirmClick: () -> Unit
+    onConfirmClick: () -> Unit = {},
+    onCancelClick: () -> Unit = {}
 ) {
     if (dialogState.value) {
-        Dialog(onDismissRequest = { dialogState.value = false }) {
+        Dialog(onDismissRequest = {
+            dialogState.value = false
+            onCancelClick()
+        }) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp))
@@ -53,6 +57,7 @@ fun TwoButtonOneTitleDialog(
                     ) {
                         TextButton(onClick = {
                             dialogState.value = false
+                            onCancelClick()
                         }) {
                             PrText(
                                 text = "취소",

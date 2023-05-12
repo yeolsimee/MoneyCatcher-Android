@@ -40,6 +40,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyPageScreen(
     myPageViewModel: MyPageViewModel,
+    onMoveToCategoryUpdateScreen: () -> Unit = {},
     onLogout: () -> Unit = {},
     onWithdraw: () -> Unit = {},
     openInternetBrowser: (String) -> Unit = {}
@@ -55,7 +56,7 @@ fun MyPageScreen(
             .background(Color.White)
     ) {
         Column {
-            MoveListItem("카테고리 수정") {}
+            MoveListItem("카테고리 수정") { onMoveToCategoryUpdateScreen() }
             Divider(thickness = 1.5.dp, color = GrayF0)
             AlarmItem(alarmState, snackbarState) {
                 myPageViewModel.changeAlarmState()
