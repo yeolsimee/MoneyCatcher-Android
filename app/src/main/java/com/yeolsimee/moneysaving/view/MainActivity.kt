@@ -196,7 +196,7 @@ class MainActivity : ComponentActivity() {
                                 alarmState = alarmState,
                                 onChangeAlarmState = {
                                     if (checkNotificationPermission(permissionLauncher)) {
-                                        myPageViewModel.changeAlarmState()
+                                        myPageViewModel.changeAlarmState(applicationContext)
                                         CoroutineScope(Dispatchers.Main).launch {
                                             val text = if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
                                             snackbarState.showSnackbar(text)

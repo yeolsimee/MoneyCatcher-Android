@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -40,7 +41,8 @@ class NotificationHelper(context: Context?): ContextWrapper(context)  {
         return NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(message)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.icon_time)
+            .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_rounded))
 
     }
 

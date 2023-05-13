@@ -23,7 +23,7 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
         dataStoreService.getDataStore().edit { preferences ->
             val alarmState = preferences[PreferencesKeys.ALARM_STATE] ?: false
             preferences[PreferencesKeys.ALARM_STATE] = !alarmState
-            emit(true)
+            emit(!alarmState)
         }
     }
 }

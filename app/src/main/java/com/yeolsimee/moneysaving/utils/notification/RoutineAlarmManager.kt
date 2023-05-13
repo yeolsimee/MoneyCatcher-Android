@@ -10,6 +10,7 @@ import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.data.entity.AlarmEntity
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.getIntDayOfWeekFromEnglish
+import java.text.SimpleDateFormat
 import java.util.Calendar
 
 class RoutineAlarmManager {
@@ -28,7 +29,11 @@ class RoutineAlarmManager {
             // 요일 별로 알람이 추가되어야 한다.
             for (i in dayOfWeeks.indices) {
                 val dayOfWeek = getIntDayOfWeekFromEnglish(dayOfWeeks[i])
-                val triggerTime = setTriggerTime(dayOfWeek, hour, minute)
+                val triggerTime = getTriggerTime(
+                    dayOfWeek = dayOfWeek,
+                    hour = hour,
+                    minute = minute,
+                )
 
                 val intent = getRoutineAlarmIntent(context)
 
@@ -56,7 +61,11 @@ class RoutineAlarmManager {
             val hour = alarm.alarmTime.substring(0, 2).toInt()
             val minute = alarm.alarmTime.substring(2, 4).toInt()
 
-            val triggerTime = setTriggerTime(alarm.dayOfWeek, hour, minute)
+            val triggerTime = getTriggerTime(
+                dayOfWeek = alarm.dayOfWeek,
+                hour = hour,
+                minute = minute
+            )
 
             val intent = getRoutineAlarmIntent(context)
 
@@ -75,13 +84,46 @@ class RoutineAlarmManager {
             onAlarmAdded(alarm.alarmId, alarm.dayOfWeek)
         }
 
-        private fun setTriggerTime(
-            dayOfWeek: Int,
+        fun setDailyNotification(
+            context: Context
+        ) {
+            val intent = getRoutineAlarmIntent(context)
+            intent.putExtra("routineName", "오늘 루틴 체크는 다 완료 하셨나요?")
+
+            val alarmManager = getAlarmManager(context)
+            val triggerTime = Calendar.getInstance()
+            triggerTime.set(Calendar.HOUR_OF_DAY, 23)
+            triggerTime.set(Calendar.MINUTE, 0)
+            triggerTime.set(Calendar.SECOND, 0)
+            if (triggerTime.timeInMillis < System.currentTimeMillis()) {
+                triggerTime.add(Calendar.DAY_OF_YEAR, 1)
+            }
+
+            Log.i(App.TAG, "time: ${SimpleDateFormat.getInstance().format(triggerTime.time)}")
+            val pIntent = makeAlarmPendingIntent(context, 11111111, intent)
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pIntent
+            )
+        }
+
+
+        fun cancelDailyNotification(context: Context) {
+            val intent = getRoutineAlarmIntent(context)
+            val pIntent = makeAlarmPendingIntent(context, 11111111, intent)
+            val alarmManager = getAlarmManager(context)
+            alarmManager.cancel(pIntent)
+        }
+
+        private fun getTriggerTime(
+            dayOfWeek: Int = -1,
             hour: Int,
             minute: Int
         ): Calendar {
             val triggerTime = Calendar.getInstance()
-            triggerTime.set(Calendar.DAY_OF_WEEK, dayOfWeek)
+            if (dayOfWeek != -1) triggerTime.set(Calendar.DAY_OF_WEEK, dayOfWeek)
             triggerTime.set(Calendar.HOUR_OF_DAY, hour)
             triggerTime.set(Calendar.MINUTE, minute)
             triggerTime.set(Calendar.SECOND, 0)

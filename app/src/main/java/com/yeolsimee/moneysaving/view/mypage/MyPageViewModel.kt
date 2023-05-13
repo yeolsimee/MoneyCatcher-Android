@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.view.mypage
 
 import android.app.Activity
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,10 +38,15 @@ class MyPageViewModel @Inject constructor(
             }
         }
     }
-    fun changeAlarmState() {
+    fun changeAlarmState(applicationContext: Context) {
         viewModelScope.launch {
-            settingsRepository.toggleAlarmState().collect {
-                if (it) getSettings()
+            settingsRepository.toggleAlarmState().collect { changedAlarmState ->
+                getSettings()
+                if (changedAlarmState) {
+                    RoutineAlarmManager.setDailyNotification(applicationContext)
+                } else {
+                    RoutineAlarmManager.cancelDailyNotification(applicationContext)
+                }
             }
         }
     }
