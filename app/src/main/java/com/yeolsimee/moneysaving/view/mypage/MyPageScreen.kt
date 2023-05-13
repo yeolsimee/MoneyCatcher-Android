@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,26 +27,21 @@ import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonTwoTitleDialog
-import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.utils.onClick
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun MyPageScreen(
-    myPageViewModel: MyPageViewModel,
+    alarmState: State<Boolean>,
+    onChangeAlarmState: () -> Unit = {},
     onMoveToCategoryUpdateScreen: () -> Unit = {},
     onLogout: () -> Unit = {},
     onWithdraw: () -> Unit = {},
     openInternetBrowser: (String) -> Unit = {}
 ) {
-    val alarmState = myPageViewModel.alarmState.observeAsState(false)
     val logoutDialogState = remember { mutableStateOf(false) }
     val withdrawDialogState = remember { mutableStateOf(false) }
-    val snackbarState = remember { SnackbarHostState() }
 
     Box(
         modifier = Modifier
@@ -58,8 +51,8 @@ fun MyPageScreen(
         Column {
             MoveListItem("카테고리 수정") { onMoveToCategoryUpdateScreen() }
             Divider(thickness = 1.5.dp, color = GrayF0)
-            AlarmItem(alarmState, snackbarState) {
-                myPageViewModel.changeAlarmState()
+            AlarmItem(alarmState) {
+                onChangeAlarmState()
             }
             Divider(thickness = 3.dp, color = GrayF0)
 
@@ -101,15 +94,12 @@ fun MyPageScreen(
             rightButtonText = "역시 그만둘래요",
             onLeftClick = { onWithdraw() }
         )
-
-        CustomSnackBarHost(snackbarState)
     }
 }
 
 @Composable
 private fun AlarmItem(
     alarmState: State<Boolean>,
-    snackbarState: SnackbarHostState,
     onChange: () -> Unit = {}
 ) {
     Row(
@@ -129,13 +119,7 @@ private fun AlarmItem(
         Image(
             painter = painterResource(id = if (alarmState.value) R.drawable.toggle_on else R.drawable.toggle_off),
             contentDescription = "푸쉬 토글 버튼",
-            modifier = Modifier.onClick {
-                CoroutineScope(Dispatchers.Main).launch {
-                    onChange()
-                    val text = if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
-                    snackbarState.showSnackbar(text)
-                }
-            }
+            modifier = Modifier.onClick { onChange() }
         )
     }
 }
@@ -181,15 +165,12 @@ fun MoveListItemPreview() {
 @Preview(showBackground = true)
 @Composable
 fun AlarmItemPreview() {
-
-    val snackbarState = remember { SnackbarHostState() }
-
     Column {
         AlarmItem(alarmState = remember {
             mutableStateOf(false)
-        }, snackbarState = snackbarState)
+        })
         AlarmItem(alarmState = remember {
             mutableStateOf(true)
-        }, snackbarState = snackbarState)
+        })
     }
 }

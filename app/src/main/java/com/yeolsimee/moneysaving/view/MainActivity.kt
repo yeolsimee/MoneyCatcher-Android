@@ -31,8 +31,10 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -54,8 +56,10 @@ import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.checkNotificationPermission
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.view.category.CategoryUpdateScreen
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
@@ -89,19 +93,22 @@ class MainActivity : ComponentActivity() {
     private val calendarViewModel: CalendarViewModel by viewModels()
     private val selectedDateViewModel: SelectedDateViewModel by viewModels()
     private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
-    private lateinit var routineActivityLauncher: ActivityResultLauncher<Intent>
+
+    private val routineActivityLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                findAllMyRoutineViewModel.refresh {
+                    selectedDateViewModel.find(calendarViewModel.today)
+                }
+            }
+        }
+
+    private val permissionLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        routineActivityLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == RESULT_OK) {
-                    findAllMyRoutineViewModel.refresh {
-                        selectedDateViewModel.find(calendarViewModel.today)
-                    }
-                }
-            }
 
         setContent {
             RoumoTheme(navigationBarColor = Color.Black) {
@@ -181,8 +188,21 @@ class MainActivity : ComponentActivity() {
                         composable(BottomNavItem.MyPage.screenRoute) {
                             val myPageViewModel: MyPageViewModel = hiltViewModel()
                             floatingButtonVisible.value = false
+
+                            val snackbarState = remember { SnackbarHostState() }
+                            val alarmState = myPageViewModel.alarmState.observeAsState(false)
+
                             MyPageScreen(
-                                myPageViewModel = myPageViewModel,
+                                alarmState = alarmState,
+                                onChangeAlarmState = {
+                                    if (checkNotificationPermission(permissionLauncher)) {
+                                        myPageViewModel.changeAlarmState()
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            val text = if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
+                                            snackbarState.showSnackbar(text)
+                                        }
+                                    }
+                                },
                                 onMoveToCategoryUpdateScreen = {
                                     navController.navigate(BottomNavItem.UpdateCategory.screenRoute)
                                 },
@@ -212,6 +232,8 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             )
+
+                            CustomSnackBarHost(snackbarState)
                         }
                         categoryNavGraph(navController)
                     }

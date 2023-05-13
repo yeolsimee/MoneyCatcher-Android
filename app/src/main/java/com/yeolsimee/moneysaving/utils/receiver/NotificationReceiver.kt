@@ -28,7 +28,6 @@ class NotificationReceiver : BroadcastReceiver() {
         val notificationHelper = NotificationHelper(context)
 
         if (intent != null && context != null && intent.action == "com.yeolsimee.moneysaving.ROUTINE_ALARM") {
-            // TODO 앱 알림 여부 확인해서 ON일 때만 동작하도록 구현하기
             CoroutineScope(Dispatchers.IO).launch {
                 settingsRepository.getAlarmState().collect {
                     if (it.alarmState) {
