@@ -116,7 +116,7 @@ fun RoutineItems(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
-                                        if (selectedDate.isToday()) {
+                                        if (selectedDate.isNotPast()) {
                                             onItemClick(routine.routineId, category.categoryId)
                                         } else {
                                             cantEditDialogState.value = true
