@@ -64,7 +64,12 @@ class RoutineActivity : ComponentActivity() {
                                     routineId = id,
                                     routineName = req.routineName
                                 ) { alarmId, dayOfWeek ->
-                                    alarmViewModel.addAlarm(alarmId, dayOfWeek, req.alarmTime, req.routineName)
+                                    alarmViewModel.addAlarm(
+                                        alarmId,
+                                        dayOfWeek,
+                                        req.alarmTime,
+                                        req.routineName
+                                    )
                                 }
                             },
                             onFinishCallback = {

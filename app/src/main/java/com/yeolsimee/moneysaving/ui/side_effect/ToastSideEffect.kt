@@ -1,4 +1,4 @@
-package com.yeolsimee.moneysaving.view
+package com.yeolsimee.moneysaving.ui.side_effect
 
 import androidx.annotation.Keep
 
@@ -8,6 +8,6 @@ sealed class ToastSideEffect {
     data class Toast(val test: String): ToastSideEffect()
 }
 
-interface ISideEffect {
+interface IToastSideEffect {
     fun showSideEffect(message: String?)
 }

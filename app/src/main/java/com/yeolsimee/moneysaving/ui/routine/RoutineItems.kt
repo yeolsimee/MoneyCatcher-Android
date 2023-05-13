@@ -1,7 +1,4 @@
-@file:OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.yeolsimee.moneysaving.ui.routine
 
@@ -54,7 +51,6 @@ import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineItems(
     selectedDate: CalendarDay,
@@ -178,7 +174,8 @@ fun RoutineItems(
                                 }
                             }
                         }
-                    })
+                    }
+                )
                 Spacer(Modifier.height(8.dp))
 
                 val scope = rememberCoroutineScope()
@@ -207,7 +204,6 @@ fun RoutineItems(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun setRoutineSwipeState(
     selectedDate: CalendarDay,
     routine: Routine,

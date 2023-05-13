@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.yeolsimee.moneysaving.view.category
 
 import androidx.compose.foundation.Image
@@ -22,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,15 +44,14 @@ import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryUpdateScreen(
     onBackPressed: () -> Unit = {},
     categoryList: MutableList<TextItem> = mutableListOf(),
+    sideEffect: State<CategoryViewSideEffect>,
     onDelete: (TextItem) -> Unit = {}
 ) {
-
-    val deleteDialogState = remember { mutableStateOf(false) }
-    val targetCategory = remember { mutableStateOf<TextItem?>(null) }
 
     Column(
         modifier = Modifier
@@ -62,7 +60,7 @@ fun CategoryUpdateScreen(
     ) {
         TopBackButtonTitleAppBar(text = "카테고리 수정", onClick = { onBackPressed() })
         Spacer(Modifier.height(21.dp))
-
+        val targetCategory = remember { mutableStateOf<TextItem?>(null) }
         Column(
             Modifier
                 .padding(horizontal = 28.dp)
@@ -71,18 +69,21 @@ fun CategoryUpdateScreen(
                     orientation = Orientation.Vertical
                 )
         ) {
-            val scope = rememberCoroutineScope()
-
             for (category in categoryList) {
-                Column(modifier = Modifier) {
-                    val swipeState = setCategorySwipeState(
-                        category = category,
-                        onItemDelete = {
+                val deleteDialogState = remember { mutableStateOf(false) }
+
+                val swipeState = rememberDismissState(
+                    confirmValueChange = { dismissValue ->
+                        if (dismissValue == DismissValue.DismissedToStart) {
                             deleteDialogState.value = true
                             targetCategory.value = category
+                            true
+                        } else {
+                            false
                         }
-                    )
-
+                    }
+                )
+                Column {
                     SwipeToDismiss(
                         state = swipeState,
                         background = {
@@ -105,14 +106,15 @@ fun CategoryUpdateScreen(
                         dismissContent = {
                             Box(
                                 Modifier
-                                    .fillMaxWidth()
-                                    .height(50.dp)
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color.White)
                                     .border(
                                         width = 2.5.dp, color = GrayF0,
                                         shape = RoundedCornerShape(4.dp)
                                     )
+                                    .background(Color.White)
+                                    .fillMaxWidth()
+                                    .height(50.dp)
+
                             ) {
                                 PrText(
                                     text = category.name,
@@ -125,45 +127,29 @@ fun CategoryUpdateScreen(
                         }
                     )
                     Spacer(Modifier.height(8.dp))
+                }
 
-                    if (deleteDialogState.value) {
-                        TwoButtonOneTitleDialog(
-                            text = "해당 카테고리를 삭제하시겠습니까?",
-                            dialogState = deleteDialogState,
-                            onConfirmClick = {
-                                onDelete(targetCategory.value!!)
-                            },
-                            onCancelClick = {
-                                scope.launch { swipeState.reset() }
-                            }
-                        )
-                    }
+                val scope = rememberCoroutineScope()
+                if (deleteDialogState.value) {
+                    TwoButtonOneTitleDialog(
+                        text = "해당 카테고리를 삭제하시겠습니까?",
+                        dialogState = deleteDialogState,
+                        onConfirmClick = {
+                            onDelete(targetCategory.value!!)
+                        },
+                        onCancelClick = {
+                            scope.launch { swipeState.reset() }
+                        }
+                    )
                 }
             }
+        }
 
-            if (categoryList.isEmpty()) {
-                EmptyRoutine()
-            }
+        if (sideEffect.value == CategoryViewSideEffect.Empty) {
+            EmptyRoutine()
         }
     }
-
 }
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun setCategorySwipeState(
-    category: TextItem,
-    onItemDelete: (TextItem) -> Unit
-) = rememberDismissState(
-    confirmValueChange = { dismissValue ->
-        if (dismissValue == DismissValue.DismissedToStart) {
-            onItemDelete(category)
-            true
-        } else {
-            false
-        }
-    },
-)
 
 @Preview(showBackground = true)
 @Composable
@@ -176,7 +162,8 @@ fun CategoryUpdateScreenPreview() {
                 TextItem("3", "테스트3"),
                 TextItem("4", "테스트4"),
             )
-        }
+        },
+        sideEffect = remember { mutableStateOf(CategoryViewSideEffect.Loading) }
     )
 }
 
@@ -186,6 +173,7 @@ fun CategoryUpdateScreenEmptyPreview() {
     CategoryUpdateScreen(
         categoryList = remember {
             mutableListOf()
-        }
+        },
+        sideEffect = remember { mutableStateOf(CategoryViewSideEffect.Loading) }
     )
 }

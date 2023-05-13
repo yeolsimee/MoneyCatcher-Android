@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.domain.repository.ICategoryApiRepository
-import com.yeolsimee.moneysaving.view.ISideEffect
-import com.yeolsimee.moneysaving.view.ToastSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
@@ -17,29 +15,37 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryApiRepository) :
-    ContainerHost<MutableList<TextItem>, ToastSideEffect>, ISideEffect, ViewModel() {
+    ContainerHost<MutableList<TextItem>, CategoryViewSideEffect>, ICategoryViewSideEffect, ViewModel() {
 
-    override val container = container<MutableList<TextItem>, ToastSideEffect>(mutableListOf())
+    override val container = container<MutableList<TextItem>, CategoryViewSideEffect>(mutableListOf())
 
     init {
         getCategoryList()
     }
 
     private fun getCategoryList() = intent {
+        showLoading()
+        reduce { mutableListOf() }
         viewModelScope.launch {
             val result = categoryApi.getCategoryList()
             result.onSuccess {
                 reduce { it }
             }.onFailure {
-                showSideEffect(it.message)
+                showEmpty()
             }
         }
     }
 
-    override fun showSideEffect(message: String?) {
+    override fun showLoading() {
+        intent {
+            postSideEffect(CategoryViewSideEffect.Loading)
+        }
+    }
+
+    override fun showEmpty() {
         intent {
             reduce { mutableListOf() }
-            postSideEffect(ToastSideEffect.Toast(message ?: "Unknown Error Message"))
+            postSideEffect(CategoryViewSideEffect.Empty)
         }
     }
 
@@ -51,7 +57,7 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
                 addedList.add(addedItem)
                 reduce { addedList }
             }.onFailure {
-                showSideEffect(it.message)
+                showEmpty()
             }
         }
     }
@@ -60,11 +66,9 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
         viewModelScope.launch {
             categoryApi.delete(category)
                 .onSuccess {
-                    val removedList = state.filter { it.id != category.id }.toMutableList()
-                    state.clear()
-                    reduce { removedList }
+                    getCategoryList()
                 }.onFailure {
-                    showSideEffect(it.message)
+                    showEmpty()
                 }
         }
     }

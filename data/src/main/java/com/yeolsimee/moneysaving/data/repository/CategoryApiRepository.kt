@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.data.repository
 
 import com.yeolsimee.moneysaving.data.api.CategoryApiService
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryIdRequest
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryNameRequest
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.domain.exception.ApiException
@@ -8,7 +9,7 @@ import com.yeolsimee.moneysaving.domain.repository.ICategoryApiRepository
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
 
-class CategoryApiRepository(private val api: CategoryApiService): ICategoryApiRepository {
+class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiRepository {
     override suspend fun getCategoryList(): Result<MutableList<TextItem>> {
         val response = flow { emit(api.getCategoryList()) }.single()
         val result = response.body()
@@ -32,7 +33,13 @@ class CategoryApiRepository(private val api: CategoryApiService): ICategoryApiRe
     }
 
     override suspend fun delete(category: TextItem): Result<Any> {
-        val response = flow { emit(api.deleteCategory(category)) }.single()
+        val response = flow {
+            emit(
+                api.deleteCategory(
+                    CategoryIdRequest(category.id.toInt())
+                )
+            )
+        }.single()
         val result = response.body()
 
         return if (result != null && result.success) {

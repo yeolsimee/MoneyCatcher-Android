@@ -32,7 +32,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +56,10 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.view.category.CategoryUpdateScreen
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
+import com.yeolsimee.moneysaving.view.category.CategoryViewSideEffect
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -326,13 +327,21 @@ class MainActivity : ComponentActivity() {
 fun NavGraphBuilder.categoryNavGraph(navController: NavHostController) {
     composable(route = BottomNavItem.UpdateCategory.screenRoute) {
         val categoryViewModel: CategoryViewModel = hiltViewModel()
-        val list = categoryViewModel.container.stateFlow.collectAsState().value
+        val list = categoryViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            mutableListOf()
+        )
+
+        val sideEffect =
+            categoryViewModel.container.sideEffectFlow.collectAsStateWithLifecycleRemember(
+                initial = CategoryViewSideEffect.Loading
+            )
+
         CategoryUpdateScreen(
             onBackPressed = { navController.popBackStack() },
-            categoryList = list,
-            onDelete = {
-                categoryViewModel.delete(it)
-            }
-        )
+            categoryList = list.value,
+            sideEffect = sideEffect
+        ) {
+            categoryViewModel.delete(it)
+        }
     }
 }
