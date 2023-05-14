@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.checkNotificationPermission
+import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,92 +30,98 @@ class RoutineActivity : ComponentActivity() {
     private val categoryViewModel: CategoryViewModel by viewModels()
     private val routineViewModel: RoutineModifyViewModel by viewModels()
     private val alarmViewModel: AlarmViewModel by viewModels()
+    private val getRoutineViewModel: GetRoutineViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val routineType = getRoutineType()
-        val routineResponse = getRoutineResponse()
+        val routineId = intent.getStringExtra("routineId") ?: ""
         val categoryId = intent.getStringExtra("categoryId") ?: ""
+
+        if (routineType == RoutineModifyOption.Update) {
+            getRoutineViewModel.getRoutine(routineId)
+        }
 
         setContent {
             val selectedCategoryId = remember { mutableStateOf(categoryId) }
-            RoutineScreen(
-                initialData = routineResponse,
-                routineType = routineType,
-                categoryList = categoryViewModel.container.stateFlow.collectAsState().value,
-                selectedCategoryId = selectedCategoryId,
-                closeCallback = {
-                    finish()
-                },
-                onCompleteCallback = { req ->
-                    if (routineType == RoutineModifyOption.Add) {
-                        routineViewModel.addRoutine(
-                            routineRequest = req,
-                            onSetAlarmCallback = { id ->
-                                RoutineAlarmManager.setRoutine(
-                                    context = this@RoutineActivity,
-                                    dayOfWeeks = req.weekTypes,
-                                    alarmTime = req.alarmTime,
-                                    routineId = id,
-                                    routineName = req.routineName
-                                ) { alarmId, dayOfWeek ->
-                                    alarmViewModel.addAlarm(
-                                        alarmId,
-                                        dayOfWeek,
-                                        req.alarmTime,
-                                        req.routineName
+            val routine = getRoutineViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+                    initial = RoutineResponse()
+                ).value
+
+            if (routine.isEmpty() && routineType == RoutineModifyOption.Update) {
+                RoutineScreen()
+            } else {
+                RoutineScreen(
+                    routine = routine,
+                    routineType = routineType,
+                    categoryList = categoryViewModel.container.stateFlow.collectAsState().value,
+                    selectedCategoryId = selectedCategoryId,
+                    closeCallback = {
+                        finish()
+                    },
+                    onCompleteCallback = { req ->
+                        if (routineType == RoutineModifyOption.Add) {
+                            routineViewModel.addRoutine(
+                                routineRequest = req,
+                                onSetAlarmCallback = { id ->
+                                    RoutineAlarmManager.setRoutine(
+                                        context = this@RoutineActivity,
+                                        dayOfWeeks = req.weekTypes,
+                                        alarmTime = req.alarmTime,
+                                        routineId = id,
+                                        routineName = req.routineName
+                                    ) { alarmId, dayOfWeek ->
+                                        alarmViewModel.addAlarm(
+                                            alarmId,
+                                            dayOfWeek,
+                                            req.alarmTime,
+                                            req.routineName
+                                        )
+                                    }
+                                },
+                                onFinishCallback = {
+                                    sendResultAndFinish()
+                                }
+                            )
+                        } else {
+                            routineViewModel.updateRoutine(
+                                routineId = routineId,
+                                routineRequest = req,
+                                onSetAlarmCallback = { id ->
+                                    RoutineAlarmManager.setRoutine(
+                                        context = this@RoutineActivity,
+                                        dayOfWeeks = req.weekTypes,
+                                        alarmTime = req.alarmTime,
+                                        routineId = id,
+                                        routineName = req.routineName
                                     )
+                                },
+                                onDeleteAlarmCallback = { res ->
+                                    RoutineAlarmManager.delete(this@RoutineActivity, res) {
+                                        alarmViewModel.deleteAlarm(it)
+                                    }
+                                },
+                                onFinishCallback = {
+                                    sendResultAndFinish()
                                 }
-                            },
-                            onFinishCallback = {
-                                sendResultAndFinish()
-                            }
-                        )
-                    } else {
-                        routineViewModel.updateRoutine(
-                            routineId = routineResponse?.routineId,
-                            routineRequest = req,
-                            onSetAlarmCallback = { id ->
-                                RoutineAlarmManager.setRoutine(
-                                    context = this@RoutineActivity,
-                                    dayOfWeeks = req.weekTypes,
-                                    alarmTime = req.alarmTime,
-                                    routineId = id,
-                                    routineName = req.routineName
-                                )
-                            },
-                            onDeleteAlarmCallback = { res ->
-                                RoutineAlarmManager.delete(this@RoutineActivity, res) {
-                                    alarmViewModel.deleteAlarm(it)
-                                }
-                            },
-                            onFinishCallback = {
-                                sendResultAndFinish()
-                            }
-                        )
+                            )
+                        }
+                    },
+                    hasNotificationPermission = {
+                        checkNotificationPermission(requestPermissionLauncher)
+                    },
+                    onCategoryAdded =  {
+                        categoryViewModel.addCategory(it)
                     }
-                },
-                hasNotificationPermission = {
-                    checkNotificationPermission(requestPermissionLauncher)
-                },
-                onCategoryAdded = {
-                    categoryViewModel.addCategory(it)
-                }
-            )
+                )
+            }
         }
     }
 
     private fun sendResultAndFinish() {
         setResult(RESULT_OK)
         finish()
-    }
-
-    private fun getRoutineResponse() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.getSerializableExtra("routine", RoutineResponse::class.java)
-    } else {
-        @Suppress("DEPRECATION")
-        intent.getSerializableExtra("routine") as RoutineResponse?
     }
 
     private fun getRoutineType() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -41,6 +41,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
+import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
 import com.yeolsimee.moneysaving.ui.theme.Black33
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
@@ -51,7 +52,7 @@ import kotlinx.coroutines.launch
 fun CategoryUpdateScreen(
     onBackPressed: () -> Unit = {},
     categoryList: MutableList<TextItem> = mutableListOf(),
-    sideEffect: State<CategoryViewSideEffect>,
+    sideEffect: State<ApiCallSideEffect>,
     onDelete: (TextItem) -> Unit = {}
 ) {
 
@@ -137,7 +138,7 @@ fun CategoryUpdateScreen(
             }
         }
 
-        if (sideEffect.value == CategoryViewSideEffect.Empty) {
+        if (sideEffect.value == ApiCallSideEffect.Empty) {
             EmptyRoutine()
         }
     }
@@ -174,7 +175,7 @@ fun CategoryUpdateScreenPreview() {
                 TextItem("4", "테스트4"),
             )
         },
-        sideEffect = remember { mutableStateOf(CategoryViewSideEffect.Loading) }
+        sideEffect = remember { mutableStateOf(ApiCallSideEffect.Loading) }
     )
 }
 
@@ -185,6 +186,6 @@ fun CategoryUpdateScreenEmptyPreview() {
         categoryList = remember {
             mutableListOf()
         },
-        sideEffect = remember { mutableStateOf(CategoryViewSideEffect.Loading) }
+        sideEffect = remember { mutableStateOf(ApiCallSideEffect.Loading) }
     )
 }

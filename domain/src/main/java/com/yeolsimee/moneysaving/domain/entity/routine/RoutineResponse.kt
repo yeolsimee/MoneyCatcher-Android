@@ -45,4 +45,5 @@ data class RoutineResponse(
         return result
     }
 
+    fun isEmpty() = routineId == -1
 }

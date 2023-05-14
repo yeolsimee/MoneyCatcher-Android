@@ -41,14 +41,14 @@ import com.yeolsimee.moneysaving.view.category.CategoryGridView
 @ExperimentalLayoutApi
 @Composable
 fun RoutineScreen(
-    initialData: RoutineResponse? = null,
-    routineType: RoutineModifyOption?,
-    categoryList: MutableList<TextItem>,
-    selectedCategoryId: MutableState<String>,
-    closeCallback: () -> Unit,
-    onCompleteCallback: (RoutineRequest) -> Unit,
-    hasNotificationPermission: () -> Boolean,
-    onCategoryAdded: (String) -> Unit,
+    routine: RoutineResponse = RoutineResponse(),
+    routineType: RoutineModifyOption? = RoutineModifyOption.Update,
+    categoryList: MutableList<TextItem> = mutableListOf(),
+    selectedCategoryId: MutableState<String> = remember { mutableStateOf("") },
+    closeCallback: () -> Unit = {},
+    onCompleteCallback: (RoutineRequest) -> Unit = {},
+    hasNotificationPermission: () -> Boolean = { false },
+    onCategoryAdded: (String) -> Unit = {},
 ) {
     val buttonState = remember { mutableStateOf(false) }
 
@@ -57,25 +57,25 @@ fun RoutineScreen(
         val focusManager = LocalFocusManager.current
         val scrollState = rememberScrollState()
 
-        val routineName = remember { mutableStateOf(initialData?.routineName ?: "") }
+        val routineName = remember { mutableStateOf(routine.routineName) }
 
         if (categoryList.isNotEmpty() && selectedCategoryId.value.isEmpty()) {
             selectedCategoryId.value = categoryList.first().id
         }
 
-        val repeatSelectList = getRoutineRepeatList(initialData)
+        val repeatSelectList = getRoutineRepeatList(routine)
         val selectedRoutineTimeZoneId =
-            remember { mutableStateOf(initialData?.routineTimeZone ?: "1") }
+            remember { mutableStateOf(routine.routineTimeZone) }
 
-        val alarmState = remember { mutableStateOf(initialData?.alarmStatus == "ON") }
+        val alarmState = remember { mutableStateOf(routine.alarmStatus == "ON") }
         val hourState = remember {
             mutableStateOf(
-                if (alarmState.value) initialData!!.alarmTime.substring(0, 2).toInt() else 13
+                if (alarmState.value) routine.alarmTime.substring(0, 2).toInt() else 13
             )
         }
         val minuteState = remember {
             mutableStateOf(
-                if (alarmState.value) initialData!!.alarmTime.substring(2, 4).toInt() else 0
+                if (alarmState.value) routine.alarmTime.substring(2, 4).toInt() else 0
             )
         }
         val addCategoryState = remember { mutableStateOf(false) }
@@ -85,7 +85,7 @@ fun RoutineScreen(
                 TopBackButtonTitleAppBar(routineType?.title) { closeCallback() }
             },
             bottomBar = {
-                buttonState.value = canSaveRoutine(routineName, selectedCategoryId)
+                buttonState.value = canSaveRoutine(routineName.value, selectedCategoryId)
 
                 BottomButtonAppBar(routineType?.title, buttonState.value) {
                     onCompleteCallback(
@@ -152,9 +152,9 @@ private fun getRoutineRepeatList(initialData: RoutineResponse?) =
 
 @Composable
 private fun canSaveRoutine(
-    routineName: MutableState<String>,
+    routineName: String,
     selectedCategoryId: MutableState<String>
-) = routineName.value.isNotEmpty() && selectedCategoryId.value.isNotEmpty()
+) = routineName.isNotEmpty() && selectedCategoryId.value.isNotEmpty()
 
 private fun getAlarmTime(
     alarmState: MutableState<Boolean>,
@@ -174,7 +174,7 @@ private fun getAlarmTime(
 @ExperimentalLayoutApi
 @Preview(showBackground = true)
 @Composable
-fun RoutineScreenPreview() {
+fun RoutineAddScreenPreview() {
     RoutineScreen(
         routineType = RoutineModifyOption.Add,
         categoryList = remember {
@@ -185,13 +185,5 @@ fun RoutineScreenPreview() {
                 TextItem("4", "열네글자까지들어가요일이삼사")
             )
         },
-        selectedCategoryId = remember { mutableStateOf("") },
-        closeCallback = {},
-        onCompleteCallback = {},
-        hasNotificationPermission = {
-            return@RoutineScreen true
-        }
-    ) {
-
-    }
+    )
 }

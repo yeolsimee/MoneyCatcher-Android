@@ -63,7 +63,7 @@ import com.yeolsimee.moneysaving.utils.checkNotificationPermission
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.view.category.CategoryUpdateScreen
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
-import com.yeolsimee.moneysaving.view.category.CategoryViewSideEffect
+import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -74,7 +74,6 @@ import com.yeolsimee.moneysaving.view.login.LoginActivity
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageViewModel
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
-import com.yeolsimee.moneysaving.view.routine.GetRoutineViewModel
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
 import com.yeolsimee.moneysaving.view.routine.RoutineModifyOption
 import dagger.hilt.android.AndroidEntryPoint
@@ -159,8 +158,6 @@ class MainActivity : ComponentActivity() {
                         startDestination = BottomNavItem.Home.screenRoute
                     ) {
                         composable(BottomNavItem.Home.screenRoute) {
-                            val getRoutineViewModel: GetRoutineViewModel = hiltViewModel()
-
                             floatingButtonVisible.value = true
 
                             HomeScreen(
@@ -171,14 +168,11 @@ class MainActivity : ComponentActivity() {
                                 routineDeleteViewModel = routineDeleteViewModel,
                                 floatingButtonVisible = floatingButtonVisible
                             ) { routineId, categoryId ->
-                                getRoutineViewModel.getRoutine(routineId) { routine ->
-                                    val intent =
-                                        Intent(this@MainActivity, RoutineActivity::class.java)
-                                    intent.putExtra("routine", routine)
-                                    intent.putExtra("routineType", RoutineModifyOption.Update)
-                                    intent.putExtra("categoryId", categoryId)
-                                    routineActivityLauncher.launch(intent)
-                                }
+                                val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                                intent.putExtra("routineId", routineId)
+                                intent.putExtra("routineType", RoutineModifyOption.Update)
+                                intent.putExtra("categoryId", categoryId)
+                                routineActivityLauncher.launch(intent)
                             }
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
@@ -355,7 +349,7 @@ fun NavGraphBuilder.categoryNavGraph(navController: NavHostController) {
 
         val sideEffect =
             categoryViewModel.container.sideEffectFlow.collectAsStateWithLifecycleRemember(
-                initial = CategoryViewSideEffect.Loading
+                initial = ApiCallSideEffect.Loading
             )
 
         CategoryUpdateScreen(

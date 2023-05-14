@@ -32,7 +32,7 @@ class NotificationReceiver : BroadcastReceiver() {
                 settingsRepository.getAlarmState().collect {
                     if (it.alarmState) {
                         val routineName = intent.getStringExtra("routineName") ?: ""
-                        val nb = notificationHelper.getChannelNotification("ROUMO", routineName)
+                        val nb = notificationHelper.getChannelNotification("ROUMO", routineName, context)
                         notificationHelper.getManager().notify(createID(), nb.build())
                     }
                 }

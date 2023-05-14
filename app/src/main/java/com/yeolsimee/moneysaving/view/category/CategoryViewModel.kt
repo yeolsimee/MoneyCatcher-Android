@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.domain.repository.ICategoryApiRepository
+import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
+import com.yeolsimee.moneysaving.ui.side_effect.IApiCallSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
@@ -15,9 +17,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryApiRepository) :
-    ContainerHost<MutableList<TextItem>, CategoryViewSideEffect>, ICategoryViewSideEffect, ViewModel() {
+    ContainerHost<MutableList<TextItem>, ApiCallSideEffect>, IApiCallSideEffect, ViewModel() {
 
-    override val container = container<MutableList<TextItem>, CategoryViewSideEffect>(mutableListOf())
+    override val container = container<MutableList<TextItem>, ApiCallSideEffect>(mutableListOf())
 
     init {
         getCategoryList()
@@ -38,14 +40,14 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
 
     override fun showLoading() {
         intent {
-            postSideEffect(CategoryViewSideEffect.Loading)
+            postSideEffect(ApiCallSideEffect.Loading)
         }
     }
 
     override fun showEmpty() {
         intent {
             reduce { mutableListOf() }
-            postSideEffect(CategoryViewSideEffect.Empty)
+            postSideEffect(ApiCallSideEffect.Empty)
         }
     }
 

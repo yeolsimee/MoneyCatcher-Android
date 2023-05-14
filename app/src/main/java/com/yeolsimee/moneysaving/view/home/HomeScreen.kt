@@ -160,7 +160,7 @@ fun HomeScreen(
                 }
             }
 
-            if (!routinesOfDayState.isNotLoadingAndNotEmpty()) {
+            if (routinesOfDayState.isNotLoadingAndNotEmpty()) {
                 Image(
                     painter = painterResource(id = R.drawable.coins),
                     contentDescription = "동전",
