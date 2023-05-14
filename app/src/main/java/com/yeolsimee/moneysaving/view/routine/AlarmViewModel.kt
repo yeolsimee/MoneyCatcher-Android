@@ -9,12 +9,13 @@ import javax.inject.Inject
 @HiltViewModel
 class AlarmViewModel @Inject constructor(private val alarmDao: AlarmDao) : ViewModel() {
 
-    fun addAlarm(alarmId: Int, dayOfWeek: Int, alarmTime: String) {
+    fun addAlarm(alarmId: Int, dayOfWeek: Int, alarmTime: String, routineName: String) {
         alarmDao.insertAll(
             AlarmEntity(
                 alarmId = alarmId,
                 dayOfWeek = dayOfWeek,
-                alarmTime = alarmTime
+                alarmTime = alarmTime,
+                routineName = routineName
             )
         )
     }

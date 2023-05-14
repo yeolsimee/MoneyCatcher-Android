@@ -4,4 +4,6 @@
     <string name="confirm">확인</string>
     <string name="routine_is_empty">비어있어요!</string>
     <string name="please_add_routine_button">+버튼을 눌러 루틴을 추가해주세요</string>
+    <string name="agreement_url">https://www.notion.so/ROUMO-2641224b46a5418a8c233fc28dd20ee7?pvs=4</string>
+    <string name="policy_url">https://www.notion.so/ROUMO-a94f945547744c34858d970737b2ff22?pvs=4</string>
 </resources>

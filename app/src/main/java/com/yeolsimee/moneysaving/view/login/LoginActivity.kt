@@ -9,6 +9,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.MutableLiveData
+import com.yeolsimee.moneysaving.ui.loading.LoadingScreen
 import com.yeolsimee.moneysaving.view.MainActivity
 import com.yeolsimee.moneysaving.view.signup.AgreementActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,26 +25,40 @@ class LoginActivity : ComponentActivity() {
 
     private lateinit var googleLoginLauncher: ActivityResultLauncher<Intent>
     private lateinit var naverLoginLauncher: ActivityResultLauncher<Intent>
+    private val agreementActivityLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            loadingState.value = false
+            loginViewModel.logout()
+        }
 
     private val loginViewModel: LoginViewModel by viewModels()
     private val emailLoginViewModel: EmailLoginViewModel by viewModels()
+
+    private val loadingState = MutableLiveData(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         initAuth()
 
+        if (intent.getBooleanExtra("agreement", false)) {
+            moveToAgreementActivity()
+        }
+
         setContent {
             LoginScreen(
                 onNaverLogin = {
+                    loadingState.value = true
                     loginViewModel.naverLogin(applicationContext, naverLoginLauncher)
                 },
                 onGoogleLogin = {
                     loginViewModel.googleLogin(googleLoginLauncher)
                 },
                 onAppleLogin = {
+                    loadingState.value = true
                     loginViewModel.appleLogin(
                         this@LoginActivity,
+                        loadingState,
                         { moveToMainActivity() },
                         { moveToAgreementActivity() })
                 },
@@ -50,33 +67,38 @@ class LoginActivity : ComponentActivity() {
                     startActivity(intent)
                 }
             )
+            if (loadingState.observeAsState().value == true) {
+                LoadingScreen()
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        emailLoginViewModel.receiveEmailResult(
-            intent = intent,
-            activity = this@LoginActivity,
-            signedUserCallback = { moveToMainActivity() },
-            newUserCallback = { moveToAgreementActivity() }
-        )
+        if (loadingState.value == false) {
+            emailLoginViewModel.receiveEmailResult(
+                intent = intent,
+                activity = this@LoginActivity,
+                loadingState = loadingState,
+                signedUserCallback = { moveToMainActivity() },
+                newUserCallback = { moveToAgreementActivity() }
+            )
+        }
     }
 
     private fun moveToAgreementActivity() {
-        startActivity(Intent(this@LoginActivity, AgreementActivity::class.java))
+        val intent = Intent(this@LoginActivity, AgreementActivity::class.java)
+        agreementActivityLauncher.launch(intent)
     }
 
     private fun initAuth() {
         initGoogleLogin()
         initNaverLogin()
-        loginViewModel.autoLogin({
-            moveToMainActivity()
-        }, { moveToAgreementActivity() })
     }
 
+    // 이미 가입한 유저라면 루틴 알림 목록을 다시 불러와 등록해야 한다.
     private fun moveToMainActivity() {
-        loginViewModel.updateRoutineAlarms {
+        loginViewModel.updateRoutineAlarms(this@LoginActivity) {
             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
             finish()
         }
@@ -84,11 +106,15 @@ class LoginActivity : ComponentActivity() {
 
     private fun initNaverLogin() {
         naverLoginLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                loginViewModel.naverInit(
-                    result,
-                    { moveToMainActivity() },
-                    { moveToAgreementActivity() })
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    loginViewModel.naverInit(
+                        result = it,
+                        { moveToMainActivity() }
+                    ) { moveToAgreementActivity() }
+                } else {
+                    loadingState.value = false
+                }
             }
     }
 
@@ -99,7 +125,10 @@ class LoginActivity : ComponentActivity() {
             { moveToAgreementActivity() })
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                loginViewModel.googleInit(it)
+                if (it.resultCode == RESULT_OK) {
+                    loadingState.value = true
+                    loginViewModel.googleInit(it)
+                }
             }
     }
 }

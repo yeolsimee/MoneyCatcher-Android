@@ -7,8 +7,10 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
 import com.yeolsimee.moneysaving.App
+import com.yeolsimee.moneysaving.data.entity.AlarmEntity
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.getIntDayOfWeekFromEnglish
+import java.text.SimpleDateFormat
 import java.util.Calendar
 
 class RoutineAlarmManager {
@@ -18,6 +20,7 @@ class RoutineAlarmManager {
             dayOfWeeks: Array<String>,
             alarmTime: String,
             routineId: Int,
+            routineName: String,
             onAlarmAdded: (alarmId: Int, dayOfWeek: Int) -> Unit = { _, _ -> }
         ) {
             val hour = alarmTime.substring(0, 2).toInt()
@@ -26,12 +29,15 @@ class RoutineAlarmManager {
             // 요일 별로 알람이 추가되어야 한다.
             for (i in dayOfWeeks.indices) {
                 val dayOfWeek = getIntDayOfWeekFromEnglish(dayOfWeeks[i])
-                val triggerTime = setTriggerTime(dayOfWeek, hour, minute)
+                val triggerTime = getTriggerTime(
+                    dayOfWeek = dayOfWeek,
+                    hour = hour,
+                    minute = minute,
+                )
 
                 val intent = getRoutineAlarmIntent(context)
 
-                // TODO 루틴알림에 필요한 정보 입력하기
-                intent.putExtra("time", "${hour}시 ${minute}분")
+                intent.putExtra("routineName", routineName)
                 val alarmId = getAlarmId(routineId, dayOfWeek)
                 val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
                 val alarmManager = getAlarmManager(context)
@@ -49,22 +55,23 @@ class RoutineAlarmManager {
 
         fun setOneDay(
             context: Context,
-            dayOfWeek: Int,
-            alarmTime: String,
-            alarmId: Int,
+            alarm: AlarmEntity,
             onAlarmAdded: (alarmId: Int, dayOfWeek: Int) -> Unit = { _, _ -> }
         ) {
-            val hour = alarmTime.substring(0, 2).toInt()
-            val minute = alarmTime.substring(2, 4).toInt()
+            val hour = alarm.alarmTime.substring(0, 2).toInt()
+            val minute = alarm.alarmTime.substring(2, 4).toInt()
 
-            val triggerTime = setTriggerTime(dayOfWeek, hour, minute)
+            val triggerTime = getTriggerTime(
+                dayOfWeek = alarm.dayOfWeek,
+                hour = hour,
+                minute = minute
+            )
 
             val intent = getRoutineAlarmIntent(context)
 
-            // TODO 루틴알림에 필요한 정보 입력하기
-            intent.putExtra("time", "${hour}시 ${minute}분")
+            intent.putExtra("routineName", alarm.routineName)
 
-            val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
+            val pIntent = makeAlarmPendingIntent(context, alarm.alarmId, intent)
             val alarmManager = getAlarmManager(context)
 
             alarmManager.setInexactRepeating(
@@ -74,16 +81,49 @@ class RoutineAlarmManager {
                 pIntent
             )
 
-            onAlarmAdded(alarmId, dayOfWeek)
+            onAlarmAdded(alarm.alarmId, alarm.dayOfWeek)
         }
 
-        private fun setTriggerTime(
-            dayOfWeek: Int,
+        fun setDailyNotification(
+            context: Context
+        ) {
+            val intent = getRoutineAlarmIntent(context)
+            intent.putExtra("routineName", "오늘 루틴 체크는 다 완료 하셨나요?")
+
+            val alarmManager = getAlarmManager(context)
+            val triggerTime = Calendar.getInstance()
+            triggerTime.set(Calendar.HOUR_OF_DAY, 23)
+            triggerTime.set(Calendar.MINUTE, 0)
+            triggerTime.set(Calendar.SECOND, 0)
+            if (triggerTime.timeInMillis < System.currentTimeMillis()) {
+                triggerTime.add(Calendar.DAY_OF_YEAR, 1)
+            }
+
+            Log.i(App.TAG, "time: ${SimpleDateFormat.getInstance().format(triggerTime.time)}")
+            val pIntent = makeAlarmPendingIntent(context, 11111111, intent)
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pIntent
+            )
+        }
+
+
+        fun cancelDailyNotification(context: Context) {
+            val intent = getRoutineAlarmIntent(context)
+            val pIntent = makeAlarmPendingIntent(context, 11111111, intent)
+            val alarmManager = getAlarmManager(context)
+            alarmManager.cancel(pIntent)
+        }
+
+        private fun getTriggerTime(
+            dayOfWeek: Int = -1,
             hour: Int,
             minute: Int
         ): Calendar {
             val triggerTime = Calendar.getInstance()
-            triggerTime.set(Calendar.DAY_OF_WEEK, dayOfWeek)
+            if (dayOfWeek != -1) triggerTime.set(Calendar.DAY_OF_WEEK, dayOfWeek)
             triggerTime.set(Calendar.HOUR_OF_DAY, hour)
             triggerTime.set(Calendar.MINUTE, minute)
             triggerTime.set(Calendar.SECOND, 0)
@@ -111,12 +151,15 @@ class RoutineAlarmManager {
             }
         }
 
-        fun deleteAll(context: Context, alarmIdList: List<Int>) {
+        fun cancelAll(context: Context, alarmList: List<RoutineResponse>) {
             val alarmManager = getAlarmManager(context)
-            for (alarmId in alarmIdList) {
-                alarmManager.cancel(
-                    makeAlarmPendingIntent(context, alarmId, getRoutineAlarmIntent(context))
-                )
+            for (alarm in alarmList) {
+                for (dayOfWeek in alarm.weekTypes) {
+                    val alarmId = getAlarmId(alarm.routineId, getIntDayOfWeekFromEnglish(dayOfWeek))
+                    alarmManager.cancel(
+                        makeAlarmPendingIntent(context, alarmId, getRoutineAlarmIntent(context))
+                    )
+                }
             }
         }
 
@@ -142,6 +185,27 @@ class RoutineAlarmManager {
 
         private fun getAlarmId(routineId: Int, dayOfWeek: Int): Int {
             return routineId * 100 + dayOfWeek
+        }
+
+        fun addAll(
+            context: Context,
+            alarmList: List<RoutineResponse>,
+            onAlarmAdded: (alarmId: Int, dayOfWeek: Int, alarmTime: String, routineName: String) -> Unit
+        ) {
+            for (alarm in alarmList) {
+                if (alarm.alarmStatus == "ON") {
+                    setRoutine(
+                        context = context,
+                        dayOfWeeks = alarm.weekTypes,
+                        alarmTime = alarm.alarmTime,
+                        routineId = alarm.routineId,
+                        routineName = alarm.routineName,
+                        onAlarmAdded = { alarmId, dayOfWeek ->
+                            onAlarmAdded(alarmId, dayOfWeek, alarm.alarmTime, alarm.routineName)
+                        }
+                    )
+                }
+            }
         }
     }
 }

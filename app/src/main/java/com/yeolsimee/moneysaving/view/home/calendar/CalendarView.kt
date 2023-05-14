@@ -129,7 +129,7 @@ private fun CalendarSpreadButton(
                 spread.value = !spread.value
             }
         ),
-        painter = if (spread.value) painterResource(id = R.drawable.icon_bigarrow_end)
+        painter = if (spread.value) painterResource(id = R.drawable.icon_bigarrow_close)
         else painterResource(id = R.drawable.icon_bigarrow_open),
         contentDescription = "닫기"
     )

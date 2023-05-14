@@ -3,12 +3,16 @@ package com.yeolsimee.moneysaving.utils.notification
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.view.SplashActivity
 
 class NotificationHelper(context: Context?): ContextWrapper(context)  {
 
@@ -36,12 +40,25 @@ class NotificationHelper(context: Context?): ContextWrapper(context)  {
         return getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     }
 
-    fun getChannelNotification(title: String, message: String): NotificationCompat.Builder {
+    fun getChannelNotification(title: String, message: String, context: Context): NotificationCompat.Builder {
+
+        val intent = Intent(context, SplashActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         return NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(message)
-            .setSmallIcon(R.drawable.ic_launcher_background)
-
+            .setSmallIcon(R.drawable.icon_time)
+            .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_rounded))
+            .setContentIntent(pendingIntent)
     }
 
 }

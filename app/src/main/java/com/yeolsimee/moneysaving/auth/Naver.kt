@@ -11,7 +11,11 @@ import com.google.firebase.ktx.Firebase
 import com.navercorp.nid.NaverIdLoginSDK
 
 object Naver {
-    fun init(result: ActivityResult, tokenCallback: (String) -> Unit, failedCallback: (String) -> Unit) {
+    fun init(
+        result: ActivityResult,
+        tokenCallback: (String) -> Unit,
+        failedCallback: (String) -> Unit
+    ) {
         val functions = Firebase.functions(regionOrCustomDomain = "asia-northeast1")
         when (result.resultCode) {
             ComponentActivity.RESULT_OK -> {
@@ -27,6 +31,7 @@ object Naver {
                     }
                 }
             }
+
             ComponentActivity.RESULT_CANCELED -> {
                 // 실패 or 에러
                 val errorCode = NaverIdLoginSDK.getLastErrorCode().code
@@ -36,7 +41,10 @@ object Naver {
         }
     }
 
-    fun login(context: Context, launcher: ActivityResultLauncher<Intent>) {
+    fun login(
+        context: Context,
+        launcher: ActivityResultLauncher<Intent>
+    ) {
         NaverIdLoginSDK.authenticate(context, launcher)
     }
 

@@ -35,4 +35,8 @@ class RoutineUseCase(private val repository: IRoutineApiRepository) {
     suspend fun getRoutine(routineId: String): Result<RoutineResponse> {
         return repository.getRoutine(routineId)
     }
+
+    suspend fun getActivatedAlarmRoutine(): Result<List<RoutineResponse>> {
+        return repository.getActivatedAlarmRoutine()
+    }
 }

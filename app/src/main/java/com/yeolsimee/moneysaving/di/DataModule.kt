@@ -3,6 +3,7 @@ package com.yeolsimee.moneysaving.di
 import com.yeolsimee.moneysaving.data.api.CategoryApiService
 import com.yeolsimee.moneysaving.data.api.RoutineApiService
 import com.yeolsimee.moneysaving.data.api.UserApiService
+import com.yeolsimee.moneysaving.data.data_store.DataStoreService
 import com.yeolsimee.moneysaving.data.repository.CategoryApiRepository
 import com.yeolsimee.moneysaving.data.repository.RoutineApiRepository
 import com.yeolsimee.moneysaving.data.repository.SettingsRepository
@@ -49,9 +50,5 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideSettingsSource() = SettingsSource()
-
-//    @Provides
-//    @Singleton
-//    fun provideSettingsSource() = SettingsSource()
+    fun provideSettingsSource(dataStoreService: DataStoreService) = SettingsSource(dataStoreService)
 }

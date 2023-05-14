@@ -21,7 +21,7 @@ class FirebaseUserIdTokenInterceptor : Interceptor {
             val user: FirebaseUser = FirebaseAuth.getInstance().currentUser
                 ?: return chain.proceed(request)
             // No has auth header
-            val task: Task<GetTokenResult> = user.getIdToken(false)
+            val task: Task<GetTokenResult> = user.getIdToken(true)
             val tokenResult: GetTokenResult =
                 Tasks.await(task, 10, TimeUnit.SECONDS) // Timeout 10 Seconds
             val idToken: String = tokenResult.token ?: return chain.proceed(request)

@@ -3,6 +3,7 @@
 package com.yeolsimee.moneysaving.view
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -30,8 +31,10 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,8 +56,14 @@ import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.checkNotificationPermission
+import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
+import com.yeolsimee.moneysaving.view.category.CategoryUpdateScreen
+import com.yeolsimee.moneysaving.view.category.CategoryViewModel
+import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -64,10 +74,12 @@ import com.yeolsimee.moneysaving.view.login.LoginActivity
 import com.yeolsimee.moneysaving.view.mypage.MyPageScreen
 import com.yeolsimee.moneysaving.view.mypage.MyPageViewModel
 import com.yeolsimee.moneysaving.view.recommend.RecommendScreen
-import com.yeolsimee.moneysaving.view.routine.GetRoutineViewModel
 import com.yeolsimee.moneysaving.view.routine.RoutineActivity
 import com.yeolsimee.moneysaving.view.routine.RoutineModifyOption
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @ExperimentalLayoutApi
 @AndroidEntryPoint
@@ -80,19 +92,22 @@ class MainActivity : ComponentActivity() {
     private val calendarViewModel: CalendarViewModel by viewModels()
     private val selectedDateViewModel: SelectedDateViewModel by viewModels()
     private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
-    private lateinit var routineActivityLauncher: ActivityResultLauncher<Intent>
+
+    private val routineActivityLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                findAllMyRoutineViewModel.refresh {
+                    selectedDateViewModel.find(calendarViewModel.today)
+                }
+            }
+        }
+
+    private val permissionLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        routineActivityLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == RESULT_OK) {
-                    findAllMyRoutineViewModel.refresh {
-                        selectedDateViewModel.find(calendarViewModel.today)
-                    }
-                }
-            }
 
         setContent {
             RoumoTheme(navigationBarColor = Color.Black) {
@@ -143,8 +158,6 @@ class MainActivity : ComponentActivity() {
                         startDestination = BottomNavItem.Home.screenRoute
                     ) {
                         composable(BottomNavItem.Home.screenRoute) {
-                            val getRoutineViewModel: GetRoutineViewModel = hiltViewModel()
-
                             floatingButtonVisible.value = true
 
                             HomeScreen(
@@ -155,14 +168,11 @@ class MainActivity : ComponentActivity() {
                                 routineDeleteViewModel = routineDeleteViewModel,
                                 floatingButtonVisible = floatingButtonVisible
                             ) { routineId, categoryId ->
-                                getRoutineViewModel.getRoutine(routineId) { routine ->
-                                    val intent =
-                                        Intent(this@MainActivity, RoutineActivity::class.java)
-                                    intent.putExtra("routine", routine)
-                                    intent.putExtra("routineType", RoutineModifyOption.Update)
-                                    intent.putExtra("categoryId", categoryId)
-                                    routineActivityLauncher.launch(intent)
-                                }
+                                val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                                intent.putExtra("routineId", routineId)
+                                intent.putExtra("routineType", RoutineModifyOption.Update)
+                                intent.putExtra("categoryId", categoryId)
+                                routineActivityLauncher.launch(intent)
                             }
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
@@ -172,23 +182,54 @@ class MainActivity : ComponentActivity() {
                         composable(BottomNavItem.MyPage.screenRoute) {
                             val myPageViewModel: MyPageViewModel = hiltViewModel()
                             floatingButtonVisible.value = false
+
+                            val snackbarState = remember { SnackbarHostState() }
+                            val alarmState = myPageViewModel.alarmState.observeAsState(false)
+
                             MyPageScreen(
-                                settings = myPageViewModel.settings,
+                                alarmState = alarmState,
+                                onChangeAlarmState = {
+                                    if (checkNotificationPermission(permissionLauncher)) {
+                                        myPageViewModel.changeAlarmState(applicationContext)
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            val text = if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
+                                            snackbarState.showSnackbar(text)
+                                        }
+                                    }
+                                },
+                                onMoveToCategoryUpdateScreen = {
+                                    navController.navigate(BottomNavItem.UpdateCategory.screenRoute)
+                                },
                                 onLogout = {
-                                    myPageViewModel.logout(this@MainActivity)
-                                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                                    startActivity(intent)
-                                    finishAffinity()
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        myPageViewModel.logoutAndCancelAlarms(this@MainActivity) {
+                                            val intent = Intent(
+                                                this@MainActivity,
+                                                LoginActivity::class.java
+                                            )
+                                            startActivity(intent)
+                                            finishAffinity()
+                                        }
+                                    }
                                 },
                                 onWithdraw = {
                                     myPageViewModel.withdraw(this@MainActivity) {
-                                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                        val intent =
+                                            Intent(this@MainActivity, LoginActivity::class.java)
                                         startActivity(intent)
                                         finishAffinity()
                                     }
+                                },
+                                openInternetBrowser = { url ->
+                                    startActivity(
+                                        Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                    )
                                 }
                             )
+
+                            CustomSnackBarHost(snackbarState)
                         }
+                        categoryNavGraph(navController)
                     }
                 }
             },
@@ -234,7 +275,7 @@ class MainActivity : ComponentActivity() {
 
             items.forEach { item ->
 
-                val isSelected = currentRoute == item.screenRoute
+                val isSelected = getSelectedState(currentRoute, item)
                 val resId = if (isSelected) item.pressedResId else item.normalResId
                 val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.W400
                 val labelColor = if (isSelected) Color.White else Gray99
@@ -286,6 +327,37 @@ class MainActivity : ComponentActivity() {
                     ),
                 )
             }
+        }
+    }
+
+    private fun getSelectedState(
+        currentRoute: String?,
+        item: BottomNavItem
+    ) = if (currentRoute == BottomNavItem.UpdateCategory.screenRoute) {
+        BottomNavItem.MyPage.screenRoute == item.screenRoute
+    } else {
+        currentRoute == item.screenRoute
+    }
+}
+
+fun NavGraphBuilder.categoryNavGraph(navController: NavHostController) {
+    composable(route = BottomNavItem.UpdateCategory.screenRoute) {
+        val categoryViewModel: CategoryViewModel = hiltViewModel()
+        val list = categoryViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            mutableListOf()
+        )
+
+        val sideEffect =
+            categoryViewModel.container.sideEffectFlow.collectAsStateWithLifecycleRemember(
+                initial = ApiCallSideEffect.Loading
+            )
+
+        CategoryUpdateScreen(
+            onBackPressed = { navController.popBackStack() },
+            categoryList = list.value,
+            sideEffect = sideEffect
+        ) {
+            categoryViewModel.delete(it)
         }
     }
 }

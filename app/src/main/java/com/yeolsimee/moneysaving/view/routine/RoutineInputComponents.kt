@@ -263,7 +263,6 @@ fun SettingAlarmTime(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            // TODO 알람 권한 확인
                             if (hasNotificationPermission()) {
                                 alarmState.value = !alarmState.value
                             }

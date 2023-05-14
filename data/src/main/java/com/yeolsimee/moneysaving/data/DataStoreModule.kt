@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.yeolsimee.moneysaving.data.data_store.DataStoreService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +20,17 @@ class DataStoreModule {
 
     @Provides
     @Singleton
-    fun provideSettingPreferences(application: Application): DataStore<Preferences> {
+    fun provideDataStoreService(dataStore: DataStore<Preferences>): DataStoreService {
+        return object: DataStoreService {
+            override fun getDataStore(): DataStore<Preferences> {
+                return dataStore
+            }
+        }
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideSettingPreferences(application: Application): DataStore<Preferences> {
         return application.applicationContext.settingsDataStore
     }
 }

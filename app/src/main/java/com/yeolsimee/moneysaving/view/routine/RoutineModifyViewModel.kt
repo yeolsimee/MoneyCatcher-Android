@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.domain.usecase.RoutineUseCase
-import com.yeolsimee.moneysaving.view.ISideEffect
-import com.yeolsimee.moneysaving.view.ToastSideEffect
+import com.yeolsimee.moneysaving.ui.side_effect.IToastSideEffect
+import com.yeolsimee.moneysaving.ui.side_effect.ToastSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RoutineModifyViewModel @Inject constructor(private val routineUseCase: RoutineUseCase) :
-    ContainerHost<RoutineResponse, ToastSideEffect>, ISideEffect, ViewModel() {
+    ContainerHost<RoutineResponse, ToastSideEffect>, IToastSideEffect, ViewModel() {
 
     override val container = container<RoutineResponse, ToastSideEffect>(RoutineResponse())
 
@@ -37,13 +37,13 @@ class RoutineModifyViewModel @Inject constructor(private val routineUseCase: Rou
     }
 
     fun updateRoutine(
-        routineId: Int?,
+        routineId: String,
         routineRequest: RoutineRequest,
         onSetAlarmCallback: (Int) -> Unit = {},
         onDeleteAlarmCallback: (RoutineResponse) -> Unit = {},
         onFinishCallback: (RoutineResponse) -> Unit = {}
     ) = intent {
-        val result = routineUseCase.updateRoutine(routineId.toString(), routineRequest)
+        val result = routineUseCase.updateRoutine(routineId, routineRequest)
         result.onSuccess {
             if (it.alarmStatus == "ON") {
                 onSetAlarmCallback(it.routineId)

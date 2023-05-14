@@ -17,6 +17,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class Google(activity: Activity, private val tokenCallback: (String) -> Unit = {}) {
 
@@ -50,9 +53,9 @@ class Google(activity: Activity, private val tokenCallback: (String) -> Unit = {
     private fun firebaseAuthWithGoogle(googleToken: String) {
         val credential = GoogleAuthProvider.getCredential(googleToken, null)
         val task = Firebase.auth.signInWithCredential(credential)
-        AuthFunctions.getAuthResult(task, tokenCallback = { token ->
-            tokenCallback(token)
-        })
+        CoroutineScope(Dispatchers.IO).launch {
+            AuthFunctions.getAuthResult(task) { result -> result.onSuccess { tokenCallback(it) } }
+        }
     }
 
     fun login(googleLoginLauncher: ActivityResultLauncher<Intent>) {

@@ -1,8 +1,9 @@
 package com.yeolsimee.moneysaving.view.mypage
 
 import android.app.Activity
+import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -13,6 +14,8 @@ import com.yeolsimee.moneysaving.data.repository.SettingsRepository
 import com.yeolsimee.moneysaving.domain.usecase.UserUseCase
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,32 +23,70 @@ import javax.inject.Inject
 class MyPageViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val dao: AlarmDao,
-    settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    val settings = settingsRepository.getAlarmState().asLiveData()
+    val alarmState = MutableLiveData(false)
 
-    fun logout(activity: Activity) {
-        dao.deleteAll()
+    init {
+        getSettings()
+    }
+
+    private fun getSettings() {
+        viewModelScope.launch {
+            settingsRepository.getAlarmState().collect {
+                alarmState.value = it.alarmState
+            }
+        }
+    }
+
+    fun changeAlarmState(applicationContext: Context) {
+        viewModelScope.launch {
+            settingsRepository.toggleAlarmState().collect { changedAlarmState ->
+                getSettings()
+                if (changedAlarmState) {
+                    RoutineAlarmManager.setDailyNotification(applicationContext)
+                } else {
+                    RoutineAlarmManager.cancelDailyNotification(applicationContext)
+                }
+            }
+        }
+    }
+
+    fun logoutAndCancelAlarms(activity: Activity, onSuccess: () -> Unit) {
+        cancelAlarms(activity) {
+            // 모든 API 통신 완료 후
+            logout(activity)
+            onSuccess()
+        }
+    }
+
+    private fun logout(activity: Activity) {
         Firebase.auth.signOut()
         Naver.logout()
         Google(activity).logout()
     }
 
-
     fun withdraw(activity: Activity, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            // TODO API 알림 목록 조회
-//            userUseCase.getAlarmList().onSuccess { alarmList ->
-            // TODO 알림 리스트 가져와 등록된 알람들 삭제
-            RoutineAlarmManager.deleteAll(activity, listOf())
-            userUseCase.withdraw().onSuccess { withdrawResult ->  // 회원 탈퇴
+        cancelAlarms(activity) {
+            userUseCase.withdraw().onSuccess { withdrawResult ->  // 3. 회원 탈퇴
                 if (withdrawResult) {
-                    logout(activity)    // firebase logout
-                    onSuccess() // move to login view
+                    logout(activity)  // 회원 탈퇴 후 로그아웃 과정까지 함께 수행한다.
+                    onSuccess()
                 }
             }
-//            }
+        }
+    }
+
+    private fun cancelAlarms(activity: Activity, onDelete: suspend CoroutineScope.() -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            dao.deleteAll() // 로그아웃 시 알람 정보를 디바이스에서 지운다.
+            // 등록되어 있는 해당 유저의 모든 알람 목록을 조회하고,
+            userUseCase.getAlarmList().onSuccess { alarmList ->
+                // 알람 서비스에서 해제한다.
+                RoutineAlarmManager.cancelAll(activity, alarmList)
+                onDelete()
+            }
         }
     }
 }

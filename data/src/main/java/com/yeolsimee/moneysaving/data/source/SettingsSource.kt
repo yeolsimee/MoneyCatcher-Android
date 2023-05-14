@@ -1,27 +1,29 @@
 package com.yeolsimee.moneysaving.data.source
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import com.yeolsimee.moneysaving.data.data_store.DataStoreService
 import com.yeolsimee.moneysaving.domain.entity.preference.SettingPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class SettingsSource {
-
-    @Inject
-    lateinit var dataStore: DataStore<Preferences>
+class SettingsSource(private val dataStoreService: DataStoreService) {
 
     private object PreferencesKeys {
         val ALARM_STATE = booleanPreferencesKey("alarm_state")
     }
 
-    fun getAlarmState(): Flow<SettingPreferences> = flow {
-        dataStore.data.map { preferences ->
+    fun getAlarmState() = dataStoreService.getDataStore().data.map { preferences ->
+        val alarmState = preferences[PreferencesKeys.ALARM_STATE] ?: false
+        SettingPreferences(alarmState = alarmState)
+    }
+
+    fun toggleAlarmState(): Flow<Boolean> = flow {
+        dataStoreService.getDataStore().edit { preferences ->
             val alarmState = preferences[PreferencesKeys.ALARM_STATE] ?: false
-            SettingPreferences(alarmState = alarmState)
+            preferences[PreferencesKeys.ALARM_STATE] = !alarmState
+            emit(!alarmState)
         }
     }
 }

@@ -31,9 +31,7 @@ class DeviceBootReceiver : BroadcastReceiver() {
                     Log.i(App.TAG, "DeviceBootReceiver reset: ${alarm.alarmId} ${alarm.alarmTime}")
                     RoutineAlarmManager.setOneDay(
                         context,
-                        alarm.dayOfWeek,
-                        alarm.alarmTime,
-                        alarm.alarmId
+                        alarm
                     )
                 }
             }

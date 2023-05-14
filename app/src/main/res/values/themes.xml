@@ -2,4 +2,6 @@
 <resources>
 
     <style name="Theme.Roumo" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="SplashScreenTheme" parent="Theme.Roumo"/>
 </resources>
