@@ -93,3 +93,7 @@ dependencies {
     testImplementation group: 'io.mockk', name: 'mockk', version: '1.13.5'
 
 }
+
+configurations.all {
+    exclude group: 'com.google.android.gms', module: 'play-services-safetynet'
+}
