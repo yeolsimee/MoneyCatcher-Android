@@ -96,8 +96,9 @@ class LoginActivity : ComponentActivity() {
         initNaverLogin()
     }
 
+    // 이미 가입한 유저라면 루틴 알림 목록을 다시 불러와 등록해야 한다.
     private fun moveToMainActivity() {
-        loginViewModel.updateRoutineAlarms {
+        loginViewModel.updateRoutineAlarms(this@LoginActivity) {
             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
             finish()
         }

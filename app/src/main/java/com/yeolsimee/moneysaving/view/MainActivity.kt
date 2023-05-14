@@ -208,7 +208,7 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onLogout = {
                                     CoroutineScope(Dispatchers.Default).launch {
-                                        myPageViewModel.logout(this@MainActivity) {
+                                        myPageViewModel.logoutAndCancelAlarms(this@MainActivity) {
                                             val intent = Intent(
                                                 this@MainActivity,
                                                 LoginActivity::class.java

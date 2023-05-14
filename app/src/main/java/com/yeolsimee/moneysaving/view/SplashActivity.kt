@@ -43,19 +43,15 @@ class SplashActivity: ComponentActivity() {
     }
 
     private fun moveToMainActivity() {
-        viewModel.updateRoutineAlarms {
-            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-            finish()
-        }
+        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+        finish()
     }
 
     private fun moveToAgreementActivity() {
-        viewModel.updateRoutineAlarms {
-            val intent = Intent(this@SplashActivity, AgreementActivity::class.java)
-            intent.putExtra("agreement", true)
-            startActivity(intent)
-            finish()
-        }
+        val intent = Intent(this@SplashActivity, AgreementActivity::class.java)
+        intent.putExtra("agreement", true)
+        startActivity(intent)
+        finish()
     }
 
     private fun moveToLoginActivity() {

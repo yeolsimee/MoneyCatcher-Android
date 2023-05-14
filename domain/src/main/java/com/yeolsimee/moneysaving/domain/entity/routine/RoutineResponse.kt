@@ -5,6 +5,7 @@ import java.io.Serializable
 data class RoutineResponse(
     val routineId: Int = -1,
     val routineName: String = "",
+    val categoryId: Int = -1,
     val categoryName: String = "",
     val routineType: String = "",
     val alarmStatus: String = "",
@@ -20,6 +21,7 @@ data class RoutineResponse(
 
         if (routineId != other.routineId) return false
         if (routineName != other.routineName) return false
+        if (categoryId != other.categoryId) return false
         if (categoryName != other.categoryName) return false
         if (routineType != other.routineType) return false
         if (alarmStatus != other.alarmStatus) return false
@@ -33,6 +35,7 @@ data class RoutineResponse(
     override fun hashCode(): Int {
         var result = routineId
         result = 31 * result + routineName.hashCode()
+        result = 31 * result + categoryId
         result = 31 * result + categoryName.hashCode()
         result = 31 * result + routineType.hashCode()
         result = 31 * result + alarmStatus.hashCode()
@@ -41,4 +44,5 @@ data class RoutineResponse(
         result = 31 * result + weekTypes.contentHashCode()
         return result
     }
+
 }

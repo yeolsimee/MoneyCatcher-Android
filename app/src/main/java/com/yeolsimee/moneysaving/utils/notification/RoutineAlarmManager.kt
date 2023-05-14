@@ -151,12 +151,15 @@ class RoutineAlarmManager {
             }
         }
 
-        fun deleteAll(context: Context, alarmIdList: List<Int>) {
+        fun cancelAll(context: Context, alarmList: List<RoutineResponse>) {
             val alarmManager = getAlarmManager(context)
-            for (alarmId in alarmIdList) {
-                alarmManager.cancel(
-                    makeAlarmPendingIntent(context, alarmId, getRoutineAlarmIntent(context))
-                )
+            for (alarm in alarmList) {
+                for (dayOfWeek in alarm.weekTypes) {
+                    val alarmId = getAlarmId(alarm.routineId, getIntDayOfWeekFromEnglish(dayOfWeek))
+                    alarmManager.cancel(
+                        makeAlarmPendingIntent(context, alarmId, getRoutineAlarmIntent(context))
+                    )
+                }
             }
         }
 
@@ -182,6 +185,27 @@ class RoutineAlarmManager {
 
         private fun getAlarmId(routineId: Int, dayOfWeek: Int): Int {
             return routineId * 100 + dayOfWeek
+        }
+
+        fun addAll(
+            context: Context,
+            alarmList: List<RoutineResponse>,
+            onAlarmAdded: (alarmId: Int, dayOfWeek: Int, alarmTime: String, routineName: String) -> Unit
+        ) {
+            for (alarm in alarmList) {
+                if (alarm.alarmStatus == "ON") {
+                    setRoutine(
+                        context = context,
+                        dayOfWeeks = alarm.weekTypes,
+                        alarmTime = alarm.alarmTime,
+                        routineId = alarm.routineId,
+                        routineName = alarm.routineName,
+                        onAlarmAdded = { alarmId, dayOfWeek ->
+                            onAlarmAdded(alarmId, dayOfWeek, alarm.alarmTime, alarm.routineName)
+                        }
+                    )
+                }
+            }
         }
     }
 }

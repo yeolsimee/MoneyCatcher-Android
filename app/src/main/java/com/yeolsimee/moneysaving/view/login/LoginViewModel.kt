@@ -17,8 +17,13 @@ import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.auth.Apple
 import com.yeolsimee.moneysaving.auth.Google
 import com.yeolsimee.moneysaving.auth.Naver
+import com.yeolsimee.moneysaving.data.db.AlarmDao
+import com.yeolsimee.moneysaving.data.entity.AlarmEntity
 import com.yeolsimee.moneysaving.domain.usecase.UserUseCase
+import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +31,8 @@ import javax.inject.Inject
 @ExperimentalMaterial3Api
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userUseCase: UserUseCase
+    private val userUseCase: UserUseCase,
+    private val alarmDao: AlarmDao
 ) : ViewModel() {
     private lateinit var google: Google
 
@@ -111,17 +117,25 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun updateRoutineAlarms(callback: () -> Unit) {
-        /* TODO
-            1. API 루틴 알림 리스트 조회
-            2. 리스트로 받은 루틴 알림 모두 등록 (forEach: RoutineAlarmManager.setRoutine()
-            3. 홈화면으로 이동
-         */
-        // userUseCase.getAlarmList().onSuccess { alarmList ->
-        //
-        //    callback()
-        // }
-        callback()
+    fun updateRoutineAlarms(context: Context, callback: () -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // 1. 활성화된 알람 목록 서버에서 불러오기
+            userUseCase.getAlarmList().onSuccess { alarmList ->
+                // 2. 알람 서비스 재등록
+                RoutineAlarmManager.addAll(context, alarmList) { alarmId, dayOfWeek, alarmTime, routineName ->
+                    // 3. 알람 정보 디바이스에 기록
+                    alarmDao.insertAll(
+                        AlarmEntity(
+                            alarmId = alarmId,
+                            dayOfWeek = dayOfWeek,
+                            alarmTime = alarmTime,
+                            routineName = routineName
+                        )
+                    )
+                    callback()
+                }
+            }
+        }
     }
 
     fun logout() {
