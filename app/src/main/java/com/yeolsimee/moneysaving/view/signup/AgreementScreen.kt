@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,9 +41,10 @@ import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
-fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}) {
+fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}, onBrowserOpen: (String) -> Unit = {}) {
     val firstCheck = remember { mutableStateOf(false) }
     val secondCheck = remember { mutableStateOf(false) }
+
     RoumoTheme(navigationBarColor = if (firstCheck.value && secondCheck.value) Color.Black else Gray99) {
         Scaffold(topBar = {
             TopBackButtonTitleAppBar { onFinish() }
@@ -76,7 +78,9 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}) {
                                 indication = null,
                                 onClick = {
                                     checkAll(firstCheck, secondCheck)
-                                }), verticalAlignment = Alignment.CenterVertically
+                                }
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
                             painter = painterResource(
@@ -93,10 +97,14 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}) {
                         )
                     }
                     Divider(thickness = 1.5.dp, color = GrayF0)
+
+                    val agreementUrl = stringResource(R.string.agreement_url)
+                    val policyUrl = stringResource(R.string.policy_url)
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(top = 20.dp, bottom = 8.dp),
+                            .padding(top = 20.dp, bottom = 8.dp)
+                            .onClick { onBrowserOpen(agreementUrl) },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -125,7 +133,8 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}) {
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp, bottom = 20.dp),
+                            .padding(top = 8.dp, bottom = 20.dp)
+                            .onClick { onBrowserOpen(policyUrl) },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

@@ -5,7 +5,6 @@ package com.yeolsimee.moneysaving.view
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -110,26 +109,30 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            RoumoTheme(navigationBarColor = Color.Black) {
-                MainScreenView()
-            }
-        }
+            val snackbarState = remember { SnackbarHostState() }
 
-        callback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (pressedTime + 2000 > System.currentTimeMillis()) {
-                    finishAffinity()
-                } else {
-                    Toast.makeText(applicationContext, "한번 더 누르면 종료", Toast.LENGTH_SHORT).show()
-                }
-                pressedTime = System.currentTimeMillis()
+            RoumoTheme(navigationBarColor = Color.Black) {
+                MainScreenView(snackbarState)
             }
+
+            callback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (pressedTime + 2000 > System.currentTimeMillis()) {
+                        finishAffinity()
+                    } else {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            snackbarState.showSnackbar("한번 더 누르면 종료")
+                        }
+                    }
+                    pressedTime = System.currentTimeMillis()
+                }
+            }
+            onBackPressedDispatcher.addCallback(this, callback)
         }
-        onBackPressedDispatcher.addCallback(this, callback)
     }
 
     @Composable
-    fun MainScreenView() {
+    fun MainScreenView(snackbarState: SnackbarHostState) {
         val navController = rememberNavController()
         val floatingButtonVisible = remember { mutableStateOf(false) }
 
@@ -174,6 +177,7 @@ class MainActivity : ComponentActivity() {
                                 intent.putExtra("categoryId", categoryId)
                                 routineActivityLauncher.launch(intent)
                             }
+                            CustomSnackBarHost(snackbarState)
                         }
                         composable(BottomNavItem.Recommend.screenRoute) {
                             floatingButtonVisible.value = false
@@ -183,7 +187,6 @@ class MainActivity : ComponentActivity() {
                             val myPageViewModel: MyPageViewModel = hiltViewModel()
                             floatingButtonVisible.value = false
 
-                            val snackbarState = remember { SnackbarHostState() }
                             val alarmState = myPageViewModel.alarmState.observeAsState(false)
 
                             MyPageScreen(

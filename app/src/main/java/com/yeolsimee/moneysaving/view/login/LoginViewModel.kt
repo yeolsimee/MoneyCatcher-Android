@@ -132,8 +132,8 @@ class LoginViewModel @Inject constructor(
                             routineName = routineName
                         )
                     )
-                    callback()
                 }
+                callback()
             }
         }
     }

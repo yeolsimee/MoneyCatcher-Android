@@ -17,3 +17,4 @@
 
 # entity
 -keep class com.yeolsimee.moneysaving.domain.entity.** { *; }
+-keep class com.yeolsimee.moneysaving.data.entity.** { *; }
