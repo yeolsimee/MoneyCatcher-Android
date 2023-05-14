@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,10 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 
@@ -43,7 +44,7 @@ fun TopBackButtonTitleAppBar(text: String? = "", onClick: () -> Unit) {
         navigationIcon = {
             IconButton(onClick = onClick) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = ImageVector.vectorResource(id = R.drawable.icon_backarrow),
                     tint = Color.Black,
                     contentDescription = "뒤로가기"
                 )
@@ -95,7 +96,7 @@ fun BottomButtonAppBar(
 @Composable
 fun TopBackButtonTitleAppBarPreview() {
     TopBackButtonTitleAppBar("카테고리 수정") {
-        
+
     }
 }
 

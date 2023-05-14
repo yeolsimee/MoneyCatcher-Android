@@ -70,7 +70,7 @@ fun RoutineItems(
             PrText(
                 text = category.categoryName,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.W700
+                fontWeight = FontWeight.ExtraBold
             )
             Spacer(Modifier.height(8.dp))
 
@@ -214,14 +214,11 @@ private fun setRoutineSwipeState(
         if (dismissValue == DismissValue.DismissedToStart) {
             if (selectedDate.isToday()) {
                 onItemDelete(routine)
-                true
             } else {
                 cantEditDialogState.value = true
-                false
             }
-        } else {
-            false
         }
+        false
     },
 )
 

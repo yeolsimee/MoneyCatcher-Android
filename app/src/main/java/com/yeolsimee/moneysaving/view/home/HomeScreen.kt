@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.view.home
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
@@ -79,24 +77,19 @@ fun HomeScreen(
 
         floatingButtonVisible.value = selected.value.toString() == today.toString()
 
-        val confirmButtonListener: (Int, Int) -> Unit =
-            { selectedYear, selectedMonth ->
-                val resultDayList = calendarViewModel.setDate(selectedYear, selectedMonth - 1)
-                calendarMonth.value = selectedMonth
-                Log.i(App.TAG, "calendarMonth: ${calendarMonth.value}")
-                findAllMyRoutineViewModel.find(
-                    dateRange = calendarViewModel.getFirstAndLastDate(resultDayList),
-                    selectedMonth = calendarMonth.value,
-                    dayList = resultDayList,
-                )
-                dialogState.value = false
-            }
+        val onConfirmClick: (Int, Int) -> Unit =
+            setOnYearMonthConfirm(
+                calendarViewModel,
+                calendarMonth,
+                findAllMyRoutineViewModel,
+                dialogState
+            )
 
         YearMonthDialog(
             dialogState,
             year,
             month,
-            confirmButtonListener
+            onConfirmClick
         )
         Spacer(Modifier.height(4.dp))
 
@@ -129,42 +122,78 @@ fun HomeScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        Column {
-            DateText(selected)
-            val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
-                RoutinesOfDay("loading")
-            )
-            if (routinesOfDayState.isEmpty()) {
-                Spacer(Modifier.height(43.dp))
-                EmptyRoutine()
-                Spacer(Modifier.height(getReactiveHeight(200)))
-            } else if (routinesOfDayState.isNotLoading()) {
-                RoutineItems(
-                    selectedDate = selected.value,
-                    routinesOfDayState = routinesOfDayState,
-                    onItemClick = onItemClick,
-                    onRoutineCheck = { check ->
-                        routineCheckViewModel.check(check) { routinesOfDay ->
-                            selectedDateViewModel.refresh(
-                                routinesOfDay
-                            )
-                        }
-                    },
-                    onItemDelete = {
-                        routineDeleteViewModel.delete(it.routineId) {
-                            findAllMyRoutineViewModel.refresh {
-                                selectedDateViewModel.find(selected.value)
+        val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            RoutinesOfDay("loading")
+        )
+
+        Box(modifier = Modifier) {
+            Column {
+                Spacer(Modifier.height(16.dp))
+                DateText(selected)
+
+                if (routinesOfDayState.isEmpty()) {
+                    Spacer(Modifier.height(43.dp))
+                    EmptyRoutine()
+                    Spacer(Modifier.height(getReactiveHeight(200)))
+                } else if (routinesOfDayState.isNotLoading()) {
+                    RoutineItems(
+                        selectedDate = selected.value,
+                        routinesOfDayState = routinesOfDayState,
+                        onItemClick = onItemClick,
+                        onRoutineCheck = { check ->
+                            routineCheckViewModel.check(check) { routinesOfDay ->
+                                selectedDateViewModel.refresh(
+                                    routinesOfDay
+                                )
+                            }
+                        },
+                        onItemDelete = {
+                            routineDeleteViewModel.delete(it.routineId) {
+                                findAllMyRoutineViewModel.refresh {
+                                    selectedDateViewModel.find(selected.value)
+                                }
                             }
                         }
-                    }
+                    )
+                }
+            }
+
+            if (!routinesOfDayState.isNotLoadingAndNotEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.coins),
+                    contentDescription = "동전",
+                    modifier = Modifier.align(
+                        Alignment.TopEnd
+                    )
                 )
             }
         }
 
 
     }
+}
+
+@Composable
+private fun setOnYearMonthConfirm(
+    calendarViewModel: CalendarViewModel,
+    calendarMonth: MutableState<Int>,
+    findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
+    dialogState: MutableState<Boolean>
+): (Int, Int) -> Unit {
+    val confirmButtonListener: (Int, Int) -> Unit = { selectedYear, selectedMonth ->
+        val resultDayList = calendarViewModel.setDate(selectedYear, selectedMonth - 1)
+        calendarMonth.value = selectedMonth
+
+        findAllMyRoutineViewModel.find(
+            dateRange = calendarViewModel.getFirstAndLastDate(resultDayList),
+            selectedMonth = calendarMonth.value,
+            dayList = resultDayList,
+        )
+        dialogState.value = false
+    }
+    return confirmButtonListener
 }
 
 @Composable
@@ -238,10 +267,4 @@ fun YearMonthSelectBoxPreview() {
         dateText = "4월 12일 수요일",
         spread = spread
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EmptyImagePreview() {
-    EmptyRoutine()
 }

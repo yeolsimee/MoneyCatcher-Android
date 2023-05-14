@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,17 +74,7 @@ fun CategoryUpdateScreen(
             for (category in categoryList) {
                 val deleteDialogState = remember { mutableStateOf(false) }
 
-                val swipeState = rememberDismissState(
-                    confirmValueChange = { dismissValue ->
-                        if (dismissValue == DismissValue.DismissedToStart) {
-                            deleteDialogState.value = true
-                            targetCategory.value = category
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                )
+                val swipeState = getCategorySwipeState(deleteDialogState, targetCategory, category)
                 Column {
                     SwipeToDismiss(
                         state = swipeState,
@@ -149,6 +141,25 @@ fun CategoryUpdateScreen(
             EmptyRoutine()
         }
     }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun getCategorySwipeState(
+    deleteDialogState: MutableState<Boolean>,
+    targetCategory: MutableState<TextItem?>,
+    category: TextItem
+): DismissState {
+    val swipeState = rememberDismissState(
+        confirmValueChange = { dismissValue ->
+            if (dismissValue == DismissValue.DismissedToStart) {
+                deleteDialogState.value = true
+                targetCategory.value = category
+            }
+            false
+        }
+    )
+    return swipeState
 }
 
 @Preview(showBackground = true)
