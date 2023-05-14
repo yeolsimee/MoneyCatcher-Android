@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.view.home
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,22 +27,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
-import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
+import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
+import com.yeolsimee.moneysaving.utils.getReactiveHeight
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.ComposeCalendar
 import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
@@ -65,9 +63,6 @@ fun HomeScreen(
 
     val scrollState = rememberScrollState()
 
-    val deleteDialogState = remember { mutableStateOf(false) }
-    val deleteRoutineId = remember { mutableStateOf("") }
-
     Column(
         Modifier
             .fillMaxSize()
@@ -82,29 +77,25 @@ fun HomeScreen(
 
         floatingButtonVisible.value = selected.value.toString() == today.toString()
 
-        val confirmButtonListener: (Int, Int) -> Unit =
-            { selectedYear, selectedMonth ->
-                val resultDayList = calendarViewModel.setDate(selectedYear, selectedMonth - 1)
-                calendarMonth.value = selectedMonth
-                Log.i(App.TAG, "calendarMonth: ${calendarMonth.value}")
-                findAllMyRoutineViewModel.find(
-                    dateRange = calendarViewModel.getFirstAndLastDate(resultDayList),
-                    selectedMonth = calendarMonth.value,
-                    dayList = resultDayList,
-                )
-                dialogState.value = false
-            }
+        val onConfirmClick: (Int, Int) -> Unit =
+            setOnYearMonthConfirm(
+                calendarViewModel,
+                calendarMonth,
+                findAllMyRoutineViewModel,
+                dialogState
+            )
 
         YearMonthDialog(
             dialogState,
             year,
             month,
-            confirmButtonListener
+            onConfirmClick
         )
+        Spacer(Modifier.height(4.dp))
 
         AppLogoImage()
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(5.dp))
 
         YearMonthSelectBox(dialogState, calendarViewModel.date.observeAsState().value ?: "", spread)
 
@@ -131,68 +122,78 @@ fun HomeScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        DateText(selected)
+        Spacer(modifier = Modifier.height(8.dp))
 
         val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
             RoutinesOfDay("loading")
         )
 
-        if (routinesOfDayState.isEmpty()) {
-            EmptyRoutine()
-        } else if (routinesOfDayState.isNotLoading()) {
-            RoutineItems(
-                selectedDate = selected.value,
-                routinesOfDayState = routinesOfDayState,
-                onItemClick = onItemClick,
-                onRoutineCheck = { check ->
-                    routineCheckViewModel.check(check) { routinesOfDay ->
-                        selectedDateViewModel.refresh(
-                            routinesOfDay
-                        )
-                    }
-                },
-                onItemDelete = {
-                    deleteDialogState.value = true
-                    deleteRoutineId.value = it.routineId
-                }
-            )
-        }
-        TwoButtonOneTitleDialog(deleteDialogState, "해당 아이템을 삭제하시겠습니까?") {
-            routineDeleteViewModel.delete(deleteRoutineId.value) {
-                findAllMyRoutineViewModel.refresh {
-                    selectedDateViewModel.find(selected.value)
+        Box(modifier = Modifier) {
+            Column {
+                Spacer(Modifier.height(16.dp))
+                DateText(selected)
+
+                if (routinesOfDayState.isEmpty()) {
+                    Spacer(Modifier.height(43.dp))
+                    EmptyRoutine()
+                    Spacer(Modifier.height(getReactiveHeight(200)))
+                } else if (routinesOfDayState.isNotLoading()) {
+                    RoutineItems(
+                        selectedDate = selected.value,
+                        routinesOfDayState = routinesOfDayState,
+                        onItemClick = onItemClick,
+                        onRoutineCheck = { check ->
+                            routineCheckViewModel.check(check) { routinesOfDay ->
+                                selectedDateViewModel.refresh(
+                                    routinesOfDay
+                                )
+                            }
+                        },
+                        onItemDelete = {
+                            routineDeleteViewModel.delete(it.routineId) {
+                                findAllMyRoutineViewModel.refresh {
+                                    selectedDateViewModel.find(selected.value)
+                                }
+                            }
+                        }
+                    )
                 }
             }
+
+            if (routinesOfDayState.isNotLoadingAndNotEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.coins),
+                    contentDescription = "동전",
+                    modifier = Modifier.align(
+                        Alignment.TopEnd
+                    )
+                )
+            }
         }
+
+
     }
 }
 
 @Composable
-private fun EmptyRoutine() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(45.dp))
-        Image(
-            painter = painterResource(id = R.drawable.empty_routine),
-            contentDescription = "루틴이 비어 있어요!"
+private fun setOnYearMonthConfirm(
+    calendarViewModel: CalendarViewModel,
+    calendarMonth: MutableState<Int>,
+    findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
+    dialogState: MutableState<Boolean>
+): (Int, Int) -> Unit {
+    val confirmButtonListener: (Int, Int) -> Unit = { selectedYear, selectedMonth ->
+        val resultDayList = calendarViewModel.setDate(selectedYear, selectedMonth - 1)
+        calendarMonth.value = selectedMonth
+
+        findAllMyRoutineViewModel.find(
+            dateRange = calendarViewModel.getFirstAndLastDate(resultDayList),
+            selectedMonth = calendarMonth.value,
+            dayList = resultDayList,
         )
-        PrText(
-            text = stringResource(R.string.routine_is_empty),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.W800,
-        )
-        Spacer(Modifier.height(10.dp))
-        PrText(
-            text = stringResource(R.string.please_add_routine_button),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.W700,
-        )
-        Spacer(Modifier.height(200.dp))
+        dialogState.value = false
     }
+    return confirmButtonListener
 }
 
 @Composable

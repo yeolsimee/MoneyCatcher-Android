@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
@@ -36,6 +35,7 @@ import com.yeolsimee.moneysaving.ui.theme.GoogleGray
 import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.ui.theme.NaverGreen
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.getReactiveHeight
 
 @Composable
 fun LoginScreen(
@@ -44,28 +44,27 @@ fun LoginScreen(
     onAppleLogin: () -> Unit = {},
     onEmailButtonClick: () -> Unit = {}
 ) {
-    RoumoTheme {
+    RoumoTheme(navigationBarColor = Color.White) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.White
         ) {
             Column(
-                modifier = Modifier.fillMaxSize().padding(it),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.login_logo),
+                    painter = painterResource(id = R.drawable.login_image),
                     contentDescription = "ROUMO",
+                    modifier = Modifier.padding(horizontal = 25.dp)
                 )
-                Spacer(Modifier.height(10.dp))
-                Box(
-                    modifier = Modifier
-                        .width(196.dp)
-                        .height(60.dp)
-                        .background(Color.Yellow)
+
+                Spacer(
+                    modifier = Modifier.height(getReactiveHeight(85))
                 )
-                Spacer(modifier = Modifier.height(50.dp))
 
                 LoginButtonBox(
                     backgroundColor = NaverGreen,
@@ -103,6 +102,8 @@ fun LoginScreen(
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 EmailLoginButton(onClick = onEmailButtonClick)
+
+                Spacer(modifier = Modifier.height(getReactiveHeight(60)))
             }
         }
     }
@@ -122,7 +123,7 @@ private fun EmailLoginButton(onClick: () -> Unit) {
             )
     ) {
         PrText(
-            text = "이메일로 로그인",
+            text = "그 외 이메일로 로그인",
             color = Gray66,
             fontWeight = FontWeight.W500,
             fontSize = 14.sp,
@@ -143,9 +144,9 @@ fun LoginButtonBox(
 ) {
     Box(
         modifier = Modifier
-            .widthIn(min = 144.dp, max = 319.dp)
             .fillMaxWidth()
             .height(48.dp)
+            .padding(horizontal = 28.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(backgroundColor)
             .border(
@@ -167,7 +168,13 @@ fun LoginButtonBox(
             LoginImage()
         }
         Box(modifier = Modifier.align(Alignment.Center)) {
-            PrText(text = text, color = textColor, fontWeight = FontWeight.W600, fontSize = 16.sp)
+            PrText(
+                text = text,
+                color = textColor,
+                fontWeight = FontWeight.W600,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 1.dp)
+            )
         }
     }
 }

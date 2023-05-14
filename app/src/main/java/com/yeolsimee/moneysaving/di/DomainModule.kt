@@ -16,7 +16,7 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideLoginResult(repository: IUserApiRepository): UserUseCase = UserUseCase(repository)
+    fun provideLoginResult(userRepository: IUserApiRepository, routineUseCase: RoutineUseCase): UserUseCase = UserUseCase(userRepository, routineUseCase)
 
     @Provides
     @Singleton

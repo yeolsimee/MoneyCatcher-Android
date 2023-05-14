@@ -7,6 +7,10 @@ fun Calendar.isToday(): Boolean {
     return Calendar.getInstance() == this
 }
 
+fun Calendar.isNotPast(): Boolean {
+    return Calendar.getInstance() <= this
+}
+
 fun isToday(year: Int, month: Int, day: Int): Boolean {
     val todayCalendar = Calendar.getInstance()
     return todayCalendar.get(Calendar.YEAR) == year

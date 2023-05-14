@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.data.interceptor
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import okhttp3.Interceptor
 import okhttp3.Protocol
 import okhttp3.Response
@@ -14,6 +15,11 @@ class ConnectivityInterceptor: Interceptor {
             val response: Response = chain.proceed(request)
             val content = response.body()?.string() ?: ""
             Log.d("OkHttp Request", response.request().url().url().toString())
+            val code = response.code()
+            Log.d("OkHttp Response", "code: $code")
+            if (code == 401) {
+                FirebaseAuth.getInstance().currentUser?.getIdToken(true)
+            }
 
             val copy = request.newBuilder().build()
             val buffer = okio.Buffer()
@@ -22,7 +28,7 @@ class ConnectivityInterceptor: Interceptor {
                 body.writeTo(buffer)
                 Log.d("OkHttp Request body", "Request Body: " + buffer.readUtf8())
             }
-            Log.d("OkHttp", content)
+            Log.d("OkHttp response body", content)
             response.newBuilder()
                 .body(ResponseBody.create(response.body()?.contentType(), content)).build()
         } catch (e: IOException) {

@@ -1,7 +1,4 @@
-@file:OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.yeolsimee.moneysaving.ui.routine
 
@@ -30,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,11 +45,12 @@ import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.OneButtonOneTitleDialog
+import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineItems(
     selectedDate: CalendarDay,
@@ -71,16 +70,18 @@ fun RoutineItems(
             PrText(
                 text = category.categoryName,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.W700
+                fontWeight = FontWeight.ExtraBold
             )
             Spacer(Modifier.height(8.dp))
 
             for (routine in category.routineDatas) {
                 val checked = routine.routineCheckYN == "Y"
 
+                val deleteDialogState = remember { mutableStateOf(false) }
 
-                val swipeState =
-                    setRoutineSwipeState(selectedDate, onItemDelete, routine, cantEditDialogState)
+                val swipeState = setRoutineSwipeState(selectedDate, routine, cantEditDialogState) {
+                    deleteDialogState.value = true
+                }
 
                 SwipeToDismiss(
                     state = swipeState,
@@ -115,7 +116,7 @@ fun RoutineItems(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
-                                        if (selectedDate.isToday()) {
+                                        if (selectedDate.isNotPast()) {
                                             onItemClick(routine.routineId, category.categoryId)
                                         } else {
                                             cantEditDialogState.value = true
@@ -173,8 +174,21 @@ fun RoutineItems(
                                 }
                             }
                         }
-                    })
+                    }
+                )
                 Spacer(Modifier.height(8.dp))
+
+                val scope = rememberCoroutineScope()
+                TwoButtonOneTitleDialog(
+                    dialogState = deleteDialogState,
+                    text = "해당 아이템을 삭제하시겠습니까?",
+                    onConfirmClick = {
+                        onItemDelete(routine)
+                    },
+                    onCancelClick = {
+                        scope.launch { swipeState.reset() }
+                    }
+                )
             }
             Spacer(Modifier.height(20.dp))
         }
@@ -190,25 +204,21 @@ fun RoutineItems(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun setRoutineSwipeState(
     selectedDate: CalendarDay,
-    onItemDelete: (Routine) -> Unit,
     routine: Routine,
-    cantEditDialogState: MutableState<Boolean>
+    cantEditDialogState: MutableState<Boolean>,
+    onItemDelete: (Routine) -> Unit,
 ) = rememberDismissState(
     confirmValueChange = { dismissValue ->
         if (dismissValue == DismissValue.DismissedToStart) {
             if (selectedDate.isToday()) {
                 onItemDelete(routine)
-                true
             } else {
                 cantEditDialogState.value = true
-                false
             }
-        } else {
-            false
         }
+        false
     },
 )
 

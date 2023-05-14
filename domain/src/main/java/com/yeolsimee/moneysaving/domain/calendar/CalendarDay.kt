@@ -91,6 +91,10 @@ data class CalendarDay(
         return getCalendar().isToday()
     }
 
+    fun isNotPast(): Boolean {
+        return getCalendar().isNotPast()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

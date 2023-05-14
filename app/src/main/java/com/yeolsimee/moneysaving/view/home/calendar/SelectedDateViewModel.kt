@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.domain.usecase.RoutineUseCase
-import com.yeolsimee.moneysaving.view.ISideEffect
-import com.yeolsimee.moneysaving.view.ToastSideEffect
+import com.yeolsimee.moneysaving.ui.side_effect.IToastSideEffect
+import com.yeolsimee.moneysaving.ui.side_effect.ToastSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SelectedDateViewModel @Inject constructor(private val routineUseCase: RoutineUseCase) :
-    ContainerHost<RoutinesOfDay, ToastSideEffect>, ISideEffect, ViewModel() {
+    ContainerHost<RoutinesOfDay, ToastSideEffect>, IToastSideEffect, ViewModel() {
 
     override val container = container<RoutinesOfDay, ToastSideEffect>(RoutinesOfDay())
 

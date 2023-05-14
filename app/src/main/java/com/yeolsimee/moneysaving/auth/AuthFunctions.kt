@@ -1,64 +1,42 @@
 package com.yeolsimee.moneysaving.auth
 
-import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.functions.FirebaseFunctions
-import com.yeolsimee.moneysaving.App
 
 object AuthFunctions {
 
     private fun getAuthMapResult(
-        resultTask: Task<Map<String, String>>,
+        map: Map<String, String>,
         tokenCallback: ((String) -> Unit)
     ) {
-        resultTask.addOnCompleteListener {
-            if (it.isSuccessful) {
-                val token = it.result["firebase_token"]
-                Log.i(App.TAG, "firebase 성공: $token")
-                if (token != null) {
-                    tokenCallback(token)
-                }
-            } else {
-                Log.i(App.TAG, "firebase 실패")
-            }
+        val token = map["firebase_token"]
+        if (token != null) {
+            tokenCallback(token)
         }
-            .addOnCanceledListener {
-                Log.i(App.TAG, "firebase 취소")
-            }
-            .addOnFailureListener {
-                it.printStackTrace()
-                Log.i(App.TAG, "firebase 에러")
-            }
     }
 
     fun getAuthResult(
         resultTask: Task<AuthResult>,
-        tokenCallback: ((String) -> Unit)? = null,
-        errorCallback: (() -> Unit)? = null
+        onResult: (Result<String>) -> Unit
     ) {
         resultTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 val token = it.result.user?.getIdToken(false)?.result?.token
-                Log.i(App.TAG, "firebase 성공: $token")
                 if (token != null) {
-                    tokenCallback?.invoke(token)
+                    onResult(Result.success(token))
                 } else {
-                    errorCallback?.invoke()
+                    onResult(Result.failure(Exception("토큰 null")))
                 }
             } else {
-                Log.i(App.TAG, "firebase 실패")
-                errorCallback?.invoke()
+                onResult(Result.failure(Exception("firebase 실패")))
             }
         }
             .addOnCanceledListener {
-                Log.i(App.TAG, "firebase 취소")
-                errorCallback?.invoke()
+                onResult(Result.failure(Exception("firebase 취소")))
             }
             .addOnFailureListener {
-                it.printStackTrace()
-                Log.i(App.TAG, "firebase 에러")
-                errorCallback?.invoke()
+                onResult(Result.failure(it))
             }
     }
 
@@ -69,14 +47,13 @@ object AuthFunctions {
         tokenCallback: ((String) -> Unit)
     ) {
         if (accessToken != null) {
-            val resultTask = functions.getHttpsCallable(type)
+            functions.getHttpsCallable(type)
                 .call(accessToken)
-                .continueWith { task ->
+                .addOnSuccessListener {
                     @Suppress("UNCHECKED_CAST")
-                    val result = task.result?.data as Map<String, String>
-                    result
+                    val result = it.data as Map<String, String>
+                    getAuthMapResult(result, tokenCallback)
                 }
-            getAuthMapResult(resultTask, tokenCallback)
         }
     }
 }

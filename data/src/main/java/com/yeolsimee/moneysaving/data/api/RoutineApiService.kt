@@ -53,4 +53,7 @@ interface RoutineApiService {
     suspend fun getRoutine(
         @Path("id") id: String
     ): Response<ApiResponse<RoutineResponse>>
+
+    @GET("routine")
+    suspend fun getActivatedAlarmRoutine(): Response<ApiResponse<List<RoutineResponse>>>
 }
