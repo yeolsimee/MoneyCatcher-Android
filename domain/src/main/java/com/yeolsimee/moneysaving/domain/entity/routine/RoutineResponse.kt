@@ -10,7 +10,7 @@ data class RoutineResponse(
     val routineType: String = "",
     val alarmStatus: String = "",
     val alarmTime: String = "",
-    val routineTimeZone: String = "",
+    val routineTimeZone: String = "1",
     val weekTypes: Array<String> = arrayOf()
 ): Serializable {
     override fun equals(other: Any?): Boolean {

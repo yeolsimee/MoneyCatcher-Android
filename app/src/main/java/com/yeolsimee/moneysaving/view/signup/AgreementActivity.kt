@@ -3,6 +3,7 @@
 package com.yeolsimee.moneysaving.view.signup
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,19 +13,29 @@ import com.yeolsimee.moneysaving.view.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AgreementActivity: ComponentActivity() {
+class AgreementActivity : ComponentActivity() {
 
     private val viewModel: AgreementViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AgreementScreen(onFinish = { finish() }) {
-                viewModel.signUp(onSuccess = {
-                    val intent = Intent(this@AgreementActivity, MainActivity::class.java)
-                    startActivity(intent)
-                }, onFailure = {})
-            }
+            AgreementScreen(
+                onFinish = { finish() },
+                onClick = {
+                    viewModel.signUp(onSuccess = {
+                        val intent = Intent(this@AgreementActivity, MainActivity::class.java)
+                        startActivity(intent)
+                    },
+                        onFailure = {}
+                    )
+                },
+                onBrowserOpen = { url ->
+                    startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    )
+                }
+            )
         }
     }
 }

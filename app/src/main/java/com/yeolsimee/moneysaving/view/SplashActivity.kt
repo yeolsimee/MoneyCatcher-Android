@@ -17,7 +17,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.yeolsimee.moneysaving.view.login.EmailLoginViewModel
 import com.yeolsimee.moneysaving.view.login.LoginActivity
 import com.yeolsimee.moneysaving.view.login.LoginViewModel
-import com.yeolsimee.moneysaving.view.signup.AgreementActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @SuppressLint("CustomSplashScreen")
@@ -48,7 +47,7 @@ class SplashActivity: ComponentActivity() {
     }
 
     private fun moveToAgreementActivity() {
-        val intent = Intent(this@SplashActivity, AgreementActivity::class.java)
+        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
         intent.putExtra("agreement", true)
         startActivity(intent)
         finish()
