@@ -11,9 +11,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.MutableLiveData
 import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.checkNotificationPermission
@@ -31,6 +33,8 @@ class RoutineActivity : ComponentActivity() {
     private val routineViewModel: RoutineModifyViewModel by viewModels()
     private val alarmViewModel: AlarmViewModel by viewModels()
     private val getRoutineViewModel: GetRoutineViewModel by viewModels()
+
+    private val hasNotificationPermission = MutableLiveData<Boolean?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,13 +112,23 @@ class RoutineActivity : ComponentActivity() {
                             )
                         }
                     },
-                    hasNotificationPermission = {
-                        checkNotificationPermission(requestPermissionLauncher)
+                    hasNotificationPermission = { alarmState ->
+                        setAlarmOnIfHasPermission(alarmState)
                     },
                     onCategoryAdded =  {
                         categoryViewModel.addCategory(it)
                     }
                 )
+            }
+        }
+    }
+    private fun setAlarmOnIfHasPermission(alarmState: MutableState<Boolean>) {
+        hasNotificationPermission.observe(this) { hasPermission ->
+            if (checkNotificationPermission(requestPermissionLauncher)) {
+                if (hasPermission == true) {
+                    alarmState.value = !alarmState.value
+                    if (alarmState.value) alarmViewModel.setAlarmOn()
+                }
             }
         }
     }
@@ -135,8 +149,10 @@ class RoutineActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
+            hasNotificationPermission.postValue(true)
             Log.i(App.TAG, "Notification Permission Granted")
         } else {
+            hasNotificationPermission.postValue(false)
             Log.i(App.TAG, "Notification Permission Not Granted")
         }
     }

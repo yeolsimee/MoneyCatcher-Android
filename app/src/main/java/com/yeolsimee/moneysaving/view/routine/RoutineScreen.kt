@@ -47,7 +47,7 @@ fun RoutineScreen(
     selectedCategoryId: MutableState<String> = remember { mutableStateOf("") },
     closeCallback: () -> Unit = {},
     onCompleteCallback: (RoutineRequest) -> Unit = {},
-    hasNotificationPermission: () -> Boolean = { false },
+    hasNotificationPermission: (MutableState<Boolean>) -> Unit = {},
     onCategoryAdded: (String) -> Unit = {},
 ) {
     val buttonState = remember { mutableStateOf(false) }

@@ -224,7 +224,7 @@ fun SettingAlarmTime(
     alarmState: MutableState<Boolean>,
     hourState: MutableState<Int>,
     minuteState: MutableState<Int>,
-    hasNotificationPermission: () -> Boolean = { false },
+    hasNotificationPermission: (MutableState<Boolean>) -> Unit = {},
 ) {
     val timeText = hourState.value.getTwoDigitsHour() + ":" +
             minuteState.value.getTwoDigits()
@@ -263,9 +263,7 @@ fun SettingAlarmTime(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            if (hasNotificationPermission()) {
-                                alarmState.value = !alarmState.value
-                            }
+                            hasNotificationPermission(alarmState)
                         }
                     )
                 )

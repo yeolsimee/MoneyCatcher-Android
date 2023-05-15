@@ -7,4 +7,5 @@ class SettingsRepository(
 ) {
     fun getAlarmState() = settingsSource.getAlarmState()
     fun toggleAlarmState() = settingsSource.toggleAlarmState()
+    fun setAlarmOn() = settingsSource.setAlarmOn()
 }

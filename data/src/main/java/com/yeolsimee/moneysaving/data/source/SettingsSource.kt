@@ -26,4 +26,11 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
             emit(!alarmState)
         }
     }
+
+    fun setAlarmOn(): Flow<Boolean> = flow {
+        dataStoreService.getDataStore().edit { preferences ->
+            preferences[PreferencesKeys.ALARM_STATE] = true
+            emit(true)
+        }
+    }
 }
