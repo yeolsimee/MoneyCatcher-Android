@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 def signingProperties = new Properties()
@@ -29,8 +30,8 @@ android {
         applicationId "com.yeolsimee.moneysaving"
         minSdk 24
         targetSdk 33
-        versionCode 8
-        versionName "1.0.8"
+        versionCode 9
+        versionName "1.0.9"
         ndk.debugSymbolLevel 'FULL'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -106,7 +107,9 @@ dependencies {
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
 
     // Firebase 로그인, Functions, Dynamic Links
-    implementation platform('com.google.firebase:firebase-bom:31.2.2')
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-functions-ktx'
     implementation 'com.google.firebase:firebase-dynamic-links-ktx'

@@ -21,13 +21,13 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
-class SplashActivity: ComponentActivity() {
+class SplashActivity : ComponentActivity() {
 
     private val viewModel: LoginViewModel by viewModels()
     private val emailLoginViewModel: EmailLoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val splashScreen = installSplashScreen()
             splashScreen.setKeepOnScreenCondition { true }
         }
