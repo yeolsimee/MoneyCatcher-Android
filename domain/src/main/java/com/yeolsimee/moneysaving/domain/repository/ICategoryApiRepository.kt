@@ -8,4 +8,5 @@ interface ICategoryApiRepository {
     suspend fun addCategory(name: String): Result<TextItem>
 
     suspend fun delete(category: TextItem): Result<Any>
+    suspend fun update(category: TextItem): Result<Any>
 }

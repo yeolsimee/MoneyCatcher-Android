@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
@@ -23,21 +26,27 @@ import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
-import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
@@ -45,6 +54,7 @@ import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
 import com.yeolsimee.moneysaving.ui.theme.Black33
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
+import com.yeolsimee.moneysaving.utils.addFocusCleaner
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,13 +63,17 @@ fun CategoryUpdateScreen(
     onBackPressed: () -> Unit = {},
     categoryList: MutableList<TextItem> = mutableListOf(),
     sideEffect: State<ApiCallSideEffect>,
+    onCategoryUpdate: (TextItem) -> Unit = {},
     onDelete: (TextItem) -> Unit = {}
 ) {
+    val focusManager = LocalFocusManager.current
+    val focusRequester by remember { mutableStateOf(FocusRequester()) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .addFocusCleaner(focusManager)
     ) {
         TopBackButtonTitleAppBar(text = "카테고리 수정", onClick = { onBackPressed() })
         Spacer(Modifier.height(21.dp))
@@ -72,10 +86,13 @@ fun CategoryUpdateScreen(
                     orientation = Orientation.Vertical
                 )
         ) {
+            val currentCategory: MutableState<TextItem?> = remember { mutableStateOf(null) }
             for (category in categoryList) {
+
                 val deleteDialogState = remember { mutableStateOf(false) }
 
                 val swipeState = getCategorySwipeState(deleteDialogState, targetCategory, category)
+
                 Column {
                     SwipeToDismiss(
                         state = swipeState,
@@ -107,14 +124,42 @@ fun CategoryUpdateScreen(
                                     .background(Color.White)
                                     .fillMaxWidth()
                                     .height(50.dp)
-
                             ) {
-                                PrText(
-                                    text = category.name,
-                                    fontWeight = FontWeight.W700,
-                                    fontSize = 15.sp,
-                                    color = Black33,
-                                    modifier = Modifier.padding(top = 17.dp, start = 20.dp)
+                                val tempName = remember { mutableStateOf(category.name) }
+
+                                BasicTextField(
+                                    value = tempName.value,
+                                    textStyle = TextStyle(
+                                        fontWeight = FontWeight.W700,
+                                        fontSize = 15.sp,
+                                        color = Black33,
+                                    ),
+                                    onValueChange = {
+                                        tempName.value = it
+                                    },
+                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                    keyboardActions = KeyboardActions(onDone = {
+                                        onCategoryUpdate(TextItem(category.id, tempName.value))
+                                    }),
+                                    modifier = Modifier
+                                        .align(Alignment.CenterStart)
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 20.dp)
+                                        .focusRequester(focusRequester)
+                                        .onFocusChanged {
+                                            if (it.hasFocus) {
+                                                currentCategory.value = category
+                                            } else {
+                                                if (currentCategory.value != null) {
+                                                    onCategoryUpdate(
+                                                        TextItem(
+                                                            currentCategory.value!!.id,
+                                                            tempName.value
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }
                                 )
                             }
                         }
@@ -137,8 +182,10 @@ fun CategoryUpdateScreen(
                 }
             }
         }
+    }
 
-        if (sideEffect.value == ApiCallSideEffect.Empty) {
+    if (sideEffect.value == ApiCallSideEffect.Empty) {
+        Box {
             EmptyRoutine()
         }
     }
@@ -186,6 +233,6 @@ fun CategoryUpdateScreenEmptyPreview() {
         categoryList = remember {
             mutableListOf()
         },
-        sideEffect = remember { mutableStateOf(ApiCallSideEffect.Loading) }
+        sideEffect = remember { mutableStateOf(ApiCallSideEffect.Empty) }
     )
 }

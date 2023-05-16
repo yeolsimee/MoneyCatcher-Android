@@ -33,7 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,16 +55,16 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RoutineItems(
+    todayState: Boolean,
     selectedDate: CalendarDay,
     routinesOfDayState: RoutinesOfDay,
     onItemClick: (String, String) -> Unit = { _, _ -> },
-    onRoutineCheck: (RoutineCheckRequest) -> Unit = {},
+    onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
     onItemDelete: (Routine) -> Unit = {},
 ) {
     val categories = routinesOfDayState.categoryDatas
     val date = selectedDate.toString()
     val cantEditDialogState = remember { mutableStateOf(false) }
-
     Spacer(Modifier.height(18.dp))
 
     Column {
@@ -137,7 +139,11 @@ fun RoutineItems(
                                         fontWeight = FontWeight.W800,
                                         fontSize = 15.sp,
                                         color = Color.Black,
+                                        textAlign = TextAlign.Start,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                         textDecoration = if (checked) TextDecoration.LineThrough else null,
+                                        modifier = Modifier.padding(end = 40.dp)
                                     )
                                     Spacer(Modifier.height(8.dp))
                                     Row {
@@ -146,7 +152,8 @@ fun RoutineItems(
                                         AlarmIconAndText(routine)
                                     }
                                 }
-                                if (selectedDate.isToday()) {
+
+                                if (todayState) {
                                     Box(modifier = Modifier
                                         .width(60.dp)
                                         .clickable(
@@ -158,7 +165,8 @@ fun RoutineItems(
                                                         routineCheckYN = if (checked) "N" else "Y",
                                                         routineId = routine.routineId.toInt(),
                                                         routineDay = date
-                                                    )
+                                                    ),
+                                                    routine
                                                 )
                                             }
                                         )) {
@@ -212,7 +220,7 @@ private fun setRoutineSwipeState(
 ) = rememberDismissState(
     confirmValueChange = { dismissValue ->
         if (dismissValue == DismissValue.DismissedToStart) {
-            if (selectedDate.isToday()) {
+            if (selectedDate.isNotPast()) {
                 onItemDelete(routine)
             } else {
                 cantEditDialogState.value = true
@@ -228,6 +236,7 @@ fun RoutineItemPreview() {
     RoumoTheme {
         Box(modifier = Modifier.padding(10.dp)) {
             RoutineItems(
+                todayState = false,
                 selectedDate = CalendarDay(2023, 5, 2),
                 routinesOfDayState = RoutinesOfDay(
                     routineDay = "20230424",
@@ -261,6 +270,21 @@ fun RoutineItemPreview() {
                                 Routine(
                                     routineId = "3",
                                     routineName = "루틴명 테스트",
+                                    routineCheckYN = "N",
+                                    routineTimeZone = "3",
+                                    alarmTimeHour = "14",
+                                    alarmTimeMinute = "00"
+                                )
+                            )
+                        ),
+                        CategoryWithRoutines(
+                            categoryId = "3",
+                            categoryName = "테스트 카테고리명",
+                            remainingRoutineNum = "",
+                            routineDatas = arrayOf(
+                                Routine(
+                                    routineId = "3",
+                                    routineName = "루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트",
                                     routineCheckYN = "N",
                                     routineTimeZone = "3",
                                     alarmTimeHour = "14",

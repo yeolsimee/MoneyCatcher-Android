@@ -11,10 +11,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.MutableLiveData
 import com.yeolsimee.moneysaving.App
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.checkNotificationPermission
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
@@ -31,6 +34,8 @@ class RoutineActivity : ComponentActivity() {
     private val routineViewModel: RoutineModifyViewModel by viewModels()
     private val alarmViewModel: AlarmViewModel by viewModels()
     private val getRoutineViewModel: GetRoutineViewModel by viewModels()
+
+    private val hasNotificationPermission = MutableLiveData<Boolean?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,25 +65,12 @@ class RoutineActivity : ComponentActivity() {
                     closeCallback = {
                         finish()
                     },
-                    onCompleteCallback = { req ->
+                    onCompleteCallback = { req, hasWeekTypes ->
                         if (routineType == RoutineModifyOption.Add) {
                             routineViewModel.addRoutine(
                                 routineRequest = req,
                                 onSetAlarmCallback = { id ->
-                                    RoutineAlarmManager.setRoutine(
-                                        context = this@RoutineActivity,
-                                        dayOfWeeks = req.weekTypes,
-                                        alarmTime = req.alarmTime,
-                                        routineId = id,
-                                        routineName = req.routineName
-                                    ) { alarmId, dayOfWeek ->
-                                        alarmViewModel.addAlarm(
-                                            alarmId,
-                                            dayOfWeek,
-                                            req.alarmTime,
-                                            req.routineName
-                                        )
-                                    }
+                                    setRoutineAlarm(hasWeekTypes, req, id)
                                 },
                                 onFinishCallback = {
                                     sendResultAndFinish()
@@ -86,16 +78,11 @@ class RoutineActivity : ComponentActivity() {
                             )
                         } else {
                             routineViewModel.updateRoutine(
-                                routineId = routineId,
+                                routine = routine,
                                 routineRequest = req,
-                                onSetAlarmCallback = { id ->
-                                    RoutineAlarmManager.setRoutine(
-                                        context = this@RoutineActivity,
-                                        dayOfWeeks = req.weekTypes,
-                                        alarmTime = req.alarmTime,
-                                        routineId = id,
-                                        routineName = req.routineName
-                                    )
+                                onSetAlarmCallback = { routine ->
+                                    alarmViewModel.updateCheckedRoutine(routine.alarmTime, req.alarmTime)
+                                    setRoutineAlarm(hasWeekTypes, req, routine.routineId)
                                 },
                                 onDeleteAlarmCallback = { res ->
                                     RoutineAlarmManager.delete(this@RoutineActivity, res) {
@@ -108,13 +95,53 @@ class RoutineActivity : ComponentActivity() {
                             )
                         }
                     },
-                    hasNotificationPermission = {
-                        checkNotificationPermission(requestPermissionLauncher)
+                    toggleRoutineAlarm = { alarmState ->
+                        setAlarmOnIfHasPermission(alarmState)
                     },
                     onCategoryAdded =  {
                         categoryViewModel.addCategory(it)
                     }
                 )
+            }
+        }
+    }
+
+    private fun setRoutineAlarm(
+        hasWeekTypes: Boolean,
+        req: RoutineRequest,
+        id: Int
+    ) {
+        if (hasWeekTypes) {
+            RoutineAlarmManager.setRoutine(
+                context = this@RoutineActivity,
+                dayOfWeeks = req.weekTypes,
+                alarmTime = req.alarmTime,
+                routineId = id,
+                routineName = req.routineName
+            ) { alarmId, dayOfWeek ->
+                alarmViewModel.addAlarm(
+                    alarmId,
+                    dayOfWeek,
+                    req.alarmTime,
+                    req.routineName
+                )
+            }
+            alarmViewModel.setDailyAlarm(this@RoutineActivity)
+        } else {
+            RoutineAlarmManager.setToday(
+                context = this@RoutineActivity,
+                alarmTime = req.alarmTime,
+                routineId = id,
+                routineName = req.routineName
+            )
+        }
+    }
+
+    private fun setAlarmOnIfHasPermission(alarmState: MutableState<Boolean>) {
+        hasNotificationPermission.observe(this) { hasPermission ->
+            if (checkNotificationPermission(requestPermissionLauncher)) {
+                alarmState.value = !alarmState.value
+                if (alarmState.value) alarmViewModel.setAlarmOn()
             }
         }
     }
@@ -135,8 +162,10 @@ class RoutineActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
+            hasNotificationPermission.postValue(true)
             Log.i(App.TAG, "Notification Permission Granted")
         } else {
+            hasNotificationPermission.postValue(false)
             Log.i(App.TAG, "Notification Permission Not Granted")
         }
     }

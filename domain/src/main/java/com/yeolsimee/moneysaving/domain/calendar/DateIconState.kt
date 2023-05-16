@@ -1,7 +1,7 @@
 package com.yeolsimee.moneysaving.domain.calendar
 
 enum class DateIconState {
-    Gold, Silver, Bronze, Today, PreviousMonth, NextMonth, Empty;
+    Gold, Silver, Bronze, Today, OtherMonth, EmptyOtherMonth, Empty;
 
     companion object {
         fun getStateFromRoutineAchievement(routineAchievement: String): DateIconState {

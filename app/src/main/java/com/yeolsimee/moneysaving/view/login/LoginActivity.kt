@@ -49,7 +49,8 @@ class LoginActivity : ComponentActivity() {
             LoginScreen(
                 onNaverLogin = {
                     loadingState.value = true
-                    loginViewModel.naverLogin(applicationContext, naverLoginLauncher)
+                    val loginResult = loginViewModel.naverLogin(applicationContext, naverLoginLauncher)
+                    if (!loginResult) loadingState.value = false
                 },
                 onGoogleLogin = {
                     loginViewModel.googleLogin(googleLoginLauncher)

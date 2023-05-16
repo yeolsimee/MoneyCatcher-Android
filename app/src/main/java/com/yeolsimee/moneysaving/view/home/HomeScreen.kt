@@ -139,11 +139,12 @@ fun HomeScreen(
                     Spacer(Modifier.height(getReactiveHeight(200)))
                 } else if (routinesOfDayState.isNotLoading()) {
                     RoutineItems(
+                        todayState = selected.value.isToday(),
                         selectedDate = selected.value,
                         routinesOfDayState = routinesOfDayState,
                         onItemClick = onItemClick,
-                        onRoutineCheck = { check ->
-                            routineCheckViewModel.check(check) { routinesOfDay ->
+                        onRoutineCheck = { check, routine ->
+                            routineCheckViewModel.check(check, routine) { routinesOfDay ->
                                 selectedDateViewModel.refresh(
                                     routinesOfDay
                                 )
@@ -238,7 +239,7 @@ private fun YearMonthSelectBox(
         )
         if (spread.value) {
             Image(
-                painter = painterResource(id = R.drawable.icon_arrow_open),
+                painter = painterResource(id = R.drawable.icon_year_month_open),
                 contentDescription = "연/월 선택"
             )
         }
@@ -261,7 +262,7 @@ fun DayOfWeekText(text: String) {
 @Preview(showBackground = true)
 @Composable
 fun YearMonthSelectBoxPreview() {
-    val spread = remember { mutableStateOf(false) }
+    val spread = remember { mutableStateOf(true) }
     YearMonthSelectBox(
         dialogState = remember { mutableStateOf(false) },
         dateText = "4월 12일 수요일",

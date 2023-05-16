@@ -49,17 +49,17 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
     val buttonState = remember { mutableStateOf(false) }
     val emailState = remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    val focusRequester by remember { mutableStateOf(FocusRequester()) }
 
     RoumoTheme(navigationBarColor = if (buttonState.value) Color.Black else Gray99) {
-        val focusRequester by remember { mutableStateOf(FocusRequester()) }
         Scaffold(
-            topBar = {
-            TopBackButtonTitleAppBar { onBackClick() }
-        }, bottomBar = {
-            BottomButtonAppBar(buttonState = buttonState.value, buttonText = "확인") {
-                onConfirmClick(emailState.value)
+            topBar = { TopBackButtonTitleAppBar { onBackClick() } },
+            bottomBar = {
+                BottomButtonAppBar(buttonState = buttonState.value, buttonText = "확인") {
+                    onConfirmClick(emailState.value)
+                }
             }
-        }) {
+        ) {
             Box(
                 modifier = Modifier
                     .padding(it)
