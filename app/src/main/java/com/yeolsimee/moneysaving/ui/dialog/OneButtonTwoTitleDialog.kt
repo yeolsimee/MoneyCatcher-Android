@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,14 +46,16 @@ fun OneButtonTwoTitleDialog(
                         text = title,
                         fontWeight = FontWeight.W600,
                         fontSize = 16.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        textAlign = TextAlign.Start
                     )
                     Spacer(Modifier.height(24.dp))
                     PrText(
                         text = subTitle,
                         fontWeight = FontWeight.W500,
                         fontSize = 14.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        textAlign = TextAlign.Start
                     )
                     Row(
                         horizontalArrangement = Arrangement.End,

@@ -48,4 +48,14 @@ class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiR
             Result.failure(ApiException(response.code(), result?.message))
         }
     }
+
+    override suspend fun update(category: TextItem): Result<Any> {
+        val response = flow { emit(api.updateCategory(category)) }.single()
+        val result = response.body()
+        return if (result != null && result.success) {
+            Result.success(true)
+        } else {
+            Result.failure(ApiException(response.code(), result?.message))
+        }
+    }
 }

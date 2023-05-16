@@ -33,7 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,7 +129,7 @@ fun RoutineItems(
                             Row(
                                 Modifier
                                     .fillMaxSize()
-                                    .padding(start = 20.dp),
+                                    .padding(horizontal = 20.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -137,6 +139,9 @@ fun RoutineItems(
                                         fontWeight = FontWeight.W800,
                                         fontSize = 15.sp,
                                         color = Color.Black,
+                                        textAlign = TextAlign.Start,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                         textDecoration = if (checked) TextDecoration.LineThrough else null,
                                     )
                                     Spacer(Modifier.height(8.dp))
@@ -261,6 +266,21 @@ fun RoutineItemPreview() {
                                 Routine(
                                     routineId = "3",
                                     routineName = "루틴명 테스트",
+                                    routineCheckYN = "N",
+                                    routineTimeZone = "3",
+                                    alarmTimeHour = "14",
+                                    alarmTimeMinute = "00"
+                                )
+                            )
+                        ),
+                        CategoryWithRoutines(
+                            categoryId = "3",
+                            categoryName = "테스트 카테고리명",
+                            remainingRoutineNum = "",
+                            routineDatas = arrayOf(
+                                Routine(
+                                    routineId = "3",
+                                    routineName = "루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트",
                                     routineCheckYN = "N",
                                     routineTimeZone = "3",
                                     alarmTimeHour = "14",
