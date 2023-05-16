@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RoutineItems(
+    todayState: Boolean,
     selectedDate: CalendarDay,
     routinesOfDayState: RoutinesOfDay,
     onItemClick: (String, String) -> Unit = { _, _ -> },
@@ -64,7 +65,6 @@ fun RoutineItems(
     val categories = routinesOfDayState.categoryDatas
     val date = selectedDate.toString()
     val cantEditDialogState = remember { mutableStateOf(false) }
-
     Spacer(Modifier.height(18.dp))
 
     Column {
@@ -152,7 +152,8 @@ fun RoutineItems(
                                         AlarmIconAndText(routine)
                                     }
                                 }
-                                if (selectedDate.isToday()) {
+
+                                if (todayState) {
                                     Box(modifier = Modifier
                                         .width(60.dp)
                                         .clickable(
@@ -234,6 +235,7 @@ fun RoutineItemPreview() {
     RoumoTheme {
         Box(modifier = Modifier.padding(10.dp)) {
             RoutineItems(
+                todayState = false,
                 selectedDate = CalendarDay(2023, 5, 2),
                 routinesOfDayState = RoutinesOfDay(
                     routineDay = "20230424",
