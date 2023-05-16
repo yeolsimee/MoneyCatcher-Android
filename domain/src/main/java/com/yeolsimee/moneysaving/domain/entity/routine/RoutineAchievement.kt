@@ -11,10 +11,12 @@ data class RoutineAchievement(
         val (year, month, day) = getYearMonthDay()
         val isToday = isToday(year, month, day)
 
-        val iconState = if (selectedMonth < month) {
-            DateIconState.NextMonth
-        } else if (selectedMonth > month) {
-            DateIconState.PreviousMonth
+        val iconState = if (selectedMonth < month || selectedMonth > month) {
+            if (routineAchievement != "NONE") {
+                DateIconState.OtherMonth
+            } else {
+                DateIconState.EmptyOtherMonth
+            }
         } else {
             if (isToday) {
                 DateIconState.Today

@@ -24,14 +24,6 @@ fun Calendar.setNextDay(year: Int, month: Int) {
     this.set(Calendar.DAY_OF_MONTH, 1)
 }
 
-fun Calendar.isPreviousMonth(month: Int): Boolean {
-    return month - 1 == this.get(Calendar.MONTH) + 1
-}
-
-fun Calendar.isNextMonth(month: Int): Boolean {
-    return month - 1 + 1 == this.get(Calendar.MONTH)
-}
-
 fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
     val tempDayList = mutableListOf<CalendarDay>()
 
@@ -46,12 +38,12 @@ fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
     }
     // Before 1 Month
     while (tempCal.get(Calendar.MONTH) + 1 != month) {
-        addDate(tempCal, month, tempDayList)
+        addDate(tempCal, tempDayList)
         tempCal.add(Calendar.DAY_OF_MONTH, 1)
     }
     // This Month
     while (tempCal.get(Calendar.MONTH) + 1 == month) {
-        addDate(tempCal, month, tempDayList)
+        addDate(tempCal, tempDayList)
         tempCal.add(Calendar.DAY_OF_MONTH, 1)
     }
     val dayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK)
@@ -59,7 +51,7 @@ fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
         return tempDayList
     } else {
         while (tempCal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
-            addDate(tempCal, month, tempDayList)
+            addDate(tempCal, tempDayList)
             tempCal.add(Calendar.DAY_OF_MONTH, 1)
         }
     }
@@ -69,28 +61,14 @@ fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
 
 private fun addDate(
     calendar: Calendar,
-    month: Int,
     tempDayList: MutableList<CalendarDay>
 ) {
-    var state = DateIconState.Empty
-
-    if (calendar.isToday()) {
-        state = DateIconState.Today
-    }
-    if (calendar.isPreviousMonth(month)) {
-        state = DateIconState.PreviousMonth
-    }
-    if (calendar.isNextMonth(month)) {
-        state = DateIconState.NextMonth
-    }
-
     tempDayList.add(
         CalendarDay(
             year = calendar.get(Calendar.YEAR),
             month = calendar.get(Calendar.MONTH) + 1,
             day = calendar.get(Calendar.DAY_OF_MONTH),
-            today = calendar.isToday(),
-            iconState = state
+            today = calendar.isToday()
         )
     )
 }
