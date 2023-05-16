@@ -129,7 +129,7 @@ fun RoutineItems(
                             Row(
                                 Modifier
                                     .fillMaxSize()
-                                    .padding(horizontal = 20.dp),
+                                    .padding(start = 20.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -143,6 +143,7 @@ fun RoutineItems(
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                         textDecoration = if (checked) TextDecoration.LineThrough else null,
+                                        modifier = Modifier.padding(end = 40.dp)
                                     )
                                     Spacer(Modifier.height(8.dp))
                                     Row {
