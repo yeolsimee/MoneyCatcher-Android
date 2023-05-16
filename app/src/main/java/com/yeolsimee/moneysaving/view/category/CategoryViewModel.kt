@@ -31,7 +31,8 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
         viewModelScope.launch {
             val result = categoryApi.getCategoryList()
             result.onSuccess {
-                reduce { it }
+                if (it.isEmpty()) showEmpty()
+                else reduce { it }
             }.onFailure {
                 showEmpty()
             }
@@ -72,6 +73,12 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
                 }.onFailure {
                     showEmpty()
                 }
+        }
+    }
+
+    fun update(category: TextItem) {
+        viewModelScope.launch {
+            categoryApi.update(category)
         }
     }
 }

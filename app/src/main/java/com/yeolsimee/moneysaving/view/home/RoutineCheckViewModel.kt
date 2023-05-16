@@ -1,6 +1,8 @@
 package com.yeolsimee.moneysaving.view.home
 
 import androidx.lifecycle.ViewModel
+import com.yeolsimee.moneysaving.data.repository.SettingsRepository
+import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.domain.usecase.RoutineUseCase
@@ -15,17 +17,36 @@ import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
-class RoutineCheckViewModel @Inject constructor(private val routineUseCase: RoutineUseCase) :
+class RoutineCheckViewModel @Inject constructor(
+    private val routineUseCase: RoutineUseCase,
+    private val settingsRepository: SettingsRepository
+) :
     ContainerHost<RoutinesOfDay, ToastSideEffect>, IToastSideEffect, ViewModel() {
 
     override val container = container<RoutinesOfDay, ToastSideEffect>(RoutinesOfDay())
 
-    fun check(routineCheckRequest: RoutineCheckRequest, refresh: (RoutinesOfDay) -> Unit) = intent {
+    fun check(
+        routineCheckRequest: RoutineCheckRequest,
+        routine: Routine,
+        refresh: (RoutinesOfDay) -> Unit
+    ) = intent {
         val result = routineUseCase.routineCheck(routineCheckRequest)
-        result.onSuccess {
-            reduce {
-                refresh(it)
-                it
+        result.onSuccess { data ->
+            val checked = routineCheckRequest.routineCheckYN == "Y"
+            if (checked) {
+                settingsRepository.setAlarmOffOnce(routine).collect {
+                    reduce {
+                        refresh(data)
+                        data
+                    }
+                }
+            } else {
+                settingsRepository.setAlarmOn(routine).collect {
+                    reduce {
+                        refresh(data)
+                        data
+                    }
+                }
             }
         }.onFailure { showSideEffect(it.message) }
     }

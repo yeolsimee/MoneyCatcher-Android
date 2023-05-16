@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.data.repository
 
 import com.yeolsimee.moneysaving.data.api.CategoryApiService
+import com.yeolsimee.moneysaving.data.entity.CategoryEntity
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryIdRequest
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryNameRequest
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
@@ -36,12 +37,22 @@ class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiR
         val response = flow {
             emit(
                 api.deleteCategory(
-                    CategoryIdRequest(category.id.toInt())
+                    CategoryIdRequest(category.id)
                 )
             )
         }.single()
         val result = response.body()
 
+        return if (result != null && result.success) {
+            Result.success(true)
+        } else {
+            Result.failure(ApiException(response.code(), result?.message))
+        }
+    }
+
+    override suspend fun update(category: TextItem): Result<Any> {
+        val response = flow { emit(api.updateCategory(CategoryEntity.fromTextItem(category))) }.single()
+        val result = response.body()
         return if (result != null && result.success) {
             Result.success(true)
         } else {

@@ -358,9 +358,13 @@ fun NavGraphBuilder.categoryNavGraph(navController: NavHostController) {
         CategoryUpdateScreen(
             onBackPressed = { navController.popBackStack() },
             categoryList = list.value,
-            sideEffect = sideEffect
-        ) {
-            categoryViewModel.delete(it)
-        }
+            sideEffect = sideEffect,
+            onCategoryUpdate = {
+                categoryViewModel.update(it)
+            },
+            onDelete = {
+                categoryViewModel.delete(it)
+            }
+        )
     }
 }

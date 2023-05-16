@@ -99,8 +99,8 @@ class LoginViewModel @Inject constructor(
     fun naverLogin(
         applicationContext: Context,
         naverLoginLauncher: ActivityResultLauncher<Intent>
-    ) {
-        Naver.login(applicationContext, naverLoginLauncher)
+    ): Boolean {
+        return Naver.login(applicationContext, naverLoginLauncher)
     }
 
     fun autoLogin(signedUserCallback: () -> Unit, newUserCallback: () -> Unit, notLoggedInCallback: () -> Unit) {

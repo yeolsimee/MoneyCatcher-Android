@@ -98,7 +98,7 @@ fun TodayIcon() {
 
 
 @Composable
-fun PreviousMonthIcon() {
+fun OtherMonthIcon() {
     Box(
         Modifier
             .size(28.dp)
@@ -115,7 +115,7 @@ fun PreviousMonthIcon() {
 
 
 @Composable
-fun NextMonthIcon() {
+fun EmptyOtherMonthIcon() {
     Box(
         Modifier
             .size(28.dp)
@@ -275,8 +275,8 @@ fun DateIconBuilder(iconState: DateIconState) {
         DateIconState.Bronze -> BronzeIcon()
         DateIconState.Today -> TodayIcon()
         DateIconState.Empty -> EmptyMoneyIcon()
-        DateIconState.PreviousMonth -> PreviousMonthIcon()
-        DateIconState.NextMonth -> NextMonthIcon()
+        DateIconState.OtherMonth -> OtherMonthIcon()
+        DateIconState.EmptyOtherMonth -> EmptyOtherMonthIcon()
     }
 }
 
@@ -318,11 +318,11 @@ fun DayOfMonthIconPreview() {
             selectedDay
         ) {}
         DayOfMonthIcon(
-            CalendarDay(2023, 4, 16, iconState = DateIconState.PreviousMonth, today = false),
+            CalendarDay(2023, 4, 16, iconState = DateIconState.OtherMonth, today = false),
             selectedDay
         ) {}
         DayOfMonthIcon(
-            CalendarDay(2023, 4, 17, iconState = DateIconState.NextMonth, today = false),
+            CalendarDay(2023, 4, 17, iconState = DateIconState.EmptyOtherMonth, today = false),
             selectedDay
         ) {}
     }

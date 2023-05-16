@@ -29,11 +29,18 @@ class NotificationReceiver : BroadcastReceiver() {
 
         if (intent != null && context != null && intent.action == "com.yeolsimee.moneysaving.ROUTINE_ALARM") {
             CoroutineScope(Dispatchers.IO).launch {
-                settingsRepository.getAlarmState().collect {
-                    if (it.alarmState) {
-                        val routineName = intent.getStringExtra("routineName") ?: ""
-                        val nb = notificationHelper.getChannelNotification("ROUMO", routineName, context)
-                        notificationHelper.getManager().notify(createID(), nb.build())
+                val alarmTime = intent.getStringExtra("alarmTime") ?: ""
+                Log.i(App.TAG, "saved alarm time: $alarmTime")
+                settingsRepository.getAlarmState {
+                    if (it) {
+                        settingsRepository.getUnCheckedRoutine(alarmTime) { unchecked ->
+                            if (unchecked) {
+                                Log.i(App.TAG, "alarm not checked: $alarmTime")
+                                val routineName = intent.getStringExtra("routineName") ?: ""
+                                val nb = notificationHelper.getChannelNotification("ROUMO", routineName, context)
+                                notificationHelper.getManager().notify(createID(), nb.build())
+                            }
+                        }
                     }
                 }
             }

@@ -23,4 +23,7 @@ interface CategoryApiService {
     suspend fun deleteCategory(
         @Body body: CategoryIdRequest
     ): Response<ApiResponse<Any>>
+
+    @POST("category/update")
+    suspend fun updateCategory(@Body category: CategoryEntity): Response<ApiResponse<Any>>
 }

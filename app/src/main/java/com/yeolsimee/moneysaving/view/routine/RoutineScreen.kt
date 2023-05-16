@@ -46,8 +46,8 @@ fun RoutineScreen(
     categoryList: MutableList<TextItem> = mutableListOf(),
     selectedCategoryId: MutableState<String> = remember { mutableStateOf("") },
     closeCallback: () -> Unit = {},
-    onCompleteCallback: (RoutineRequest) -> Unit = {},
-    hasNotificationPermission: () -> Boolean = { false },
+    onCompleteCallback: (req: RoutineRequest, hasWeekTypes: Boolean) -> Unit = { _, _ -> },
+    toggleRoutineAlarm: (MutableState<Boolean>) -> Unit = {},
     onCategoryAdded: (String) -> Unit = {},
 ) {
     val buttonState = remember { mutableStateOf(false) }
@@ -88,6 +88,7 @@ fun RoutineScreen(
                 buttonState.value = canSaveRoutine(routineName.value, selectedCategoryId)
 
                 BottomButtonAppBar(routineType?.title, buttonState.value) {
+                    val weekTypes = getWeekTypes(repeatSelectList)
                     onCompleteCallback(
                         RoutineRequest(
                             alarmStatus = if (alarmState.value) "ON" else "OFF",
@@ -95,8 +96,9 @@ fun RoutineScreen(
                             routineName = routineName.value,
                             categoryId = selectedCategoryId.value,
                             routineTimeZone = selectedRoutineTimeZoneId.value,
-                            weekTypes = getWeekTypes(repeatSelectList),
-                        )
+                            weekTypes = weekTypes,
+                        ),
+                        weekTypes.isNotEmpty()
                     )
                 }
             },
@@ -120,7 +122,6 @@ fun RoutineScreen(
                             selectedCategoryId.value = id
                         },
                         addCallback = { categoryName ->
-                            // 카테고리 추가 API 호출
                             onCategoryAdded(categoryName)
                         }
                     )
@@ -135,7 +136,7 @@ fun RoutineScreen(
                         selectedRoutineTimeZoneId.value = id
                     }
                     Spacer(Modifier.height(20.dp))
-                    SettingAlarmTime(alarmState, hourState, minuteState, hasNotificationPermission)
+                    SettingAlarmTime(alarmState, hourState, minuteState, toggleRoutineAlarm)
                 }
             }
         }

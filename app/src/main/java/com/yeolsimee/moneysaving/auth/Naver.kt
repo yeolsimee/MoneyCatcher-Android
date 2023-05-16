@@ -16,39 +16,48 @@ object Naver {
         tokenCallback: (String) -> Unit,
         failedCallback: (String) -> Unit
     ) {
-        val functions = Firebase.functions(regionOrCustomDomain = "asia-northeast1")
-        when (result.resultCode) {
-            ComponentActivity.RESULT_OK -> {
-                // 네이버 로그인 인증이 성공했을 때 수행할 코드 추가
-                val accessToken = NaverIdLoginSDK.getAccessToken()
-                AuthFunctions.customAuthByFirebaseFunctions(
-                    functions,
-                    accessToken,
-                    "naverCustomAuth"
-                ) { token ->
-                    FirebaseAuth.getInstance().signInWithCustomToken(token).addOnCompleteListener {
-                        tokenCallback(token)
+        try {
+            val functions = Firebase.functions(regionOrCustomDomain = "asia-northeast1")
+            when (result.resultCode) {
+                ComponentActivity.RESULT_OK -> {
+                    // 네이버 로그인 인증이 성공했을 때 수행할 코드 추가
+                    val accessToken = NaverIdLoginSDK.getAccessToken()
+                    AuthFunctions.customAuthByFirebaseFunctions(
+                        functions,
+                        accessToken,
+                        "naverCustomAuth"
+                    ) { token ->
+                        FirebaseAuth.getInstance().signInWithCustomToken(token).addOnCompleteListener {
+                            tokenCallback(token)
+                        }
                     }
                 }
-            }
 
-            ComponentActivity.RESULT_CANCELED -> {
-                // 실패 or 에러
-                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                failedCallback("errorCode:$errorCode, errorDesc:$errorDescription")
+                ComponentActivity.RESULT_CANCELED -> {
+                    // 실패 or 에러
+                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                    failedCallback("errorCode:$errorCode, errorDesc:$errorDescription")
+                }
             }
-        }
+        } catch (_: Exception) {}
     }
 
     fun login(
         context: Context,
         launcher: ActivityResultLauncher<Intent>
-    ) {
-        NaverIdLoginSDK.authenticate(context, launcher)
+    ): Boolean {
+        try {
+            NaverIdLoginSDK.authenticate(context, launcher)
+        } catch (_: Exception) {
+            return false
+        }
+        return true
     }
 
     fun logout() {
-        NaverIdLoginSDK.logout()
+        try {
+            NaverIdLoginSDK.logout()
+        } catch (_: Exception) { }
     }
 }
