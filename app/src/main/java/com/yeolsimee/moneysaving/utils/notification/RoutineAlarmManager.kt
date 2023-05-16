@@ -36,8 +36,9 @@ class RoutineAlarmManager {
                 )
 
                 val intent = getRoutineAlarmIntent(context)
-
                 intent.putExtra("routineName", routineName)
+                intent.putExtra("alarmTime", alarmTime)
+
                 val alarmId = getAlarmId(routineId, dayOfWeek)
                 val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
                 val alarmManager = getAlarmManager(context)
@@ -77,7 +78,7 @@ class RoutineAlarmManager {
             val intent = getRoutineAlarmIntent(context)
 
             intent.putExtra("routineName", alarm.routineName)
-
+            intent.putExtra("alarmTime", alarm.alarmTime)
             val pIntent = makeAlarmPendingIntent(context, alarm.alarmId, intent)
             val alarmManager = getAlarmManager(context)
 
@@ -141,6 +142,7 @@ class RoutineAlarmManager {
 
             val intent = getRoutineAlarmIntent(context)
             intent.putExtra("routineName", routineName)
+            intent.putExtra("alarmTime", alarmTime)
             val pIntent = makeAlarmPendingIntent(context, routineId, intent)
             val alarmManager = getAlarmManager(context)
 
@@ -151,7 +153,7 @@ class RoutineAlarmManager {
                 }"
             )
 
-            alarmManager.setAndAllowWhileIdle(
+            alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime.timeInMillis,
                 pIntent

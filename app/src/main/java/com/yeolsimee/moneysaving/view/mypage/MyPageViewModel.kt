@@ -34,8 +34,8 @@ class MyPageViewModel @Inject constructor(
 
     private fun getSettings() {
         viewModelScope.launch {
-            settingsRepository.getAlarmState().collect {
-                alarmState.value = it.alarmState
+            settingsRepository.getAlarmState {
+                alarmState.value = it
             }
         }
     }

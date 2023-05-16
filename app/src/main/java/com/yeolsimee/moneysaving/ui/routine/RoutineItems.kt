@@ -59,7 +59,7 @@ fun RoutineItems(
     selectedDate: CalendarDay,
     routinesOfDayState: RoutinesOfDay,
     onItemClick: (String, String) -> Unit = { _, _ -> },
-    onRoutineCheck: (RoutineCheckRequest) -> Unit = {},
+    onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
     onItemDelete: (Routine) -> Unit = {},
 ) {
     val categories = routinesOfDayState.categoryDatas
@@ -165,7 +165,8 @@ fun RoutineItems(
                                                         routineCheckYN = if (checked) "N" else "Y",
                                                         routineId = routine.routineId.toInt(),
                                                         routineDay = date
-                                                    )
+                                                    ),
+                                                    routine
                                                 )
                                             }
                                         )) {
@@ -219,7 +220,7 @@ private fun setRoutineSwipeState(
 ) = rememberDismissState(
     confirmValueChange = { dismissValue ->
         if (dismissValue == DismissValue.DismissedToStart) {
-            if (selectedDate.isToday()) {
+            if (selectedDate.isNotPast()) {
                 onItemDelete(routine)
             } else {
                 cantEditDialogState.value = true

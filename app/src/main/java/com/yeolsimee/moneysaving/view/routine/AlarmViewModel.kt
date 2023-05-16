@@ -38,13 +38,19 @@ class AlarmViewModel @Inject constructor(private val alarmDao: AlarmDao, private
 
     fun setDailyAlarm(context: Context) {
         viewModelScope.launch {
-            settingsRepository.toggleAlarmState().collect { changedAlarmState ->
+            settingsRepository.setAlarmOn().collect { changedAlarmState ->
                 if (changedAlarmState) {
                     RoutineAlarmManager.setDailyNotification(context)
                 } else {
                     RoutineAlarmManager.cancelDailyNotification(context)
                 }
             }
+        }
+    }
+
+    fun updateCheckedRoutine(beforeAlarmTime: String, afterAlarmTime: String) {
+        viewModelScope.launch {
+            settingsRepository.updateCheckRoutineAlarm(beforeAlarmTime, afterAlarmTime)
         }
     }
 }

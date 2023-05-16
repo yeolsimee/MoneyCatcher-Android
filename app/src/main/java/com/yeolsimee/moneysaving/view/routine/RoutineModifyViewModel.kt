@@ -37,16 +37,16 @@ class RoutineModifyViewModel @Inject constructor(private val routineUseCase: Rou
     }
 
     fun updateRoutine(
-        routineId: String,
+        routine: RoutineResponse,
         routineRequest: RoutineRequest,
-        onSetAlarmCallback: (Int) -> Unit = {},
+        onSetAlarmCallback: (RoutineResponse) -> Unit = {},
         onDeleteAlarmCallback: (RoutineResponse) -> Unit = {},
         onFinishCallback: (RoutineResponse) -> Unit = {}
     ) = intent {
-        val result = routineUseCase.updateRoutine(routineId, routineRequest)
+        val result = routineUseCase.updateRoutine(routine.routineId, routineRequest)
         result.onSuccess {
             if (it.alarmStatus == "ON") {
-                onSetAlarmCallback(it.routineId)
+                onSetAlarmCallback(it)
             } else {
                 onDeleteAlarmCallback(it)   // OFF 이면 무조건 삭제 동작
             }

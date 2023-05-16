@@ -143,8 +143,8 @@ fun HomeScreen(
                         selectedDate = selected.value,
                         routinesOfDayState = routinesOfDayState,
                         onItemClick = onItemClick,
-                        onRoutineCheck = { check ->
-                            routineCheckViewModel.check(check) { routinesOfDay ->
+                        onRoutineCheck = { check, routine ->
+                            routineCheckViewModel.check(check, routine) { routinesOfDay ->
                                 selectedDateViewModel.refresh(
                                     routinesOfDay
                                 )

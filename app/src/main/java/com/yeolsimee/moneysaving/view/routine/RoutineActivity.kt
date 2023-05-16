@@ -78,10 +78,11 @@ class RoutineActivity : ComponentActivity() {
                             )
                         } else {
                             routineViewModel.updateRoutine(
-                                routineId = routineId,
+                                routine = routine,
                                 routineRequest = req,
-                                onSetAlarmCallback = { id ->
-                                    setRoutineAlarm(hasWeekTypes, req, id)
+                                onSetAlarmCallback = { routine ->
+                                    alarmViewModel.updateCheckedRoutine(routine.alarmTime, req.alarmTime)
+                                    setRoutineAlarm(hasWeekTypes, req, routine.routineId)
                                 },
                                 onDeleteAlarmCallback = { res ->
                                     RoutineAlarmManager.delete(this@RoutineActivity, res) {
@@ -139,10 +140,8 @@ class RoutineActivity : ComponentActivity() {
     private fun setAlarmOnIfHasPermission(alarmState: MutableState<Boolean>) {
         hasNotificationPermission.observe(this) { hasPermission ->
             if (checkNotificationPermission(requestPermissionLauncher)) {
-                if (hasPermission == true) {
-                    alarmState.value = !alarmState.value
-                    if (alarmState.value) alarmViewModel.setAlarmOn()
-                }
+                alarmState.value = !alarmState.value
+                if (alarmState.value) alarmViewModel.setAlarmOn()
             }
         }
     }
