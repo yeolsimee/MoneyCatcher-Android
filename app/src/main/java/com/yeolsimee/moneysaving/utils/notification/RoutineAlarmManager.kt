@@ -42,6 +42,13 @@ class RoutineAlarmManager {
                 val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
                 val alarmManager = getAlarmManager(context)
 
+                Log.i(
+                    App.TAG,
+                    "Setting Routine Alarm: ${
+                        SimpleDateFormat.getInstance().format(triggerTime.time)
+                    }"
+                )
+
                 alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
                     triggerTime.timeInMillis,
@@ -74,6 +81,13 @@ class RoutineAlarmManager {
             val pIntent = makeAlarmPendingIntent(context, alarm.alarmId, intent)
             val alarmManager = getAlarmManager(context)
 
+            Log.i(
+                App.TAG,
+                "Setting Routine Alarm: ${
+                    SimpleDateFormat.getInstance().format(triggerTime.time)
+                }"
+            )
+
             alarmManager.setInexactRepeating(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime.timeInMillis,
@@ -84,9 +98,7 @@ class RoutineAlarmManager {
             onAlarmAdded(alarm.alarmId, alarm.dayOfWeek)
         }
 
-        fun setDailyNotification(
-            context: Context
-        ) {
+        fun setDailyNotification(context: Context) {
             val intent = getRoutineAlarmIntent(context)
             intent.putExtra("routineName", "오늘 루틴 체크는 다 완료 하셨나요?")
 
@@ -107,6 +119,44 @@ class RoutineAlarmManager {
                 AlarmManager.INTERVAL_DAY,
                 pIntent
             )
+        }
+
+        fun setToday(
+            context: Context,
+            alarmTime: String,
+            routineId: Int,
+            routineName: String
+        ): Boolean {
+            val hour = alarmTime.substring(0, 2).toInt()
+            val minute = alarmTime.substring(2, 4).toInt()
+
+            // 요일 별로 알람이 추가되어야 한다.
+
+            val triggerTime = Calendar.getInstance()
+            triggerTime.set(Calendar.HOUR_OF_DAY, hour)
+            triggerTime.set(Calendar.MINUTE, minute)
+            if (triggerTime.timeInMillis < System.currentTimeMillis()) {
+                return false
+            }
+
+            val intent = getRoutineAlarmIntent(context)
+            intent.putExtra("routineName", routineName)
+            val pIntent = makeAlarmPendingIntent(context, routineId, intent)
+            val alarmManager = getAlarmManager(context)
+
+            Log.i(
+                App.TAG,
+                "Setting Routine Alarm: ${
+                    SimpleDateFormat.getInstance().format(triggerTime.time)
+                }"
+            )
+
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime.timeInMillis,
+                pIntent
+            )
+            return true
         }
 
 
@@ -130,9 +180,6 @@ class RoutineAlarmManager {
 
             if (triggerTime.timeInMillis < System.currentTimeMillis()) {
                 triggerTime.add(Calendar.DAY_OF_YEAR, 7)
-            } else {
-                val mills = System.currentTimeMillis() - triggerTime.timeInMillis
-                Log.i(App.TAG, "alarm gap: $mills")
             }
             return triggerTime
         }

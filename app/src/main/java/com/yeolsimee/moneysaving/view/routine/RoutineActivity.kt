@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.MutableLiveData
 import com.yeolsimee.moneysaving.App
+import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.utils.checkNotificationPermission
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
@@ -64,25 +65,12 @@ class RoutineActivity : ComponentActivity() {
                     closeCallback = {
                         finish()
                     },
-                    onCompleteCallback = { req ->
+                    onCompleteCallback = { req, hasWeekTypes ->
                         if (routineType == RoutineModifyOption.Add) {
                             routineViewModel.addRoutine(
                                 routineRequest = req,
                                 onSetAlarmCallback = { id ->
-                                    RoutineAlarmManager.setRoutine(
-                                        context = this@RoutineActivity,
-                                        dayOfWeeks = req.weekTypes,
-                                        alarmTime = req.alarmTime,
-                                        routineId = id,
-                                        routineName = req.routineName
-                                    ) { alarmId, dayOfWeek ->
-                                        alarmViewModel.addAlarm(
-                                            alarmId,
-                                            dayOfWeek,
-                                            req.alarmTime,
-                                            req.routineName
-                                        )
-                                    }
+                                    setRoutineAlarm(hasWeekTypes, req, id)
                                 },
                                 onFinishCallback = {
                                     sendResultAndFinish()
@@ -93,13 +81,7 @@ class RoutineActivity : ComponentActivity() {
                                 routineId = routineId,
                                 routineRequest = req,
                                 onSetAlarmCallback = { id ->
-                                    RoutineAlarmManager.setRoutine(
-                                        context = this@RoutineActivity,
-                                        dayOfWeeks = req.weekTypes,
-                                        alarmTime = req.alarmTime,
-                                        routineId = id,
-                                        routineName = req.routineName
-                                    )
+                                    setRoutineAlarm(hasWeekTypes, req, id)
                                 },
                                 onDeleteAlarmCallback = { res ->
                                     RoutineAlarmManager.delete(this@RoutineActivity, res) {
@@ -112,7 +94,7 @@ class RoutineActivity : ComponentActivity() {
                             )
                         }
                     },
-                    hasNotificationPermission = { alarmState ->
+                    toggleRoutineAlarm = { alarmState ->
                         setAlarmOnIfHasPermission(alarmState)
                     },
                     onCategoryAdded =  {
@@ -122,6 +104,38 @@ class RoutineActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun setRoutineAlarm(
+        hasWeekTypes: Boolean,
+        req: RoutineRequest,
+        id: Int
+    ) {
+        if (hasWeekTypes) {
+            RoutineAlarmManager.setRoutine(
+                context = this@RoutineActivity,
+                dayOfWeeks = req.weekTypes,
+                alarmTime = req.alarmTime,
+                routineId = id,
+                routineName = req.routineName
+            ) { alarmId, dayOfWeek ->
+                alarmViewModel.addAlarm(
+                    alarmId,
+                    dayOfWeek,
+                    req.alarmTime,
+                    req.routineName
+                )
+            }
+            alarmViewModel.setDailyAlarm(this@RoutineActivity)
+        } else {
+            RoutineAlarmManager.setToday(
+                context = this@RoutineActivity,
+                alarmTime = req.alarmTime,
+                routineId = id,
+                routineName = req.routineName
+            )
+        }
+    }
+
     private fun setAlarmOnIfHasPermission(alarmState: MutableState<Boolean>) {
         hasNotificationPermission.observe(this) { hasPermission ->
             if (checkNotificationPermission(requestPermissionLauncher)) {
