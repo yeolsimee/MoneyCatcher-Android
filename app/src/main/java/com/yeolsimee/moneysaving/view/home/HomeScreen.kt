@@ -238,7 +238,7 @@ private fun YearMonthSelectBox(
         )
         if (spread.value) {
             Image(
-                painter = painterResource(id = R.drawable.icon_arrow_open),
+                painter = painterResource(id = R.drawable.icon_year_month_open),
                 contentDescription = "연/월 선택"
             )
         }
@@ -261,7 +261,7 @@ fun DayOfWeekText(text: String) {
 @Preview(showBackground = true)
 @Composable
 fun YearMonthSelectBoxPreview() {
-    val spread = remember { mutableStateOf(false) }
+    val spread = remember { mutableStateOf(true) }
     YearMonthSelectBox(
         dialogState = remember { mutableStateOf(false) },
         dateText = "4월 12일 수요일",
