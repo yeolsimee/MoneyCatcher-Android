@@ -4,7 +4,6 @@ import com.yeolsimee.moneysaving.data.entity.CategoryEntity
 import com.yeolsimee.moneysaving.domain.entity.ApiResponse
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryIdRequest
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryNameRequest
-import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -26,5 +25,5 @@ interface CategoryApiService {
     ): Response<ApiResponse<Any>>
 
     @POST("category/update")
-    suspend fun updateCategory(@Body category: TextItem): Response<ApiResponse<Any>>
+    suspend fun updateCategory(@Body category: CategoryEntity): Response<ApiResponse<Any>>
 }
