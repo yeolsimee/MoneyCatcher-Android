@@ -6,7 +6,7 @@ import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 class SettingsRepository(
     private val settingsSource: SettingsSource
 ) {
-    fun getAlarmState(callback: (Boolean) -> Unit) = settingsSource.getAlarmState(callback)
+    suspend fun getAlarmState(callback: (Boolean) -> Unit) = settingsSource.getAlarmState(callback)
     fun toggleAlarmState() = settingsSource.toggleAlarmState()
     fun setAlarmOn() = settingsSource.setAlarmOn()
     fun setAlarmOffOnce(routine: Routine) = settingsSource.setAlarmOffOnce(routine)

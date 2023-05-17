@@ -8,8 +8,8 @@ import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class SettingsSource(private val dataStoreService: DataStoreService) {
@@ -18,8 +18,8 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
         val ALARM_STATE = booleanPreferencesKey("alarm_state")
     }
 
-    fun getAlarmState(callback: (Boolean) -> Unit) {
-        dataStoreService.getDataStore().data.map { preferences ->
+    suspend fun getAlarmState(callback: (Boolean) -> Unit) {
+        dataStoreService.getDataStore().data.collectLatest { preferences ->
             callback(preferences[PreferencesKeys.ALARM_STATE] ?: false)
         }
     }
