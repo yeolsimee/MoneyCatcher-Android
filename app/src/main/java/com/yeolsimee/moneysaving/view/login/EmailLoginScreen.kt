@@ -38,6 +38,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.appbar.BottomButtonAppBar
 import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
 import com.yeolsimee.moneysaving.ui.emailNotice
+import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
@@ -48,6 +49,7 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
 
     val buttonState = remember { mutableStateOf(false) }
     val emailState = remember { mutableStateOf("") }
+    val hasWritten = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val focusRequester by remember { mutableStateOf(FocusRequester()) }
 
@@ -86,6 +88,7 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
                         onValueChange = { t ->
                             buttonState.value = Patterns.EMAIL_ADDRESS.matcher(t).matches()
                             emailState.value = t
+                            hasWritten.value = true
                         },
                         singleLine = true,
                         decorationBox = { innerTextField ->
@@ -112,7 +115,30 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
                             .height(1.dp)
                             .background(Color.Black)
                     )
-                    Spacer(Modifier.height(28.dp))
+                    if (!buttonState.value) {
+                        if (emailState.value.isNotEmpty()) {
+                            PrText(
+                                text = "메일형식으로 입력해주세요",
+                                color = DismissRed,
+                                fontWeight = FontWeight.W500,
+                                fontSize = 12.sp,
+                                letterSpacing = (-0.5).sp,
+                                modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
+                            )
+                        } else if (hasWritten.value) {
+                            PrText(
+                                text = "메일을 입력해주세요",
+                                color = DismissRed,
+                                fontWeight = FontWeight.W500,
+                                fontSize = 12.sp,
+                                letterSpacing = (-0.5).sp,
+                                modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
+                            )
+                        } else {
+                            Spacer(Modifier.height(28.dp))
+                        }
+                    } else Spacer(Modifier.height(28.dp))
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
