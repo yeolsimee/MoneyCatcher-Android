@@ -46,7 +46,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -59,10 +58,7 @@ import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.checkNotificationPermission
-import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
-import com.yeolsimee.moneysaving.view.category.CategoryUpdateScreen
-import com.yeolsimee.moneysaving.view.category.CategoryViewModel
-import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
+import com.yeolsimee.moneysaving.view.category.CategoryUpdateActivity
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -93,6 +89,15 @@ class MainActivity : ComponentActivity() {
     private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
 
     private val routineActivityLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                findAllMyRoutineViewModel.refresh {
+                    selectedDateViewModel.find(calendarViewModel.today)
+                }
+            }
+        }
+
+    private val categoryUpdateActivityLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 findAllMyRoutineViewModel.refresh {
@@ -195,13 +200,19 @@ class MainActivity : ComponentActivity() {
                                     if (checkNotificationPermission(permissionLauncher)) {
                                         myPageViewModel.changeAlarmState(applicationContext)
                                         CoroutineScope(Dispatchers.Main).launch {
-                                            val text = if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
+                                            val text =
+                                                if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
                                             snackbarState.showSnackbar(text)
                                         }
                                     }
                                 },
                                 onMoveToCategoryUpdateScreen = {
-                                    navController.navigate(BottomNavItem.UpdateCategory.screenRoute)
+                                    categoryUpdateActivityLauncher.launch(
+                                        Intent(
+                                            this@MainActivity,
+                                            CategoryUpdateActivity::class.java
+                                        )
+                                    )
                                 },
                                 onLogout = {
                                     CoroutineScope(Dispatchers.Default).launch {
@@ -232,7 +243,6 @@ class MainActivity : ComponentActivity() {
 
                             CustomSnackBarHost(snackbarState)
                         }
-                        categoryNavGraph(navController)
                     }
                 }
             },
@@ -278,7 +288,7 @@ class MainActivity : ComponentActivity() {
 
             items.forEach { item ->
 
-                val isSelected = getSelectedState(currentRoute, item)
+                val isSelected = currentRoute == item.screenRoute
                 val resId = if (isSelected) item.pressedResId else item.normalResId
                 val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.W400
                 val labelColor = if (isSelected) Color.White else Gray99
@@ -331,40 +341,5 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-    }
-
-    private fun getSelectedState(
-        currentRoute: String?,
-        item: BottomNavItem
-    ) = if (currentRoute == BottomNavItem.UpdateCategory.screenRoute) {
-        BottomNavItem.MyPage.screenRoute == item.screenRoute
-    } else {
-        currentRoute == item.screenRoute
-    }
-}
-
-fun NavGraphBuilder.categoryNavGraph(navController: NavHostController) {
-    composable(route = BottomNavItem.UpdateCategory.screenRoute) {
-        val categoryViewModel: CategoryViewModel = hiltViewModel()
-        val list = categoryViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
-            mutableListOf()
-        )
-
-        val sideEffect =
-            categoryViewModel.container.sideEffectFlow.collectAsStateWithLifecycleRemember(
-                initial = ApiCallSideEffect.Loading
-            )
-
-        CategoryUpdateScreen(
-            onBackPressed = { navController.popBackStack() },
-            categoryList = list.value,
-            sideEffect = sideEffect,
-            onCategoryUpdate = {
-                categoryViewModel.update(it)
-            },
-            onDelete = {
-                categoryViewModel.delete(it)
-            }
-        )
     }
 }

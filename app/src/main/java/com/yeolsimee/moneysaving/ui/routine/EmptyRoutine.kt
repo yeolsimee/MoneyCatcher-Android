@@ -19,7 +19,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray66
 
 @Composable
-fun EmptyRoutine(modifier: Modifier = Modifier) {
+fun EmptyRoutine(modifier: Modifier = Modifier, hasSubText: Boolean = true) {
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -35,12 +35,14 @@ fun EmptyRoutine(modifier: Modifier = Modifier) {
             fontSize = 20.sp,
             fontWeight = FontWeight.W800,
         )
-        Spacer(Modifier.height(5.dp))
-        PrText(
-            text = stringResource(R.string.please_add_routine_button),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.W700,
-            color = Gray66
-        )
+        if (hasSubText) {
+            Spacer(Modifier.height(5.dp))
+            PrText(
+                text = stringResource(R.string.please_add_routine_button),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.W700,
+                color = Gray66
+            )
+        }
     }
 }

@@ -86,6 +86,10 @@
         <activity
             android:name=".view.signup.AgreementActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".view.category.CategoryUpdateActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
