@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,11 +50,12 @@ import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.onClick
 import kotlinx.coroutines.launch
 
 @Composable
 fun RoutineItems(
-    todayState: Boolean,
+    isToday: Boolean,
     selectedDate: CalendarDay,
     routinesOfDayState: RoutinesOfDay,
     onItemClick: (String, String) -> Unit = { _, _ -> },
@@ -126,59 +126,48 @@ fun RoutineItems(
                                     }
                                 )
                         ) {
-                            Row(
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(start = 20.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column {
-                                    PrText(
-                                        text = routine.routineName,
-                                        fontWeight = FontWeight.W800,
-                                        fontSize = 15.sp,
-                                        color = Color.Black,
-                                        textAlign = TextAlign.Start,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        textDecoration = if (checked) TextDecoration.LineThrough else null,
-                                        modifier = Modifier.padding(end = 40.dp)
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Row {
-                                        RoutineTimeZone(routine)
-                                        Spacer(Modifier.width(8.dp))
-                                        AlarmIconAndText(routine)
-                                    }
+                            Column(Modifier.padding(start = 20.dp, end = 60.dp).align(Alignment.CenterStart)) {
+                                PrText(
+                                    text = routine.routineName,
+                                    fontWeight = FontWeight.W800,
+                                    fontSize = 15.sp,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Start,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textDecoration = if (checked) TextDecoration.LineThrough else null,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Row {
+                                    RoutineTimeZone(routine)
+                                    Spacer(Modifier.width(8.dp))
+                                    AlarmIconAndText(routine)
                                 }
+                            }
 
-                                if (todayState) {
-                                    Box(modifier = Modifier
-                                        .width(60.dp)
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null,
-                                            onClick = {
-                                                onRoutineCheck(
-                                                    RoutineCheckRequest(
-                                                        routineCheckYN = if (checked) "N" else "Y",
-                                                        routineId = routine.routineId.toInt(),
-                                                        routineDay = date
-                                                    ),
-                                                    routine
-                                                )
-                                            }
-                                        )) {
-                                        Image(
-                                            painter = painterResource(
-                                                id = if (checked) R.drawable.icon_check
-                                                else R.drawable.icon_nonecheck
+                            if (isToday) {
+                                Box(modifier = Modifier
+                                    .width(60.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .onClick {
+                                        onRoutineCheck(
+                                            RoutineCheckRequest(
+                                                routineCheckYN = if (checked) "N" else "Y",
+                                                routineId = routine.routineId.toInt(),
+                                                routineDay = date
                                             ),
-                                            contentDescription = "루틴 체크",
-                                            modifier = Modifier.align(Alignment.Center)
+                                            routine
                                         )
                                     }
+                                ) {
+                                    Image(
+                                        painter = painterResource(
+                                            id = if (checked) R.drawable.icon_check
+                                            else R.drawable.icon_nonecheck
+                                        ),
+                                        contentDescription = "루틴 체크",
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
                                 }
                             }
                         }
@@ -236,7 +225,7 @@ fun RoutineItemPreview() {
     RoumoTheme {
         Box(modifier = Modifier.padding(10.dp)) {
             RoutineItems(
-                todayState = false,
+                isToday = true,
                 selectedDate = CalendarDay(2023, 5, 2),
                 routinesOfDayState = RoutinesOfDay(
                     routineDay = "20230424",

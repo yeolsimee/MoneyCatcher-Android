@@ -19,7 +19,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
 
         val response = source.findAllMyRoutineDays(startDate, endDate).last()
         val result = response.body()
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data.convertToDateIconStateList(selectedMonth))
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -29,7 +29,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun findRoutineDay(date: String): Result<RoutinesOfDay> {
         val response = source.findRoutineDay(date).last()
         val result = response.body()
-        return if (result != null && result.success && result.data != null) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data!!)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -39,7 +39,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun createRoutine(routineRequest: RoutineRequest): Result<RoutineResponse> {
         val response = source.createRoutine(routineRequest).last()
         val result = response.body()
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -49,7 +49,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun updateRoutine(routineId: String, routineRequest: RoutineRequest): Result<RoutineResponse> {
         val response = source.updateRoutine(routineId, routineRequest).last()
         val result = response.body()
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -59,7 +59,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun routineCheck(routineCheckRequest: RoutineCheckRequest): Result<RoutinesOfDay> {
         val response = source.routineCheck(routineCheckRequest).last()
         val result = response.body()
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -69,7 +69,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun deleteRoutine(routineId: String): Result<Boolean> {
         val response = source.deleteRoutine(routineId).last()
         val result = response.body()
-        return if (result != null && result.success && result.code == 0) {
+        return if (result != null && result.hasData()) {
             Result.success(true)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -79,7 +79,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun getRoutine(routineId: String): Result<RoutineResponse> {
         val response = source.getRoutine(routineId).last()
         val result = response.body()
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -89,7 +89,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun getActivatedAlarmRoutine(): Result<List<RoutineResponse>> {
         val response = source.getActivatedAlarmRoutine().last()
         val result = response.body()
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data)
         } else {
             Result.failure(ApiException(response.code(), result?.message))

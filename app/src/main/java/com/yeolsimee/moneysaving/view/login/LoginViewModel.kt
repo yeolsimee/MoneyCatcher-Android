@@ -3,7 +3,6 @@ package com.yeolsimee.moneysaving.view.login
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -13,7 +12,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.auth.Apple
 import com.yeolsimee.moneysaving.auth.Google
 import com.yeolsimee.moneysaving.auth.Naver
@@ -36,28 +34,29 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     private lateinit var google: Google
 
-    fun init(activity: Activity, signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
+    fun init(activity: Activity, signedUserCallback: () -> Unit, newUserCallback: () -> Unit, loginFailCallback: () -> Unit = {}) {
         google = Google(activity) {
-            login(signedUserCallback, newUserCallback)
+            login(signedUserCallback, newUserCallback, loginFailCallback)
         }
     }
 
-    private fun showLoginFailed(message: String?) {
-        Log.e(App.TAG, "login failed: $message")
+    private fun showLoginFailed() {
+        logout()
     }
 
     fun naverInit(
         result: ActivityResult,
         signedUserCallback: () -> Unit,
-        newUserCallback: () -> Unit
+        newUserCallback: () -> Unit,
+        loginFailCallback: () -> Unit = {}
     ) {
         Naver.init(
             result = result,
             tokenCallback = {
-                login(signedUserCallback, newUserCallback)
+                login(signedUserCallback, newUserCallback, loginFailCallback)
             }
         ) {
-            showLoginFailed(it)
+            showLoginFailed()
         }
     }
 
@@ -73,16 +72,17 @@ class LoginViewModel @Inject constructor(
         loginActivity: LoginActivity,
         loadingState: MutableLiveData<Boolean>,
         signedUserCallback: () -> Unit,
-        newUserCallback: () -> Unit
+        newUserCallback: () -> Unit,
+        loginFailCallback: () -> Unit = {}
     ) {
         viewModelScope.launch {
             Apple.login(loginActivity, loadingState) {
-                login(signedUserCallback, newUserCallback)
+                login(signedUserCallback, newUserCallback, loginFailCallback)
             }
         }
     }
 
-    private fun login(signedUserCallback: () -> Unit, newUserCallback: () -> Unit) {
+    private fun login(signedUserCallback: () -> Unit, newUserCallback: () -> Unit, loginFailCallback: () -> Unit) {
         viewModelScope.launch {
             userUseCase.login().onSuccess {
                 if (it.isNewUser == "Y") {
@@ -91,7 +91,8 @@ class LoginViewModel @Inject constructor(
                     signedUserCallback()
                 }
             }.onFailure {
-                showLoginFailed(it.message)
+                logout()
+                loginFailCallback()
             }
         }
     }
@@ -109,7 +110,7 @@ class LoginViewModel @Inject constructor(
             user.getIdToken(false).addOnSuccessListener {
                 val token = it.token
                 if (token != null) {
-                    login(signedUserCallback, newUserCallback)
+                    login(signedUserCallback, newUserCallback, notLoggedInCallback)
                 }
             }
         } else {

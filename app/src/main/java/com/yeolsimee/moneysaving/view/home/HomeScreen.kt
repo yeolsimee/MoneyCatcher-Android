@@ -139,7 +139,7 @@ fun HomeScreen(
                     Spacer(Modifier.height(getReactiveHeight(200)))
                 } else if (routinesOfDayState.isNotLoading()) {
                     RoutineItems(
-                        todayState = selected.value.isToday(),
+                        isToday = selected.value.isToday(),
                         selectedDate = selected.value,
                         routinesOfDayState = routinesOfDayState,
                         onItemClick = onItemClick,
