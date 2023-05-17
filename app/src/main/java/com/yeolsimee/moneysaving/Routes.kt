@@ -11,7 +11,4 @@ sealed class BottomNavItem(
     object MyPage :
         BottomNavItem("내 정보", R.drawable.icon_mypage_off, R.drawable.icon_mypage_on, "MyPage")
 
-    object UpdateCategory :
-        BottomNavItem("내 정보", R.drawable.icon_mypage_off, R.drawable.icon_mypage_on, "UpdateCategory")
-
 }

@@ -56,6 +56,7 @@ class NotificationHelper(context: Context?): ContextWrapper(context)  {
         return NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(message)
+            .setColor(Color.BLACK)
             .setSmallIcon(R.drawable.ic_notification)
             .setLargeIcon(Icon.createWithResource(applicationContext, R.mipmap.ic_launcher_rounded))
             .setContentIntent(pendingIntent)

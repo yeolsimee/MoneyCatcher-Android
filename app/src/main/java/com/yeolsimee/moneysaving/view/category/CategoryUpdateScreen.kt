@@ -186,7 +186,7 @@ fun CategoryUpdateScreen(
 
     if (sideEffect.value == ApiCallSideEffect.Empty) {
         Box {
-            EmptyRoutine()
+            EmptyRoutine(hasSubText = false)
         }
     }
 }

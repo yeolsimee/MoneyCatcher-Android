@@ -4,7 +4,10 @@ import android.util.Log
 import java.util.*
 
 fun Calendar.isToday(): Boolean {
-    return Calendar.getInstance() == this
+    val todayCalendar = Calendar.getInstance()
+    return todayCalendar.get(Calendar.YEAR) == this.get(Calendar.YEAR)
+            && todayCalendar.get(Calendar.MONTH) == this.get(Calendar.MONTH)
+            && todayCalendar.get(Calendar.DAY_OF_MONTH) == this.get(Calendar.DAY_OF_MONTH)
 }
 
 fun Calendar.isNotPast(): Boolean {
