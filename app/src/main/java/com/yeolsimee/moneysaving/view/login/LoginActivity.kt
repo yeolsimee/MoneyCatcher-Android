@@ -49,7 +49,8 @@ class LoginActivity : ComponentActivity() {
             LoginScreen(
                 onNaverLogin = {
                     loadingState.value = true
-                    val loginResult = loginViewModel.naverLogin(applicationContext, naverLoginLauncher)
+                    val loginResult =
+                        loginViewModel.naverLogin(applicationContext, naverLoginLauncher)
                     if (!loginResult) loadingState.value = false
                 },
                 onGoogleLogin = {
@@ -59,9 +60,11 @@ class LoginActivity : ComponentActivity() {
                     loadingState.value = true
                     loginViewModel.appleLogin(
                         this@LoginActivity,
-                        loadingState,
-                        { moveToMainActivity() },
-                        { moveToAgreementActivity() })
+                        loadingState = loadingState,
+                        signedUserCallback = { moveToMainActivity() },
+                        newUserCallback = { moveToAgreementActivity() },
+                        loginFailCallback = { loadingState.value = false },
+                    )
                 },
                 onEmailButtonClick = {
                     val intent = Intent(this@LoginActivity, EmailLoginActivity::class.java)
@@ -111,8 +114,10 @@ class LoginActivity : ComponentActivity() {
                 if (it.resultCode == RESULT_OK) {
                     loginViewModel.naverInit(
                         result = it,
-                        { moveToMainActivity() }
-                    ) { moveToAgreementActivity() }
+                        signedUserCallback = { moveToMainActivity() },
+                        newUserCallback = { moveToAgreementActivity() },
+                        loginFailCallback = { loadingState.value = false },
+                    )
                 } else {
                     loadingState.value = false
                 }
@@ -122,8 +127,10 @@ class LoginActivity : ComponentActivity() {
     private fun initGoogleLogin() {
         loginViewModel.init(
             this@LoginActivity,
-            { moveToMainActivity() },
-            { moveToAgreementActivity() })
+            signedUserCallback = { moveToMainActivity() },
+            newUserCallback = { moveToAgreementActivity() },
+            loginFailCallback = { loadingState.value = false },
+        )
         googleLoginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == RESULT_OK) {

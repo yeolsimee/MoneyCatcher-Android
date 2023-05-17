@@ -15,7 +15,7 @@ class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiR
         val response = flow { emit(api.getCategoryList()) }.single()
         val result = response.body()
 
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data.map { it.toTextItem() }.toMutableList())
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -26,7 +26,7 @@ class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiR
         val response = flow { emit(api.addCategory(CategoryNameRequest(name))) }.single()
         val result = response.body()
 
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(result.data.toTextItem())
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -43,7 +43,7 @@ class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiR
         }.single()
         val result = response.body()
 
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(true)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
@@ -53,7 +53,7 @@ class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiR
     override suspend fun update(category: TextItem): Result<Any> {
         val response = flow { emit(api.updateCategory(CategoryEntity.fromTextItem(category))) }.single()
         val result = response.body()
-        return if (result != null && result.success) {
+        return if (result != null && result.hasData()) {
             Result.success(true)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
