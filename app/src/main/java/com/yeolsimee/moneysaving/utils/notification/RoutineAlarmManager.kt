@@ -43,7 +43,7 @@ class RoutineAlarmManager {
                 val pIntent = makeAlarmPendingIntent(context, alarmId, intent)
                 val alarmManager = getAlarmManager(context)
 
-                Log.i(
+                Log.d(
                     App.TAG,
                     "Setting Routine Alarm: ${
                         SimpleDateFormat.getInstance().format(triggerTime.time)
@@ -82,7 +82,7 @@ class RoutineAlarmManager {
             val pIntent = makeAlarmPendingIntent(context, alarm.alarmId, intent)
             val alarmManager = getAlarmManager(context)
 
-            Log.i(
+            Log.d(
                 App.TAG,
                 "Setting Routine Alarm: ${
                     SimpleDateFormat.getInstance().format(triggerTime.time)
@@ -108,12 +108,9 @@ class RoutineAlarmManager {
             triggerTime.set(Calendar.HOUR_OF_DAY, 23)
             triggerTime.set(Calendar.MINUTE, 0)
             triggerTime.set(Calendar.SECOND, 0)
-            if (triggerTime.timeInMillis < System.currentTimeMillis()) {
-                triggerTime.add(Calendar.DAY_OF_YEAR, 1)
-            }
 
-            Log.i(App.TAG, "time: ${SimpleDateFormat.getInstance().format(triggerTime.time)}")
-            val pIntent = makeAlarmPendingIntent(context, 11111111, intent)
+            Log.d(App.TAG, "time: ${SimpleDateFormat.getInstance().format(triggerTime.time)}")
+            val pIntent = makeAlarmPendingIntent(context, 1100, intent)
             alarmManager.setRepeating(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime.timeInMillis,
@@ -146,7 +143,7 @@ class RoutineAlarmManager {
             val pIntent = makeAlarmPendingIntent(context, routineId, intent)
             val alarmManager = getAlarmManager(context)
 
-            Log.i(
+            Log.d(
                 App.TAG,
                 "Setting Routine Alarm: ${
                     SimpleDateFormat.getInstance().format(triggerTime.time)
@@ -161,13 +158,6 @@ class RoutineAlarmManager {
             return true
         }
 
-
-        fun cancelDailyNotification(context: Context) {
-            val intent = getRoutineAlarmIntent(context)
-            val pIntent = makeAlarmPendingIntent(context, 11111111, intent)
-            val alarmManager = getAlarmManager(context)
-            alarmManager.cancel(pIntent)
-        }
 
         private fun getTriggerTime(
             dayOfWeek: Int = -1,

@@ -49,6 +49,11 @@ fun MyPageScreen(
             .background(Color.White)
     ) {
         Column {
+            Image(
+                painter = painterResource(id = R.drawable.app_logo),
+                contentDescription = "ROUMO",
+                modifier = Modifier.padding(horizontal = 28.dp, vertical = 4.dp)
+            )
             MoveListItem("카테고리 수정") { onMoveToCategoryUpdateScreen() }
             Divider(thickness = 1.5.dp, color = GrayF0)
             AlarmItem(alarmState) {
@@ -173,4 +178,12 @@ fun AlarmItemPreview() {
             mutableStateOf(true)
         })
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyPageScreenPreview() {
+    MyPageScreen(
+        alarmState = remember { mutableStateOf(true) }
+    )
 }

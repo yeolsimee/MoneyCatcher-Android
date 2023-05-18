@@ -34,6 +34,7 @@ class DeviceBootReceiver : BroadcastReceiver() {
                         alarm
                     )
                 }
+                RoutineAlarmManager.setDailyNotification(context)
             }
         }
     }
