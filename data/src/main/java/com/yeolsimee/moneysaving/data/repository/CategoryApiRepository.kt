@@ -43,7 +43,7 @@ class CategoryApiRepository(private val api: CategoryApiService) : ICategoryApiR
         }.single()
         val result = response.body()
 
-        return if (result != null && result.hasData()) {
+        return if (result != null && result.code == 0) {
             Result.success(true)
         } else {
             Result.failure(ApiException(response.code(), result?.message))
