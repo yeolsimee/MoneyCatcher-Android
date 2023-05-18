@@ -201,7 +201,7 @@ class MainActivity : ComponentActivity() {
                                         myPageViewModel.changeAlarmState()
                                         CoroutineScope(Dispatchers.Main).launch {
                                             val text =
-                                                if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
+                                                if (alarmState.value) "알림이 해제되었어요!" else "알림이 설정되었어요!"
                                             snackbarState.showSnackbar(text)
                                         }
                                     }
