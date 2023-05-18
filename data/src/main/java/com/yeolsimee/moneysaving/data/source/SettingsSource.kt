@@ -8,7 +8,6 @@ import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
@@ -16,10 +15,11 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
 
     private object PreferencesKeys {
         val ALARM_STATE = booleanPreferencesKey("alarm_state")
+        val FIRST_USING_STATE = booleanPreferencesKey("first_using_state")
     }
 
     suspend fun getAlarmState(callback: (Boolean) -> Unit) {
-        dataStoreService.getDataStore().data.collectLatest { preferences ->
+        dataStoreService.getDataStore().edit { preferences ->
             callback(preferences[PreferencesKeys.ALARM_STATE] ?: false)
         }
     }
@@ -80,6 +80,14 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
                 preferences[booleanPreferencesKey(afterAlarmTime)] = true
             }
             emit(true)
+        }
+    }
+
+    suspend fun isFirstInstall(callback: (Boolean) -> Unit) {
+        dataStoreService.getDataStore().edit {
+            val current = it[PreferencesKeys.FIRST_USING_STATE] ?: true
+            it[PreferencesKeys.FIRST_USING_STATE] = false
+            callback(current)
         }
     }
 }
