@@ -32,14 +32,17 @@ class NotificationReceiver : BroadcastReceiver() {
                 val alarmTime = intent.getStringExtra("alarmTime") ?: ""
                 Log.i(App.TAG, "saved alarm time: $alarmTime")
                 settingsRepository.getAlarmState {
-                    if (it) {
-                        settingsRepository.getUnCheckedRoutine(alarmTime) { unchecked ->
-                            if (unchecked) {
-                                Log.i(App.TAG, "alarm not checked: $alarmTime")
-                                val routineName = intent.getStringExtra("routineName") ?: ""
-                                val nb = notificationHelper.getChannelNotification("ROUMO", routineName, context)
-                                notificationHelper.getManager().notify(createID(), nb.build())
-                            }
+                    if (!it) return@getAlarmState
+                    settingsRepository.getUnCheckedRoutine(alarmTime) { unchecked ->
+                        if (unchecked) {
+                            Log.i(App.TAG, "alarm not checked: $alarmTime")
+                            val routineName = intent.getStringExtra("routineName") ?: ""
+                            val nb = notificationHelper.getChannelNotification(
+                                "ROUMO",
+                                routineName,
+                                context
+                            )
+                            notificationHelper.getManager().notify(createID(), nb.build())
                         }
                     }
                 }
