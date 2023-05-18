@@ -126,7 +126,6 @@ class RoutineActivity : ComponentActivity() {
                     req.routineName
                 )
             }
-            alarmViewModel.setDailyAlarm(this@RoutineActivity)
         } else {
             RoutineAlarmManager.setToday(
                 context = this@RoutineActivity,

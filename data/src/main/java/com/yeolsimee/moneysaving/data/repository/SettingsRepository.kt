@@ -14,4 +14,5 @@ class SettingsRepository(
 
     fun getUnCheckedRoutine(alarmTime: String, callback: (Boolean) -> Unit) = settingsSource.getUnCheckedRoutine(alarmTime, callback)
     fun updateCheckRoutineAlarm(beforeAlarmTime: String, afterAlarmTime: String) = settingsSource.updateCheckRoutineAlarm(beforeAlarmTime, afterAlarmTime)
+    suspend fun isFirstInstall(callback: (Boolean) -> Unit) = settingsSource.isFirstInstall(callback)
 }
