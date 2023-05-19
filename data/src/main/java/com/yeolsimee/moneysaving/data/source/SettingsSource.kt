@@ -40,6 +40,13 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
         }
     }
 
+    suspend fun setAlarmOff(callback: (changedState: Boolean) -> Unit) {
+        dataStoreService.getDataStore().edit { preferences ->
+            preferences[PreferencesKeys.ALARM_STATE] = false
+            callback(false)
+        }
+    }
+
     fun setAlarmOffOnce(routine: Routine) = flow {
         val time = routine.alarmTimeHour + routine.alarmTimeMinute
         dataStoreService.getDataStore().edit { preferences ->

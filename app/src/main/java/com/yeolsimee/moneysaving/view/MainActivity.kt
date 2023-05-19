@@ -33,6 +33,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -55,12 +57,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.ui.MyPageRouteCode
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
-import com.yeolsimee.moneysaving.utils.checkNotificationPermission
 import com.yeolsimee.moneysaving.utils.executeForTimeMillis
+import com.yeolsimee.moneysaving.utils.hasNotificationPermission
+import com.yeolsimee.moneysaving.utils.requestNotificationPermission
 import com.yeolsimee.moneysaving.view.category.CategoryUpdateActivity
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
@@ -90,6 +94,8 @@ class MainActivity : ComponentActivity() {
     private val calendarViewModel: CalendarViewModel by viewModels()
     private val selectedDateViewModel: SelectedDateViewModel by viewModels()
     private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
+    private val myPageViewModel: MyPageViewModel by viewModels()
+    private val navigator = Navigator()
 
     private val routineActivityLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -97,6 +103,8 @@ class MainActivity : ComponentActivity() {
                 findAllMyRoutineViewModel.refresh {
                     selectedDateViewModel.find(calendarViewModel.today)
                 }
+            } else if (result.resultCode == MyPageRouteCode) {
+                 navigator.navigate(BottomNavItem.MyPage)
             }
         }
 
@@ -159,6 +167,14 @@ class MainActivity : ComponentActivity() {
             calendarViewModel.getFirstAndLastDate(dayList), today.month, dayList
         )
 
+
+        val destination by navigator.destination.collectAsState()
+        LaunchedEffect(destination) {
+            if (navController.currentDestination?.route != destination.screenRoute) {
+                navigateTo(navController, destination)
+            }
+        }
+
         Scaffold(content = {
             Box(
                 Modifier
@@ -192,14 +208,13 @@ class MainActivity : ComponentActivity() {
                         RecommendScreen()
                     }
                     composable(BottomNavItem.MyPage.screenRoute) {
-                        val myPageViewModel: MyPageViewModel = hiltViewModel()
                         floatingButtonVisible.value = false
 
                         val alarmState = myPageViewModel.alarmState.observeAsState(false)
 
                         val scope = rememberCoroutineScope()
                         MyPageScreen(alarmState = alarmState, onChangeAlarmState = {
-                            if (checkNotificationPermission(permissionLauncher)) {
+                            if (hasNotificationPermission()) {
                                 myPageViewModel.changeAlarmState()
                                 executeForTimeMillis(scope, 1000) {
                                     snackbarState.showSnackbar(
@@ -207,6 +222,8 @@ class MainActivity : ComponentActivity() {
                                         duration = SnackbarDuration.Short
                                     )
                                 }
+                            } else {
+                                requestNotificationPermission(permissionLauncher)
                             }
                         }, onMoveToCategoryUpdateScreen = {
                             categoryUpdateActivityLauncher.launch(
@@ -316,19 +333,28 @@ class MainActivity : ComponentActivity() {
                     },
                     selected = isSelected,
                     onClick = {
-                        navController.navigate(item.screenRoute) {
-                            navController.graph.startDestinationRoute?.let {
-                                popUpTo(it) { saveState = true }
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navigateTo(navController, item)
                     },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.White, indicatorColor = Color.Transparent
                     ),
                 )
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        myPageViewModel.getSettings(hasPermission = hasNotificationPermission())
+    }
+
+    fun navigateTo(navController: NavHostController, item: BottomNavItem) {
+        navController.navigate(item.screenRoute) {
+            navController.graph.startDestinationRoute?.let {
+                popUpTo(it) { saveState = true }
+            }
+            launchSingleTop = true
+            restoreState = true
         }
     }
 }
