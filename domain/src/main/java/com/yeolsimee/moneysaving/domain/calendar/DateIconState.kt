@@ -15,7 +15,7 @@ enum class DateIconState {
                 "BRONZE" -> {
                     Bronze
                 }
-                else -> {
+                else -> {   // NONE, YET
                     Empty
                 }
             }

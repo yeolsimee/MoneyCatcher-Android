@@ -11,12 +11,15 @@ data class RoutineAchievement(
         val (year, month, day) = getYearMonthDay()
         val isToday = isToday(year, month, day)
 
-        val iconState = if (selectedMonth < month || selectedMonth > month) {
+        // 과거 루틴은 기록이 있으니까 표시하고
+        val iconState = if (selectedMonth > month) {
             if (routineAchievement != "NONE") {
                 DateIconState.OtherMonth
             } else {
                 DateIconState.EmptyOtherMonth
             }
+        } else if (selectedMonth < month) {  // 미래는 무조건 안보이게
+            DateIconState.EmptyOtherMonth
         } else {
             if (isToday) {
                 DateIconState.Today

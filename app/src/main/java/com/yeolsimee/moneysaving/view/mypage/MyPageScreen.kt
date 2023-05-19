@@ -64,7 +64,7 @@ fun MyPageScreen(
             val agreementUrl = stringResource(R.string.agreement_url)
             val policyUrl = stringResource(R.string.policy_url)
 
-            MoveListItem("이용 약관") {
+            MoveListItem("서비스 이용 약관") {
                 openInternetBrowser(agreementUrl)
             }
             Divider(thickness = 1.5.dp, color = GrayF0)

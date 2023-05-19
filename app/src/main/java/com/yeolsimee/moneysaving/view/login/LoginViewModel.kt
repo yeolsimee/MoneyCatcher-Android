@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.auth.Apple
 import com.yeolsimee.moneysaving.auth.Google
@@ -140,8 +141,12 @@ class LoginViewModel @Inject constructor(
     }
 
     fun logout() {
-        Firebase.auth.signOut()
-        Naver.logout()
-        google.logout()
+        try {
+            Firebase.auth.signOut()
+            Naver.logout()
+            google.logout()
+        } catch (e: Exception) {
+            Firebase.crashlytics.log("${e.message} + logout exception")
+        }
     }
 }

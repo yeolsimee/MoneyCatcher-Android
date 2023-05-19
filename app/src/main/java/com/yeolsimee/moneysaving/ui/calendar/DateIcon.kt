@@ -64,7 +64,7 @@ fun RoundMoneyIcon(color: Color) {
     Box(
         Modifier
             .size(28.dp)
-            .border(width = 2.5.dp, color = Black17, shape = CircleShape)
+            .border(width = 2.dp, color = Black17, shape = CircleShape)
             .clip(CircleShape)
             .background(color)
     ) {
