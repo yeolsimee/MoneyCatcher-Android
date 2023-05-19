@@ -24,8 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,7 +64,7 @@ fun RoundMoneyIcon(color: Color) {
     Box(
         Modifier
             .size(28.dp)
-            .border(width = 2.5.dp, color = Black17, shape = CircleShape)
+            .border(width = 2.dp, color = Black17, shape = CircleShape)
             .clip(CircleShape)
             .background(color)
     ) {
@@ -91,7 +90,7 @@ fun EmptyMoneyIcon() {
 @Composable
 fun TodayIcon() {
     Image(
-        imageVector = ImageVector.vectorResource(id = R.drawable.image_today),
+        painter = painterResource(id = R.drawable.image_today),
         contentDescription = "오늘"
     )
 }

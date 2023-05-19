@@ -97,6 +97,7 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, onConfirmClick: (Strin
                         TextButton(onClick = {
                             dialogState.value = false
                             onConfirmClick(categoryName.value)
+                            categoryName.value = ""
                         }) {
                             PrText(
                                 text = "확인",

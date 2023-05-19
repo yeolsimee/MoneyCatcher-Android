@@ -39,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
-import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
@@ -55,15 +54,15 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RoutineItems(
-    isToday: Boolean,
-    selectedDate: CalendarDay,
     routinesOfDayState: RoutinesOfDay,
     onItemClick: (String, String) -> Unit = { _, _ -> },
     onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
     onItemDelete: (Routine) -> Unit = {},
 ) {
+    val isToday = routinesOfDayState.isToday()
+    val isNotPast = routinesOfDayState.isNotPast()
     val categories = routinesOfDayState.categoryDatas
-    val date = selectedDate.toString()
+    val date = routinesOfDayState.getDate()
     val cantEditDialogState = remember { mutableStateOf(false) }
     Spacer(Modifier.height(18.dp))
 
@@ -81,7 +80,7 @@ fun RoutineItems(
 
                 val deleteDialogState = remember { mutableStateOf(false) }
 
-                val swipeState = setRoutineSwipeState(selectedDate, routine, cantEditDialogState) {
+                val swipeState = setRoutineSwipeState(isNotPast, routine, cantEditDialogState) {
                     deleteDialogState.value = true
                 }
 
@@ -118,7 +117,7 @@ fun RoutineItems(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
-                                        if (selectedDate.isNotPast()) {
+                                        if (isNotPast) {
                                             onItemClick(routine.routineId, category.categoryId)
                                         } else {
                                             cantEditDialogState.value = true
@@ -202,14 +201,14 @@ fun RoutineItems(
 
 @Composable
 private fun setRoutineSwipeState(
-    selectedDate: CalendarDay,
+    isNotPast: Boolean,
     routine: Routine,
     cantEditDialogState: MutableState<Boolean>,
     onItemDelete: (Routine) -> Unit,
 ) = rememberDismissState(
     confirmValueChange = { dismissValue ->
         if (dismissValue == DismissValue.DismissedToStart) {
-            if (selectedDate.isNotPast()) {
+            if (isNotPast) {
                 onItemDelete(routine)
             } else {
                 cantEditDialogState.value = true
@@ -225,10 +224,8 @@ fun RoutineItemPreview() {
     RoumoTheme {
         Box(modifier = Modifier.padding(10.dp)) {
             RoutineItems(
-                isToday = true,
-                selectedDate = CalendarDay(2023, 5, 2),
                 routinesOfDayState = RoutinesOfDay(
-                    routineDay = "20230424",
+                    routineDay = "20230519",
                     categoryDatas = arrayOf(
                         CategoryWithRoutines(
                             categoryId = "1",

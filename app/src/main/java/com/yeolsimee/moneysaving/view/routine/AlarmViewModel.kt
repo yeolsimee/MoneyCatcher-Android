@@ -28,6 +28,14 @@ class AlarmViewModel @Inject constructor(private val alarmDao: AlarmDao, private
         alarmDao.delete(alarmId)
     }
 
+    fun getAlarmState(callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            settingsRepository.getAlarmState {
+                callback(it)
+            }
+        }
+    }
+
     fun setAlarmOn() {
         viewModelScope.launch {
             settingsRepository.setAlarmOn().collect()

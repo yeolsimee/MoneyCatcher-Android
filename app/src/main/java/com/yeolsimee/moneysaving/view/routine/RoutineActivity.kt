@@ -4,7 +4,6 @@ package com.yeolsimee.moneysaving.view.routine
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,12 +15,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.MutableLiveData
-import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
-import com.yeolsimee.moneysaving.utils.checkNotificationPermission
+import com.yeolsimee.moneysaving.ui.MyPageRouteCode
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
+import com.yeolsimee.moneysaving.utils.hasNotificationPermission
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
+import com.yeolsimee.moneysaving.utils.requestNotificationPermission
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -53,6 +53,7 @@ class RoutineActivity : ComponentActivity() {
             val routine = getRoutineViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
                     initial = RoutineResponse()
                 ).value
+            val notificationCheckDialogState = remember { mutableStateOf(false) }
 
             if (routine.isEmpty() && routineType == RoutineModifyOption.Update) {
                 RoutineScreen()
@@ -62,6 +63,7 @@ class RoutineActivity : ComponentActivity() {
                     routineType = routineType,
                     categoryList = categoryViewModel.container.stateFlow.collectAsState().value,
                     selectedCategoryId = selectedCategoryId,
+                    notificationCheckDialogState = notificationCheckDialogState,
                     closeCallback = {
                         finish()
                     },
@@ -73,7 +75,7 @@ class RoutineActivity : ComponentActivity() {
                                     setRoutineAlarm(hasWeekTypes, req, id)
                                 },
                                 onFinishCallback = {
-                                    sendResultAndFinish()
+                                    sendResultAndFinish(RESULT_OK)
                                 }
                             )
                         } else {
@@ -90,16 +92,19 @@ class RoutineActivity : ComponentActivity() {
                                     }
                                 },
                                 onFinishCallback = {
-                                    sendResultAndFinish()
+                                    sendResultAndFinish(RESULT_OK)
                                 }
                             )
                         }
                     },
                     toggleRoutineAlarm = { alarmState ->
-                        setAlarmOnIfHasPermission(alarmState)
+                        setAlarmOnIfHasPermission(alarmState, notificationCheckDialogState)
                     },
                     onCategoryAdded =  {
                         categoryViewModel.addCategory(it)
+                    },
+                    onCheckNotificationSetting = {
+                        sendResultAndFinish(MyPageRouteCode)
                     }
                 )
             }
@@ -136,17 +141,28 @@ class RoutineActivity : ComponentActivity() {
         }
     }
 
-    private fun setAlarmOnIfHasPermission(alarmState: MutableState<Boolean>) {
-        hasNotificationPermission.observe(this) { hasPermission ->
-            if (checkNotificationPermission(requestPermissionLauncher)) {
-                alarmState.value = !alarmState.value
-                if (alarmState.value) alarmViewModel.setAlarmOn()
+    private fun setAlarmOnIfHasPermission(
+        alarmState: MutableState<Boolean>,
+        notificationCheckDialogState: MutableState<Boolean>
+    ) {
+        hasNotificationPermission.observe(this) {
+            if (hasNotificationPermission()) {
+                alarmViewModel.getAlarmState {
+                    if (it) {
+                        alarmState.value = !alarmState.value
+                        if (alarmState.value) alarmViewModel.setAlarmOn()
+                    } else {
+                        notificationCheckDialogState.value = true
+                    }
+                }
+            } else {
+                requestNotificationPermission(requestPermissionLauncher)
             }
         }
     }
 
-    private fun sendResultAndFinish() {
-        setResult(RESULT_OK)
+    private fun sendResultAndFinish(code: Int) {
+        setResult(code)
         finish()
     }
 
@@ -162,10 +178,8 @@ class RoutineActivity : ComponentActivity() {
     ) { isGranted: Boolean ->
         if (isGranted) {
             hasNotificationPermission.postValue(true)
-            Log.i(App.TAG, "Notification Permission Granted")
         } else {
             hasNotificationPermission.postValue(false)
-            Log.i(App.TAG, "Notification Permission Not Granted")
         }
     }
 }

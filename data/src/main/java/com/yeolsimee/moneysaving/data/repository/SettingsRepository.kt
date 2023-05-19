@@ -9,6 +9,7 @@ class SettingsRepository(
     suspend fun getAlarmState(callback: (Boolean) -> Unit) = settingsSource.getAlarmState(callback)
     fun toggleAlarmState() = settingsSource.toggleAlarmState()
     fun setAlarmOn() = settingsSource.setAlarmOn()
+    suspend fun setAlarmOff(callback: (changedState: Boolean) -> Unit) = settingsSource.setAlarmOff(callback)
     fun setAlarmOffOnce(routine: Routine) = settingsSource.setAlarmOffOnce(routine)
     fun setAlarmOn(routine: Routine) = settingsSource.setAlarmOn(routine)
 

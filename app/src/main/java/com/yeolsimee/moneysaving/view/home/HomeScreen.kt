@@ -139,8 +139,6 @@ fun HomeScreen(
                     Spacer(Modifier.height(getReactiveHeight(200)))
                 } else if (routinesOfDayState.isNotLoading()) {
                     RoutineItems(
-                        isToday = selected.value.isToday(),
-                        selectedDate = selected.value,
                         routinesOfDayState = routinesOfDayState,
                         onItemClick = onItemClick,
                         onRoutineCheck = { check, routine ->
@@ -149,15 +147,14 @@ fun HomeScreen(
                                     routinesOfDay
                                 )
                             }
-                        },
-                        onItemDelete = {
-                            routineDeleteViewModel.delete(it.routineId) {
-                                findAllMyRoutineViewModel.refresh {
-                                    selectedDateViewModel.find(selected.value)
-                                }
+                        }
+                    ) {
+                        routineDeleteViewModel.delete(it.routineId) {
+                            findAllMyRoutineViewModel.refresh {
+                                selectedDateViewModel.find(selected.value)
                             }
                         }
-                    )
+                    }
                 }
             }
 

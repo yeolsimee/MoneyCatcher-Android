@@ -29,6 +29,7 @@ import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.ui.appbar.BottomButtonAppBar
 import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
+import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
@@ -45,10 +46,12 @@ fun RoutineScreen(
     routineType: RoutineModifyOption? = RoutineModifyOption.Update,
     categoryList: MutableList<TextItem> = mutableListOf(),
     selectedCategoryId: MutableState<String> = remember { mutableStateOf("") },
+    notificationCheckDialogState: MutableState<Boolean> = remember { mutableStateOf(false) },
     closeCallback: () -> Unit = {},
     onCompleteCallback: (req: RoutineRequest, hasWeekTypes: Boolean) -> Unit = { _, _ -> },
     toggleRoutineAlarm: (MutableState<Boolean>) -> Unit = {},
     onCategoryAdded: (String) -> Unit = {},
+    onCheckNotificationSetting: () -> Unit = {}
 ) {
     val buttonState = remember { mutableStateOf(false) }
 
@@ -139,6 +142,15 @@ fun RoutineScreen(
                     SettingAlarmTime(alarmState, hourState, minuteState, toggleRoutineAlarm)
                 }
             }
+        }
+        if (notificationCheckDialogState.value) {
+            TwoButtonOneTitleDialog(
+                dialogState = notificationCheckDialogState,
+                text = "알림 설정에서 \n" +
+                    "알림 전체 OFF를 한 경우 \n" +
+                    "알림을 받을 수 없습니다.",
+                onConfirmClick = { onCheckNotificationSetting() }
+            )
         }
     }
 }

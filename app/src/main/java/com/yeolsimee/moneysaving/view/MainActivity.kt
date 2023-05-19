@@ -30,12 +30,16 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,11 +57,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.ui.MyPageRouteCode
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
-import com.yeolsimee.moneysaving.utils.checkNotificationPermission
+import com.yeolsimee.moneysaving.utils.executeForTimeMillis
+import com.yeolsimee.moneysaving.utils.hasNotificationPermission
+import com.yeolsimee.moneysaving.utils.requestNotificationPermission
 import com.yeolsimee.moneysaving.view.category.CategoryUpdateActivity
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
@@ -87,6 +94,8 @@ class MainActivity : ComponentActivity() {
     private val calendarViewModel: CalendarViewModel by viewModels()
     private val selectedDateViewModel: SelectedDateViewModel by viewModels()
     private val findAllMyRoutineViewModel: FindAllMyRoutineViewModel by viewModels()
+    private val myPageViewModel: MyPageViewModel by viewModels()
+    private val navigator = Navigator()
 
     private val routineActivityLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -94,6 +103,8 @@ class MainActivity : ComponentActivity() {
                 findAllMyRoutineViewModel.refresh {
                     selectedDateViewModel.find(calendarViewModel.today)
                 }
+            } else if (result.resultCode == MyPageRouteCode) {
+                 navigator.navigate(BottomNavItem.MyPage)
             }
         }
 
@@ -120,13 +131,17 @@ class MainActivity : ComponentActivity() {
                 MainScreenView(snackbarState)
             }
 
+            val scope = rememberCoroutineScope()
+
             callback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (pressedTime + 2000 > System.currentTimeMillis()) {
                         finishAffinity()
                     } else {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            snackbarState.showSnackbar("한번 더 누르면 종료")
+                        executeForTimeMillis(scope, 500) {
+                            snackbarState.showSnackbar(
+                                "한번 더 누르면 종료", duration = SnackbarDuration.Indefinite
+                            )
                         }
                     }
                     pressedTime = System.currentTimeMillis()
@@ -149,133 +164,125 @@ class MainActivity : ComponentActivity() {
         val dayList = calendarViewModel.dayList.value!!
 
         findAllMyRoutineViewModel.find(
-            calendarViewModel.getFirstAndLastDate(dayList),
-            today.month,
-            dayList
+            calendarViewModel.getFirstAndLastDate(dayList), today.month, dayList
         )
 
-        Scaffold(
-            content = {
-                Box(
-                    Modifier
-                        .padding(it)
-                        .background(Color.White)
+
+        val destination by navigator.destination.collectAsState()
+        LaunchedEffect(destination) {
+            if (navController.currentDestination?.route != destination.screenRoute) {
+                navigateTo(navController, destination)
+            }
+        }
+
+        Scaffold(content = {
+            Box(
+                Modifier
+                    .padding(it)
+                    .background(Color.White)
+            ) {
+                NavHost(
+                    navController = navController, startDestination = BottomNavItem.Home.screenRoute
                 ) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = BottomNavItem.Home.screenRoute
-                    ) {
-                        composable(BottomNavItem.Home.screenRoute) {
-                            floatingButtonVisible.value = true
+                    composable(BottomNavItem.Home.screenRoute) {
+                        floatingButtonVisible.value = true
 
-                            HomeScreen(
-                                calendarViewModel = calendarViewModel,
-                                selectedDateViewModel = selectedDateViewModel,
-                                findAllMyRoutineViewModel = findAllMyRoutineViewModel,
-                                routineCheckViewModel = routineCheckViewModel,
-                                routineDeleteViewModel = routineDeleteViewModel,
-                                floatingButtonVisible = floatingButtonVisible
-                            ) { routineId, categoryId ->
-                                val intent = Intent(this@MainActivity, RoutineActivity::class.java)
-                                intent.putExtra("routineId", routineId)
-                                intent.putExtra("routineType", RoutineModifyOption.Update)
-                                intent.putExtra("categoryId", categoryId)
-                                routineActivityLauncher.launch(intent)
-                            }
-                            CustomSnackBarHost(snackbarState)
+                        HomeScreen(
+                            calendarViewModel = calendarViewModel,
+                            selectedDateViewModel = selectedDateViewModel,
+                            findAllMyRoutineViewModel = findAllMyRoutineViewModel,
+                            routineCheckViewModel = routineCheckViewModel,
+                            routineDeleteViewModel = routineDeleteViewModel,
+                            floatingButtonVisible = floatingButtonVisible
+                        ) { routineId, categoryId ->
+                            val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                            intent.putExtra("routineId", routineId)
+                            intent.putExtra("routineType", RoutineModifyOption.Update)
+                            intent.putExtra("categoryId", categoryId)
+                            routineActivityLauncher.launch(intent)
                         }
-                        composable(BottomNavItem.Recommend.screenRoute) {
-                            floatingButtonVisible.value = false
-                            RecommendScreen()
-                        }
-                        composable(BottomNavItem.MyPage.screenRoute) {
-                            val myPageViewModel: MyPageViewModel = hiltViewModel()
-                            floatingButtonVisible.value = false
+                        CustomSnackBarHost(snackbarState)
+                    }
+                    composable(BottomNavItem.Recommend.screenRoute) {
+                        floatingButtonVisible.value = false
+                        RecommendScreen()
+                    }
+                    composable(BottomNavItem.MyPage.screenRoute) {
+                        floatingButtonVisible.value = false
 
-                            val alarmState = myPageViewModel.alarmState.observeAsState(false)
+                        val alarmState = myPageViewModel.alarmState.observeAsState(false)
 
-                            MyPageScreen(
-                                alarmState = alarmState,
-                                onChangeAlarmState = {
-                                    if (checkNotificationPermission(permissionLauncher)) {
-                                        myPageViewModel.changeAlarmState()
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            val text =
-                                                if (alarmState.value) "알람이 해제되었어요!" else "알람이 설정되었어요!"
-                                            snackbarState.showSnackbar(text)
-                                        }
-                                    }
-                                },
-                                onMoveToCategoryUpdateScreen = {
-                                    categoryUpdateActivityLauncher.launch(
-                                        Intent(
-                                            this@MainActivity,
-                                            CategoryUpdateActivity::class.java
-                                        )
-                                    )
-                                },
-                                onLogout = {
-                                    CoroutineScope(Dispatchers.Default).launch {
-                                        myPageViewModel.logoutAndCancelAlarms(this@MainActivity) {
-                                            val intent = Intent(
-                                                this@MainActivity,
-                                                LoginActivity::class.java
-                                            )
-                                            startActivity(intent)
-                                            finishAffinity()
-                                        }
-                                    }
-                                },
-                                onWithdraw = {
-                                    myPageViewModel.withdraw(this@MainActivity) {
-                                        val intent =
-                                            Intent(this@MainActivity, LoginActivity::class.java)
-                                        startActivity(intent)
-                                        finishAffinity()
-                                    }
-                                },
-                                openInternetBrowser = { url ->
-                                    startActivity(
-                                        Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        val scope = rememberCoroutineScope()
+                        MyPageScreen(alarmState = alarmState, onChangeAlarmState = {
+                            if (hasNotificationPermission()) {
+                                myPageViewModel.changeAlarmState()
+                                executeForTimeMillis(scope, 1000) {
+                                    snackbarState.showSnackbar(
+                                        message = if (alarmState.value) "알림이 해제되었어요!" else "알림이 설정되었어요!",
+                                        duration = SnackbarDuration.Short
                                     )
                                 }
+                            } else {
+                                requestNotificationPermission(permissionLauncher)
+                            }
+                        }, onMoveToCategoryUpdateScreen = {
+                            categoryUpdateActivityLauncher.launch(
+                                Intent(
+                                    this@MainActivity, CategoryUpdateActivity::class.java
+                                )
                             )
+                        }, onLogout = {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                myPageViewModel.logoutAndCancelAlarms(this@MainActivity) {
+                                    val intent = Intent(
+                                        this@MainActivity, LoginActivity::class.java
+                                    )
+                                    startActivity(intent)
+                                    finishAffinity()
+                                }
+                            }
+                        }, onWithdraw = {
+                            myPageViewModel.withdraw(this@MainActivity) {
+                                val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                                startActivity(intent)
+                                finishAffinity()
+                            }
+                        }, openInternetBrowser = { url ->
+                            startActivity(
+                                Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            )
+                        })
 
-                            CustomSnackBarHost(snackbarState)
-                        }
+                        CustomSnackBarHost(snackbarState)
                     }
                 }
-            },
-            floatingActionButton = {
-                if (floatingButtonVisible.value) {
-                    FloatingActionButton(
-                        onClick = {
-                            val intent = Intent(this@MainActivity, RoutineActivity::class.java)
-                            intent.putExtra("routineType", RoutineModifyOption.Add)
-                            routineActivityLauncher.launch(intent)
-                        },
-                        containerColor = Color.Black,
-                        shape = CircleShape,
-                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                        modifier = Modifier.padding(end = 12.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.icon_plus),
-                            contentDescription = "루틴 추가"
-                        )
-                    }
+            }
+        }, floatingActionButton = {
+            if (floatingButtonVisible.value) {
+                FloatingActionButton(
+                    onClick = {
+                        val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                        intent.putExtra("routineType", RoutineModifyOption.Add)
+                        routineActivityLauncher.launch(intent)
+                    },
+                    containerColor = Color.Black,
+                    shape = CircleShape,
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                    modifier = Modifier.padding(end = 12.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_plus),
+                        contentDescription = "루틴 추가"
+                    )
                 }
-            },
-            bottomBar = { MainBottomNavigation(navController) }
-        )
+            }
+        }, bottomBar = { MainBottomNavigation(navController) })
     }
 
     @Composable
     fun MainBottomNavigation(navController: NavHostController) {
         val items = listOf(
-            BottomNavItem.Home,
-            BottomNavItem.Recommend,
-            BottomNavItem.MyPage
+            BottomNavItem.Home, BottomNavItem.Recommend, BottomNavItem.MyPage
         )
 
         NavigationBar(
@@ -326,20 +333,28 @@ class MainActivity : ComponentActivity() {
                     },
                     selected = isSelected,
                     onClick = {
-                        navController.navigate(item.screenRoute) {
-                            navController.graph.startDestinationRoute?.let {
-                                popUpTo(it) { saveState = true }
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navigateTo(navController, item)
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.White,
-                        indicatorColor = Color.Transparent
+                        selectedIconColor = Color.White, indicatorColor = Color.Transparent
                     ),
                 )
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        myPageViewModel.getSettings(hasPermission = hasNotificationPermission())
+    }
+
+    fun navigateTo(navController: NavHostController, item: BottomNavItem) {
+        navController.navigate(item.screenRoute) {
+            navController.graph.startDestinationRoute?.let {
+                popUpTo(it) { saveState = true }
+            }
+            launchSingleTop = true
+            restoreState = true
         }
     }
 }
