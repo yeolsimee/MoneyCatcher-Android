@@ -28,6 +28,7 @@ class MyPageViewModel @Inject constructor(
     val alarmState = MutableLiveData(false)
 
     fun getSettings(changedAlarmState: Boolean? = null, hasPermission: Boolean = false) {
+
         viewModelScope.launch {
             if (changedAlarmState != null) {
                 alarmState.value = changedAlarmState
