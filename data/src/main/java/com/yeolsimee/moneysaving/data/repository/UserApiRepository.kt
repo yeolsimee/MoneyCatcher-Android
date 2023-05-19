@@ -32,7 +32,7 @@ class UserApiRepository(private val source: UserSource): IUserApiRepository {
     override suspend fun withdraw(): Result<Boolean> {
         val response = source.withdraw().last()
         val result = response.body()
-        return if (result != null && result.hasData()) {
+        return if (result != null && result.code == 0) {
             Result.success(true)
         } else {
             Result.failure(ApiException(response.code(), result?.message))

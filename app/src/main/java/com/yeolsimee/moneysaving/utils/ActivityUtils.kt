@@ -8,17 +8,12 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
-import androidx.core.content.ContextCompat
+import androidx.core.app.ActivityCompat
 
-fun Activity.checkNotificationPermission(requestPermissionLauncher: ActivityResultLauncher<String>): Boolean {
+fun Activity.requestNotificationPermission(requestPermissionLauncher: ActivityResultLauncher<String>) {
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         when {
-            ContextCompat.checkSelfPermission(
-                this, Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                return true
-            }
-
             shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
                 // Responds to click on the action
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -34,6 +29,17 @@ fun Activity.checkNotificationPermission(requestPermissionLauncher: ActivityResu
                     Manifest.permission.POST_NOTIFICATIONS
                 )
             }
+        }
+    }
+}
+
+fun Activity.hasNotificationPermission(): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
         }
         return false
     }

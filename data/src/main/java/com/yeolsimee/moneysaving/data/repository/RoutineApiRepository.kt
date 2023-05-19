@@ -69,7 +69,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
     override suspend fun deleteRoutine(routineId: String): Result<Boolean> {
         val response = source.deleteRoutine(routineId).last()
         val result = response.body()
-        return if (result != null && result.hasData()) {
+        return if (result != null && result.code == 0) {
             Result.success(true)
         } else {
             Result.failure(ApiException(response.code(), result?.message))

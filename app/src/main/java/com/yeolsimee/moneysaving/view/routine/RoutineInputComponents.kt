@@ -238,10 +238,10 @@ fun SettingAlarmTime(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = R.drawable.image_alram),
-                    contentDescription = "알람"
+                    contentDescription = "알림"
                 )
                 Spacer(Modifier.width(4.dp))
-                PrText(text = "알람이 필요하세요?", fontWeight = FontWeight.W700, fontSize = 15.sp)
+                PrText(text = "알림이 필요하세요?", fontWeight = FontWeight.W700, fontSize = 15.sp)
             }
             if (alarmState.value) {
                 Image(

@@ -1,7 +1,7 @@
 package com.yeolsimee.moneysaving.domain.calendar
 
 import android.util.Log
-import java.util.*
+import java.util.Calendar
 
 fun Calendar.isToday(): Boolean {
     val todayCalendar = Calendar.getInstance()
@@ -19,6 +19,34 @@ fun isToday(year: Int, month: Int, day: Int): Boolean {
     return todayCalendar.get(Calendar.YEAR) == year
             && todayCalendar.get(Calendar.MONTH) == month - 1
             && todayCalendar.get(Calendar.DAY_OF_MONTH) == day
+}
+
+fun isTodayFromString(date: String?): Boolean {
+    if (date == null) return false
+    val year = date.substring(0, 4).toInt()
+    val month = date.substring(4, 6).toInt()
+    val day = date.substring(6, 8).toInt()
+
+    val todayCalendar = Calendar.getInstance()
+    return todayCalendar.get(Calendar.YEAR) == year
+            && todayCalendar.get(Calendar.MONTH) == month - 1
+            && todayCalendar.get(Calendar.DAY_OF_MONTH) == day
+}
+
+fun isNotPastFromString(date: String?): Boolean {
+    if (date == null) return false
+    val year = date.substring(0, 4).toInt()
+    val month = date.substring(4, 6).toInt()
+    val day = date.substring(6, 8).toInt()
+
+    val today = Calendar.getInstance()
+    val todayYear = today.get(Calendar.YEAR)
+    val todayMonth = today.get(Calendar.MONTH) + 1
+    val todayDay = today.get(Calendar.DAY_OF_MONTH)
+
+    return (todayYear == year && todayMonth == month && todayDay >= day) ||
+            (todayYear == year && todayMonth >= month) ||
+            (todayYear >= year)
 }
 
 fun Calendar.setNextDay(year: Int, month: Int) {

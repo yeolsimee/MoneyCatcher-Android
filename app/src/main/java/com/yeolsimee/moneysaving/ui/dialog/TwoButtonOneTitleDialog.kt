@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +29,7 @@ import com.yeolsimee.moneysaving.ui.theme.Gray66
 fun TwoButtonOneTitleDialog(
     dialogState: MutableState<Boolean>,
     text: String = "",
+    confirmText: String = "확인",
     onConfirmClick: () -> Unit = {},
     onCancelClick: () -> Unit = {}
 ) {
@@ -47,7 +49,8 @@ fun TwoButtonOneTitleDialog(
                         text = text,
                         fontWeight = FontWeight.W500,
                         fontSize = 14.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        textAlign = TextAlign.Start
                     )
                     Row(
                         horizontalArrangement = Arrangement.End,
@@ -71,7 +74,7 @@ fun TwoButtonOneTitleDialog(
                             onConfirmClick()
                         }) {
                             PrText(
-                                text = "확인",
+                                text = confirmText,
                                 color = Color.Black,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.W500
@@ -87,9 +90,17 @@ fun TwoButtonOneTitleDialog(
 @Preview(showBackground = true)
 @Composable
 fun TwoButtonOneTitleDialogPreview() {
+//    TwoButtonOneTitleDialog(
+//        dialogState = remember { mutableStateOf(true) },
+//        text = "해당 아이템을 삭제하시겠습니까?",
+//        onConfirmClick = {}
+//    )
     TwoButtonOneTitleDialog(
         dialogState = remember { mutableStateOf(true) },
-        text = "해당 아이템을 삭제하시겠습니까?",
-        onConfirmClick = {}
+        text = "알림 설정에서 \n" +
+                "알림 전체 OFF를 한 경우 \n" +
+                "알림을 받을 수 없습니다.",
+        confirmText = "알림설정으로 이동하기",
+        onConfirmClick = {  }
     )
 }
