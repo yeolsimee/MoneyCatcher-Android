@@ -1,8 +1,7 @@
-# ROUMO - 금융 습관 형성 앱 (Android)
+# Roumo - 성공적인 재테크를 위한 금융 루틴
 
-## CI/CD
-
-![CI/CD](CICD.png)
+## PlayStore
+Link: https://play.google.com/store/apps/details?id=com.yeolsimee.moneysaving
 
 ## Spec
 - API 24 ~ 33
@@ -13,3 +12,7 @@
 - orbit mvi
 - Hilt Dagger2
 - (계속 추가 예정)
+
+## CI/CD
+
+![CI/CD](CICD.png)
