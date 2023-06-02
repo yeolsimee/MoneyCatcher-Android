@@ -201,6 +201,21 @@ class RoutineAlarmManager {
             }
         }
 
+        fun delete(context: Context, routineId: Int) {
+            val alarmManager = getAlarmManager(context)
+
+            for (dayOfWeek in 1..7) {
+                val alarmId = getAlarmId(routineId, dayOfWeek)
+                alarmManager.cancel(
+                    makeAlarmPendingIntent(context, alarmId, getRoutineAlarmIntent(context))
+                )
+            }
+            // 하루만 설정된 알람이 있을 경우
+            alarmManager.cancel(
+                makeAlarmPendingIntent(context, routineId, getRoutineAlarmIntent(context))
+            )
+        }
+
         fun cancelAll(context: Context, alarmList: List<RoutineResponse>) {
             val alarmManager = getAlarmManager(context)
             for (alarm in alarmList) {

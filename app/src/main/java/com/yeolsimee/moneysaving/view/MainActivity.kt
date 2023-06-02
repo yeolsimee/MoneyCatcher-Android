@@ -64,6 +64,7 @@ import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.executeForTimeMillis
 import com.yeolsimee.moneysaving.utils.hasNotificationPermission
+import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import com.yeolsimee.moneysaving.utils.requestNotificationPermission
 import com.yeolsimee.moneysaving.view.category.CategoryUpdateActivity
 import com.yeolsimee.moneysaving.view.home.HomeScreen
@@ -193,14 +194,18 @@ class MainActivity : ComponentActivity() {
                             findAllMyRoutineViewModel = findAllMyRoutineViewModel,
                             routineCheckViewModel = routineCheckViewModel,
                             routineDeleteViewModel = routineDeleteViewModel,
-                            floatingButtonVisible = floatingButtonVisible
-                        ) { routineId, categoryId ->
-                            val intent = Intent(this@MainActivity, RoutineActivity::class.java)
-                            intent.putExtra("routineId", routineId)
-                            intent.putExtra("routineType", RoutineModifyOption.Update)
-                            intent.putExtra("categoryId", categoryId)
-                            routineActivityLauncher.launch(intent)
-                        }
+                            floatingButtonVisible = floatingButtonVisible,
+                            onItemClick = { routineId, categoryId ->
+                                val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                                intent.putExtra("routineId", routineId)
+                                intent.putExtra("routineType", RoutineModifyOption.Update)
+                                intent.putExtra("categoryId", categoryId)
+                                routineActivityLauncher.launch(intent)
+                            },
+                            onDelete = { routineId ->
+                                RoutineAlarmManager.delete(this@MainActivity, routineId)
+                            }
+                        )
                         CustomSnackBarHost(snackbarState)
                     }
                     composable(BottomNavItem.Recommend.screenRoute) {

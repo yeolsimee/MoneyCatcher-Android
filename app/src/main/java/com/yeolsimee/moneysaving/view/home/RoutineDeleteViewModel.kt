@@ -10,7 +10,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RoutineDeleteViewModel @Inject constructor(private val routineUseCase: RoutineUseCase) : ViewModel() {
 
-    fun delete(routineId: String, onSuccess: () -> Unit) {
+    fun delete(routineId: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
             routineUseCase.deleteRoutine(routineId).onSuccess {
                 onSuccess()

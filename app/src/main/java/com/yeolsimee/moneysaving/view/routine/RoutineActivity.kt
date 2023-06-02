@@ -41,7 +41,7 @@ class RoutineActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val routineType = getRoutineType()
-        val routineId = intent.getStringExtra("routineId") ?: ""
+        val routineId = intent.getIntExtra("routineId", 0)
         val categoryId = intent.getStringExtra("categoryId") ?: ""
 
         if (routineType == RoutineModifyOption.Update) {

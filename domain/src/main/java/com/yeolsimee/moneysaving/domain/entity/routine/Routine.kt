@@ -3,7 +3,7 @@ package com.yeolsimee.moneysaving.domain.entity.routine
 import java.io.Serializable
 
 data class Routine(
-    val routineId: String = "",
+    val routineId: Int = 0,
     val routineName: String = "",
     val routineCheckYN: String = "",
     val routineTimeZone: String = "",

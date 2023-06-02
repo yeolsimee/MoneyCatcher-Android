@@ -22,7 +22,7 @@ class GetRoutineViewModel @Inject constructor(private val routineUseCase: Routin
     override val container = container<RoutineResponse, ApiCallSideEffect>(RoutineResponse())
 
     fun getRoutine(
-        routineId: String
+        routineId: Int
     ) = intent {
         viewModelScope.launch {
             showLoading()
