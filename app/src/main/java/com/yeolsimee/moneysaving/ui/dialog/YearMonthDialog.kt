@@ -22,6 +22,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,8 +48,8 @@ fun YearMonthDialog(
     month: Int,
     onConfirmClick: (Int, Int) -> Unit
 ) {
-    val yearState = remember { mutableStateOf(year) }
-    val monthState = remember { mutableStateOf(month) }
+    val yearState = remember { mutableIntStateOf(year) }
+    val monthState = remember { mutableIntStateOf(month) }
     if (dialogState.value) {
         Dialog(
             onDismissRequest = {
@@ -91,7 +92,7 @@ fun YearMonthDialog(
                         }
                         TextButton(onClick = {
                             dialogState.value = false
-                            onConfirmClick(yearState.value, monthState.value)
+                            onConfirmClick(yearState.intValue, monthState.intValue)
                         }) {
                             PrText(
                                 text = "확인",
@@ -207,7 +208,8 @@ fun MonthPicker(
         ) {
             items(expandedSize) {
                 val num = (it % length) + 1
-                val isCurrent = scrollState.firstVisibleItemIndex % length + 2 == num
+                val firstItem = scrollState.firstVisibleItemIndex % length + 1
+                val isCurrent = if (firstItem == 12) 1 == num else firstItem + 1 == num
                 if (isCurrent) {
                     monthState.value = num
                 }
@@ -236,7 +238,7 @@ fun YearMonthDialogPreview() {
     YearMonthDialog(
         dialogState = remember { mutableStateOf(true) },
         year = 2023,
-        month = 4,
+        month = 1,
         onConfirmClick = { year, month ->
             Toast.makeText(context, "${year}년 ${month}월", Toast.LENGTH_SHORT).show()
         }
