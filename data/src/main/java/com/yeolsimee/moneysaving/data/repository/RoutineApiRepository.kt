@@ -46,7 +46,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
         }
     }
 
-    override suspend fun updateRoutine(routineId: String, routineRequest: RoutineRequest): Result<RoutineResponse> {
+    override suspend fun updateRoutine(routineId: Int, routineRequest: RoutineRequest): Result<RoutineResponse> {
         val response = source.updateRoutine(routineId, routineRequest).last()
         val result = response.body()
         return if (result != null && result.hasData()) {
@@ -66,7 +66,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
         }
     }
 
-    override suspend fun deleteRoutine(routineId: String): Result<Boolean> {
+    override suspend fun deleteRoutine(routineId: Int): Result<Boolean> {
         val response = source.deleteRoutine(routineId).last()
         val result = response.body()
         return if (result != null && result.code == 0) {
@@ -76,7 +76,7 @@ class RoutineApiRepository(private val source: RoutineSource): IRoutineApiReposi
         }
     }
 
-    override suspend fun getRoutine(routineId: String): Result<RoutineResponse> {
+    override suspend fun getRoutine(routineId: Int): Result<RoutineResponse> {
         val response = source.getRoutine(routineId).last()
         val result = response.body()
         return if (result != null && result.hasData()) {
