@@ -66,6 +66,8 @@ fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
     val amount = 1 - tempCal.get(Calendar.DAY_OF_WEEK)
     if (amount < 0) {
         tempCal.add(Calendar.DAY_OF_MONTH, amount + 1)
+    } else if (amount == 0) {
+        tempCal.add(Calendar.DAY_OF_MONTH, -6)
     }
     // Before 1 Month
     while (tempCal.get(Calendar.MONTH) + 1 != month) {
