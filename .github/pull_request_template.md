@@ -13,3 +13,4 @@
 - [ ] ✅ Build configuration change
 - [ ] 📝 Documentation
 - [ ] 🗑️ Chore
+- [ ] 📦 Version update
