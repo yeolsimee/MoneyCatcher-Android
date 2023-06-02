@@ -11,6 +11,9 @@ interface AlarmDao {
     @Query("SELECT * FROM routine_alarm")
     fun getAll(): List<AlarmEntity>
 
+    @Query("SELECT * FROM routine_alarm WHERE alarm_id = :alarmId")
+    fun get(alarmId: Int): List<AlarmEntity>
+
     @Insert
     fun insertAll(vararg  alarmEntity: AlarmEntity)
 
