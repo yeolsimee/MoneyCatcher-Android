@@ -91,7 +91,8 @@ fun EmptyMoneyIcon() {
 fun TodayIcon() {
     Image(
         painter = painterResource(id = R.drawable.image_today),
-        contentDescription = "오늘"
+        contentDescription = "오늘",
+        modifier = Modifier.size(28.dp)
     )
 }
 
