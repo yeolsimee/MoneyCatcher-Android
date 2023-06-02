@@ -23,7 +23,7 @@ class RoutineSource(
     }
 
     fun updateRoutine(
-        routineId: String, routineRequest: RoutineRequest
+        routineId: Int, routineRequest: RoutineRequest
     ) = flow {
         emit(api.updateRoutine(routineId, routineRequest))
     }
@@ -32,11 +32,11 @@ class RoutineSource(
         emit(api.routineCheck(routineCheckRequest))
     }
 
-    fun deleteRoutine(routineId: String) = flow {
+    fun deleteRoutine(routineId: Int) = flow {
         emit(api.deleteRoutine(routineId))
     }
 
-    fun getRoutine(routineId: String) = flow {
+    fun getRoutine(routineId: Int) = flow {
         emit(api.getRoutine(routineId))
     }
 

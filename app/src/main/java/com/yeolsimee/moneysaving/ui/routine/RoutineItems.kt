@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RoutineItems(
     routinesOfDayState: RoutinesOfDay,
-    onItemClick: (String, String) -> Unit = { _, _ -> },
+    onItemClick: (Int, String) -> Unit = { _, _ -> },
     onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
     onItemDelete: (Routine) -> Unit = {},
 ) {
@@ -152,7 +152,7 @@ fun RoutineItems(
                                         onRoutineCheck(
                                             RoutineCheckRequest(
                                                 routineCheckYN = if (checked) "N" else "Y",
-                                                routineId = routine.routineId.toInt(),
+                                                routineId = routine.routineId,
                                                 routineDay = date
                                             ),
                                             routine
@@ -233,7 +233,7 @@ fun RoutineItemPreview() {
                             remainingRoutineNum = "",
                             routineDatas = arrayOf(
                                 Routine(
-                                    routineId = "1",
+                                    routineId = 1,
                                     routineName = "루틴명 테스트",
                                     routineCheckYN = "Y",
                                     routineTimeZone = "1",
@@ -241,7 +241,7 @@ fun RoutineItemPreview() {
                                     alarmTimeMinute = "00"
                                 ),
                                 Routine(
-                                    routineId = "2",
+                                    routineId = 2,
                                     routineName = "루틴명 테스트",
                                     routineCheckYN = "Y",
                                     routineTimeZone = "2",
@@ -254,7 +254,7 @@ fun RoutineItemPreview() {
                             remainingRoutineNum = "",
                             routineDatas = arrayOf(
                                 Routine(
-                                    routineId = "3",
+                                    routineId = 3,
                                     routineName = "루틴명 테스트",
                                     routineCheckYN = "N",
                                     routineTimeZone = "3",
@@ -269,7 +269,7 @@ fun RoutineItemPreview() {
                             remainingRoutineNum = "",
                             routineDatas = arrayOf(
                                 Routine(
-                                    routineId = "3",
+                                    routineId = 3,
                                     routineName = "루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트",
                                     routineCheckYN = "N",
                                     routineTimeZone = "3",

@@ -20,6 +20,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -55,7 +56,8 @@ fun HomeScreen(
     routineCheckViewModel: RoutineCheckViewModel,
     routineDeleteViewModel: RoutineDeleteViewModel,
     floatingButtonVisible: MutableState<Boolean>,
-    onItemClick: (String, String) -> Unit = { _, _ -> }
+    onItemClick: (Int, String) -> Unit = { _, _ -> },
+    onDelete: (routineId: Int) -> Unit = {}
 ) {
     val year = calendarViewModel.year()
     val month = calendarViewModel.month()
@@ -73,7 +75,7 @@ fun HomeScreen(
         val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf(today) }
-        val calendarMonth = remember { mutableStateOf(today.month) }
+        val calendarMonth = remember { mutableIntStateOf(today.month) }
 
         floatingButtonVisible.value = selected.value.toString() == today.toString()
 
@@ -150,6 +152,7 @@ fun HomeScreen(
                         }
                     ) {
                         routineDeleteViewModel.delete(it.routineId) {
+                            onDelete(it.routineId)
                             findAllMyRoutineViewModel.refresh {
                                 selectedDateViewModel.find(selected.value)
                             }

@@ -35,7 +35,7 @@ interface RoutineApiService {
 
     @PUT("routine/{id}")
     suspend fun updateRoutine(
-        @Path("id") id: String,
+        @Path("id") id: Int,
         @Body body: RoutineRequest
     ): Response<ApiResponse<RoutineResponse>>
 
@@ -46,12 +46,12 @@ interface RoutineApiService {
 
     @DELETE("routine/{id}")
     suspend fun deleteRoutine(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): Response<ApiResponse<Any>>
 
     @GET("routine/{id}")
     suspend fun getRoutine(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): Response<ApiResponse<RoutineResponse>>
 
     @GET("routine")
