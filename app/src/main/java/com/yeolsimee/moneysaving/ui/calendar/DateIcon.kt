@@ -247,7 +247,7 @@ fun DayOfMonthIcon(
         Spacer(Modifier.height(6.dp))
         DateIconBuilder(iconState)
         if (selected) {
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(6.dp))
             Divider()
             Spacer(Modifier.height(4.dp))
         } else {
