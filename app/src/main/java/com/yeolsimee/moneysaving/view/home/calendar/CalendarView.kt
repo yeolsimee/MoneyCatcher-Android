@@ -85,7 +85,7 @@ private fun CalendarGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         contentPadding = PaddingValues(0.dp),
-        modifier = Modifier.heightIn(min = 54.dp, max = (54 * 7).dp)
+        modifier = Modifier.heightIn(min = 56.dp, max = (56 * 7).dp)
     ) {
         items(days) { date ->
             AnimatedVisibility(visible = spread.value) {
