@@ -14,11 +14,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -40,6 +39,8 @@ import com.yeolsimee.moneysaving.App
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.ui.theme.Gray99
+import com.yeolsimee.moneysaving.ui.theme.GrayF0
+import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
 fun YearMonthDialog(
@@ -54,11 +55,12 @@ fun YearMonthDialog(
         Dialog(
             onDismissRequest = {
                 dialogState.value = false
-            }) {
+            }
+        ) {
             Box(
                 modifier = Modifier
-                    .width(230.dp)
-                    .wrapContentHeight()
+                    .width(263.dp)
+                    .height(249.dp)
                     .clip(shape = RoundedCornerShape(4.dp))
                     .background(Color.White)
                     .padding(0.dp)
@@ -68,40 +70,59 @@ fun YearMonthDialog(
                         text = "${year}년 ${month}월",
                         fontWeight = FontWeight.W600,
                         fontSize = 16.sp,
-                        modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 20.dp)
+                        modifier = Modifier.padding(start = 28.dp, top = 28.dp, bottom = 16.dp)
                     )
-                    Row(Modifier.fillMaxWidth()) {
-                        YearPicker(initialYear = year, yearState)
-                        MonthPicker(initialMonth = month, monthState)
+                    Box(Modifier.padding(start = 28.dp, end = 32.dp)) {
+                        Row(Modifier.width(203.dp)) {
+                            YearPicker(initialYear = year, yearState)
+                            MonthPicker(initialMonth = month, monthState)
+                        }
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 39.dp),
+                            color = GrayF0,
+                            thickness = 1.dp
+                        )
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 81.dp),
+                            color = GrayF0,
+                            thickness = 1.dp
+                        )
                     }
-                    Row(
-                        horizontalArrangement = Arrangement.End,
+                }
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .fillMaxWidth()
+                        .padding(bottom = 9.dp, end = 14.dp)
+                ) {
+                    PrText(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp, end = 8.dp, bottom = 12.dp)
-                    ) {
-                        TextButton(onClick = {
-                            dialogState.value = false
-                        }) {
-                            PrText(
-                                text = "취소",
-                                color = Gray66,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.W400
-                            )
-                        }
-                        TextButton(onClick = {
-                            dialogState.value = false
-                            onConfirmClick(yearState.intValue, monthState.intValue)
-                        }) {
-                            PrText(
-                                text = "확인",
-                                color = Color.Black,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.W500
-                            )
-                        }
-                    }
+                            .onClick { dialogState.value = false }
+                            .padding(12.dp),
+                        text = "취소",
+                        color = Gray66,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.W400,
+                        lineHeight = 28.sp
+                    )
+                    PrText(
+                        modifier = Modifier
+                            .onClick {
+                                dialogState.value = false
+                                onConfirmClick(yearState.intValue, monthState.intValue)
+                            }
+                            .padding(12.dp),
+                        text = "확인",
+                        color = Color.Black,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.W600,
+                        lineHeight = 28.sp
+                    )
                 }
             }
         }
@@ -116,7 +137,7 @@ fun YearPicker(
     yearState: MutableState<Int>
 ) {
     val length = 2099 - 2023 + 1
-    val height = 78.dp
+    val height = 126.dp
     val cellSize = height / 3
 
     val expandedSize = length * 10_000_000
@@ -135,7 +156,7 @@ fun YearPicker(
 
     Box(
         modifier = Modifier
-            .width(115.dp)
+            .width(102.dp)
             .height(height)
     ) {
         LazyColumn(
@@ -160,9 +181,10 @@ fun YearPicker(
                     PrText(
                         text = "$year",
                         color = if (isCurrent) Color.Black else Gray99,
-                        fontWeight = if (isCurrent) FontWeight.W600 else FontWeight.W500,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
+                        fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
+                        fontSize = if (isCurrent) 17.sp else 14.sp,
+                        textAlign = TextAlign.Center,
+                        lineHeight = if (isCurrent) 20.sp else 17.sp
                     )
                 }
             }
@@ -178,7 +200,7 @@ fun MonthPicker(
     monthState: MutableState<Int>
 ) {
     val length = 12
-    val height = 78.dp
+    val height = 126.dp
     val cellSize = height / 3
 
     val expandedSize = length * 10_000_000
@@ -197,7 +219,7 @@ fun MonthPicker(
 
     Box(
         modifier = Modifier
-            .width(115.dp)
+            .width(101.dp)
             .height(height)
     ) {
         LazyColumn(
@@ -221,8 +243,8 @@ fun MonthPicker(
                     PrText(
                         text = "${num}월",
                         color = if (isCurrent) Color.Black else Gray99,
-                        fontWeight = if (isCurrent) FontWeight.W600 else FontWeight.W500,
-                        fontSize = 14.sp,
+                        fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
+                        fontSize = if (isCurrent) 17.sp else 14.sp,
                         textAlign = TextAlign.Center
                     )
                 }
