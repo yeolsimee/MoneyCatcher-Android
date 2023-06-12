@@ -103,14 +103,14 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}, onBrows
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(top = 20.dp, bottom = 8.dp)
+                            .padding(top = 20.dp, bottom = 6.dp)
                             .onClick { onBrowserOpen(agreementUrl) },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(modifier = Modifier.onClick {
                             firstCheck.value = !firstCheck.value
-                        }) {
+                        }, verticalAlignment = Alignment.CenterVertically) {
                             Image(
                                 painter = painterResource(
                                     id = if (firstCheck.value) R.drawable.icon_check
@@ -133,14 +133,14 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}, onBrows
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp, bottom = 20.dp)
+                            .padding(top = 6.dp, bottom = 20.dp)
                             .onClick { onBrowserOpen(policyUrl) },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(modifier = Modifier.onClick {
                             secondCheck.value = !secondCheck.value
-                        }) {
+                        }, verticalAlignment = Alignment.CenterVertically) {
                             Image(
                                 painter = painterResource(
                                     id = if (secondCheck.value) R.drawable.icon_check
