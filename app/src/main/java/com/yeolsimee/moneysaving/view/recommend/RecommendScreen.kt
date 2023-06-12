@@ -29,16 +29,20 @@ fun RecommendScreen() {
             .fillMaxSize()
             .background(Color.White)
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.app_logo),
+            contentDescription = "ROUMO",
+            modifier = Modifier.padding(start = 28.dp, top = 16.dp)
+        )
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(top = 18.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ready_image),
-                contentDescription = "앱 아이콘",
-                modifier = Modifier.padding(horizontal = 22.dp)
+                contentDescription = "준비중 아이콘",
+                modifier = Modifier.padding(horizontal = 28.dp)
             )
             Spacer(Modifier.height(13.dp))
             PrText(

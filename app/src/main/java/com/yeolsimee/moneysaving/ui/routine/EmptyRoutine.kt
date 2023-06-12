@@ -26,7 +26,7 @@ fun EmptyRoutine(modifier: Modifier = Modifier, hasSubText: Boolean = true) {
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.empty_icon),
+            painter = painterResource(id = R.drawable.empty_image),
             contentDescription = "루틴이 비어 있어요!"
         )
         Spacer(Modifier.height(13.dp))

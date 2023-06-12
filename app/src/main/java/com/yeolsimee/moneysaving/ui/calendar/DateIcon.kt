@@ -241,10 +241,10 @@ fun DayOfMonthIcon(
         PrText(
             text = "$day",
             fontWeight = if (selected) FontWeight.W800 else FontWeight.W500,
-            fontSize = 10.sp,
+            fontSize = 12.sp,
             textAlign = TextAlign.Center
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         DateIconBuilder(iconState)
         if (selected) {
             Spacer(Modifier.height(4.dp))
@@ -260,8 +260,8 @@ fun DayOfMonthIcon(
 private fun Divider() {
     Box(
         Modifier
-            .height(2.dp)
-            .width(20.dp)
+            .height(2.5.dp)
+            .width(24.dp)
             .clip(RoundedCornerShape(size = 4.dp))
             .background(color = Color.Black)
     )

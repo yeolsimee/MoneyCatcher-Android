@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -28,14 +28,12 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonTwoTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
-import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
 fun MyPageScreen(
     alarmState: State<Boolean>,
     onChangeAlarmState: () -> Unit = {},
-    onMoveToCategoryUpdateScreen: () -> Unit = {},
     onLogout: () -> Unit = {},
     onWithdraw: () -> Unit = {},
     openInternetBrowser: (String) -> Unit = {}
@@ -52,34 +50,27 @@ fun MyPageScreen(
             Image(
                 painter = painterResource(id = R.drawable.app_logo),
                 contentDescription = "ROUMO",
-                modifier = Modifier.padding(horizontal = 28.dp, vertical = 4.dp)
+                modifier = Modifier.padding(start = 28.dp, top = 16.dp)
             )
-            MoveListItem("카테고리 수정") { onMoveToCategoryUpdateScreen() }
-            Divider(thickness = 1.5.dp, color = GrayF0)
+            Spacer(Modifier.height(17.dp))
             AlarmItem(alarmState) {
                 onChangeAlarmState()
             }
-            Divider(thickness = 3.dp, color = GrayF0)
-
             val agreementUrl = stringResource(R.string.agreement_url)
             val policyUrl = stringResource(R.string.policy_url)
 
             MoveListItem("서비스 이용 약관") {
                 openInternetBrowser(agreementUrl)
             }
-            Divider(thickness = 1.5.dp, color = GrayF0)
             MoveListItem("개인정보 처리방침") {
                 openInternetBrowser(policyUrl)
             }
-            Divider(thickness = 3.dp, color = GrayF0)
             MoveListItem("로그아웃", iconVisible = false) {
                 logoutDialogState.value = true
             }
-            Divider(thickness = 1.5.dp, color = GrayF0)
             MoveListItem("회원탈퇴", color = DismissRed, iconVisible = false) {
                 withdrawDialogState.value = true
             }
-            Divider(thickness = 1.5.dp, color = GrayF0)
         }
 
         TwoButtonTwoTitleDialog(
@@ -110,8 +101,7 @@ private fun AlarmItem(
     Row(
         Modifier
             .fillMaxWidth()
-            .height(52.dp)
-            .padding(vertical = 13.dp, horizontal = 24.dp),
+            .padding(vertical = 14.dp, horizontal = 28.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -143,7 +133,7 @@ private fun MoveListItem(
             .onClick {
                 onClick()
             }
-            .padding(vertical = 13.dp, horizontal = 24.dp),
+            .padding(vertical = 14.dp, horizontal = 28.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -155,7 +145,7 @@ private fun MoveListItem(
         )
         if (iconVisible)
             Image(
-                painter = painterResource(id = R.drawable.icon_bigarrow_end),
+                painter = painterResource(id = R.drawable.icon_extend),
                 contentDescription = "화살표"
             )
     }
