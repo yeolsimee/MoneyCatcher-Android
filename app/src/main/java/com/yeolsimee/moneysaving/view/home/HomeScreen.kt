@@ -136,9 +136,9 @@ fun HomeScreen(
                 DateText(selected)
 
                 if (routinesOfDayState.isEmpty()) {
-                    Spacer(Modifier.height(43.dp))
+                    Spacer(Modifier.height(50.dp))
                     EmptyRoutine()
-                    Spacer(Modifier.height(getReactiveHeight(200)))
+                    Spacer(Modifier.height(getReactiveHeight(135)))
                 } else if (routinesOfDayState.isNotLoading()) {
                     RoutineItems(
                         routinesOfDayState = routinesOfDayState,
