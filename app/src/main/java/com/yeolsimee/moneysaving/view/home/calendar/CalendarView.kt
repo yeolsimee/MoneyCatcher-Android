@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,10 +48,10 @@ fun ComposeCalendar(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DayOfWeekIndicator()
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
 
         CalendarGrid(days, spread, selected, month, calendarMonth, onItemSelected)
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(17.dp))
 
         CalendarSpreadButton(spread, selected, year, month, calendarMonth, restoreSelected)
     }
@@ -62,7 +63,7 @@ private fun DayOfWeekIndicator() {
     LazyHorizontalGrid(
         modifier = Modifier
             .fillMaxWidth()
-            .height(12.dp),
+            .height(14.32.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         rows = GridCells.Fixed(1),
     ) {
@@ -141,6 +142,6 @@ fun ComposeCalendarPreview() {
     val days = getWeekDays(Calendar.getInstance())
     val selected = remember { mutableStateOf(CalendarDay(2023, 4, 12)) }
     val spread = remember { mutableStateOf(true) }
-    val calendarMonth = remember { mutableStateOf(4) }
+    val calendarMonth = remember { mutableIntStateOf(4) }
     ComposeCalendar(days, selected, spread, 2023, 4, calendarMonth, {}) {}
 }

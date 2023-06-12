@@ -93,11 +93,11 @@ fun HomeScreen(
             month,
             onConfirmClick
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(16.dp))
 
         AppLogoImage()
 
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(20.dp))
 
         YearMonthSelectBox(dialogState, calendarViewModel.date.observeAsState().value ?: "", spread)
 
@@ -124,7 +124,7 @@ fun HomeScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(Modifier.height(22.dp))
 
         val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
             RoutinesOfDay("loading")
@@ -132,13 +132,11 @@ fun HomeScreen(
 
         Box(modifier = Modifier) {
             Column {
-                Spacer(Modifier.height(16.dp))
                 DateText(selected)
-
                 if (routinesOfDayState.isEmpty()) {
-                    Spacer(Modifier.height(43.dp))
+                    Spacer(Modifier.height(50.dp))
                     EmptyRoutine()
-                    Spacer(Modifier.height(getReactiveHeight(200)))
+                    Spacer(Modifier.height(getReactiveHeight(135)))
                 } else if (routinesOfDayState.isNotLoading()) {
                     RoutineItems(
                         routinesOfDayState = routinesOfDayState,
@@ -159,16 +157,6 @@ fun HomeScreen(
                         }
                     }
                 }
-            }
-
-            if (routinesOfDayState.isNotLoadingAndNotEmpty()) {
-                Image(
-                    painter = painterResource(id = R.drawable.coins),
-                    contentDescription = "동전",
-                    modifier = Modifier.align(
-                        Alignment.TopEnd
-                    )
-                )
             }
         }
 
@@ -204,7 +192,7 @@ private fun DateText(selected: MutableState<CalendarDay>) {
             text = "${selected.value.month}월 ${selected.value.day}일 ${selected.value.getDayOfWeek()}",
             color = Color.Black,
             fontWeight = FontWeight.W700,
-            fontSize = 18.sp,
+            fontSize = 17.sp,
         )
     }
 }
@@ -225,7 +213,7 @@ private fun YearMonthSelectBox(
                     dialogState.value = !dialogState.value
                 }
             }),
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = painterResource(id = R.drawable.icon_calendar), contentDescription = "연/월 선택"
@@ -235,11 +223,12 @@ private fun YearMonthSelectBox(
         PrText(
             text = dateText,
             fontWeight = FontWeight.W700,
-            fontSize = 12.sp
+            fontSize = 15.sp
         )
         if (spread.value) {
+            Spacer(Modifier.width(7.dp))
             Image(
-                painter = painterResource(id = R.drawable.icon_year_month_open),
+                painter = painterResource(id = R.drawable.icon_date_extend),
                 contentDescription = "연/월 선택"
             )
         }
@@ -252,10 +241,13 @@ fun DayOfWeekText(text: String) {
     val config = LocalConfiguration.current
     val itemWidth = (config.screenWidthDp.dp - (28.dp * 2)) / 7
     PrText(
-        text = text, modifier = Modifier
-            .width(itemWidth)
-            .height(12.dp),
-        fontWeight = FontWeight.W700, fontSize = 10.sp, textAlign = TextAlign.Center
+        text = text,
+        modifier = Modifier
+            .width(itemWidth),
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+        lineHeight = 14.32.sp,
+        textAlign = TextAlign.Center
     )
 }
 
