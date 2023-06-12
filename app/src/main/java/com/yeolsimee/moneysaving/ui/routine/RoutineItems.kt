@@ -64,9 +64,9 @@ fun RoutineItems(
     val categories = routinesOfDayState.categoryDatas
     val date = routinesOfDayState.getDate()
     val cantEditDialogState = remember { mutableStateOf(false) }
-    Spacer(Modifier.height(18.dp))
 
     Column {
+        Spacer(Modifier.height(20.dp))
         for (category in categories) {
             PrText(
                 text = category.categoryName,
@@ -128,7 +128,7 @@ fun RoutineItems(
                             Column(Modifier.padding(start = 20.dp, end = 60.dp).align(Alignment.CenterStart)) {
                                 PrText(
                                     text = routine.routineName,
-                                    fontWeight = FontWeight.W800,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
                                     color = Color.Black,
                                     textAlign = TextAlign.Start,

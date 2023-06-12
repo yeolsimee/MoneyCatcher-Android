@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -257,7 +258,7 @@ class MainActivity : ComponentActivity() {
                     containerColor = Color.Black,
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                    modifier = Modifier.padding(end = 12.dp)
+                    modifier = Modifier.padding(end = 12.dp, bottom = 24.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_plus),
@@ -277,7 +278,8 @@ class MainActivity : ComponentActivity() {
         NavigationBar(
             contentColor = Color.Black,
             containerColor = Color.Black,
-            modifier = Modifier.height(49.dp)
+            modifier = Modifier.height(66.dp),
+            tonalElevation = 0.dp
         ) {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
@@ -291,7 +293,7 @@ class MainActivity : ComponentActivity() {
 
                 NavigationBarItem(
                     icon = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxHeight()) {
                             Box(
                                 Modifier
                                     .height(3.dp)
@@ -308,7 +310,7 @@ class MainActivity : ComponentActivity() {
                                     .height(20.dp)
                                     .padding(0.dp)
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(5.dp))
                             PrText(
                                 item.title,
                                 fontSize = 10.sp,
@@ -327,6 +329,7 @@ class MainActivity : ComponentActivity() {
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.White, indicatorColor = Color.Transparent
                     ),
+                    modifier = Modifier.padding(0.dp)
                 )
             }
         }
