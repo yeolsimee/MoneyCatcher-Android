@@ -66,7 +66,6 @@ import com.yeolsimee.moneysaving.utils.executeForTimeMillis
 import com.yeolsimee.moneysaving.utils.hasNotificationPermission
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import com.yeolsimee.moneysaving.utils.requestNotificationPermission
-import com.yeolsimee.moneysaving.view.category.CategoryUpdateActivity
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -105,16 +104,7 @@ class MainActivity : ComponentActivity() {
                     selectedDateViewModel.find(calendarViewModel.today)
                 }
             } else if (result.resultCode == MyPageRouteCode) {
-                 navigator.navigate(BottomNavItem.MyPage)
-            }
-        }
-
-    private val categoryUpdateActivityLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                findAllMyRoutineViewModel.refresh {
-                    selectedDateViewModel.find(calendarViewModel.today)
-                }
+                navigator.navigate(BottomNavItem.MyPage)
             }
         }
 
@@ -230,12 +220,6 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 requestNotificationPermission(permissionLauncher)
                             }
-                        }, onMoveToCategoryUpdateScreen = {
-                            categoryUpdateActivityLauncher.launch(
-                                Intent(
-                                    this@MainActivity, CategoryUpdateActivity::class.java
-                                )
-                            )
                         }, onLogout = {
                             CoroutineScope(Dispatchers.Default).launch {
                                 myPageViewModel.logoutAndCancelAlarms(this@MainActivity) {
