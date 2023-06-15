@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -24,11 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.yeolsimee.moneysaving.domain.calendar.AmPmTime
+import com.yeolsimee.moneysaving.domain.calendar.getCurrentTime
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.ui.appbar.BottomButtonAppBar
 import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
+import com.yeolsimee.moneysaving.ui.dialog.TimePickerDialog
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
@@ -54,6 +58,7 @@ fun RoutineScreen(
     onCheckNotificationSetting: () -> Unit = {}
 ) {
     val buttonState = remember { mutableStateOf(false) }
+    val timePickerDialogState = remember { mutableStateOf(false) }
 
     RoumoTheme(navigationBarColor = if (buttonState.value) Color.Black else Gray99) {
         val focusRequester by remember { mutableStateOf(FocusRequester()) }
@@ -71,16 +76,19 @@ fun RoutineScreen(
             remember { mutableStateOf(routine.routineTimeZone) }
 
         val alarmState = remember { mutableStateOf(routine.alarmStatus == "ON") }
-        val hourState = remember {
-            mutableStateOf(
-                if (alarmState.value) routine.alarmTime.substring(0, 2).toInt() else 13
+        val now = getCurrentTime()
+
+        val hourState: MutableState<Int> = remember {
+            mutableIntStateOf(
+                if (alarmState.value) routine.alarmTime.substring(0, 2).toInt() else now.first
             )
         }
-        val minuteState = remember {
-            mutableStateOf(
-                if (alarmState.value) routine.alarmTime.substring(2, 4).toInt() else 0
+        val minuteState: MutableState<Int> = remember {
+            mutableIntStateOf(
+                if (alarmState.value) routine.alarmTime.substring(2, 4).toInt() else now.second
             )
         }
+
         val addCategoryState = remember { mutableStateOf(false) }
 
         Scaffold(
@@ -139,7 +147,13 @@ fun RoutineScreen(
                         selectedRoutineTimeZoneId.value = id
                     }
                     Spacer(Modifier.height(20.dp))
-                    SettingAlarmTime(alarmState, hourState, minuteState, toggleRoutineAlarm)
+                    SettingAlarmTime(
+                        alarmState,
+                        hourState,
+                        minuteState,
+                        toggleRoutineAlarm,
+                        timePickerDialogState
+                    )
                 }
             }
         }
@@ -147,9 +161,22 @@ fun RoutineScreen(
             TwoButtonOneTitleDialog(
                 dialogState = notificationCheckDialogState,
                 text = "알림 설정에서 \n" +
-                    "알림 전체 OFF를 한 경우 \n" +
-                    "알림을 받을 수 없습니다.",
+                        "알림 전체 OFF를 한 경우 \n" +
+                        "알림을 받을 수 없습니다.",
                 onConfirmClick = { onCheckNotificationSetting() }
+            )
+        }
+
+        if (timePickerDialogState.value) {
+            TimePickerDialog(
+                dialogState = timePickerDialogState,
+                hour = now.first,
+                minute = now.second,
+                ampm = now.third,
+                onConfirmClick = { hour, minute, ampm ->
+                    hourState.value = hour + if (ampm == AmPmTime.PM) 12 else 0
+                    minuteState.value = minute
+                }
             )
         }
     }

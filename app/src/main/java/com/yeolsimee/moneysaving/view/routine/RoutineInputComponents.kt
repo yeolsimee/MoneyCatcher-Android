@@ -1,11 +1,9 @@
 @file:OptIn(
-    ExperimentalLayoutApi::class, ExperimentalLayoutApi::class,
     ExperimentalLayoutApi::class
 )
 
 package com.yeolsimee.moneysaving.view.routine
 
-import android.app.TimePickerDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +25,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,7 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,8 +49,8 @@ import com.yeolsimee.moneysaving.ui.list_item.UnSelectedItem
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
-import com.yeolsimee.moneysaving.utils.getTwoDigitsHour
 import com.yeolsimee.moneysaving.utils.getTwoDigits
+import com.yeolsimee.moneysaving.utils.getTwoDigitsHour
 
 @Composable
 fun InputRoutineName(routineName: MutableState<String>, focusRequester: FocusRequester) {
@@ -225,6 +223,7 @@ fun SettingAlarmTime(
     hourState: MutableState<Int>,
     minuteState: MutableState<Int>,
     toggleRoutineAlarm: (MutableState<Boolean>) -> Unit = {},
+    timePickerDialogState: MutableState<Boolean>,
 ) {
     val timeText = hourState.value.getTwoDigitsHour() + ":" +
             minuteState.value.getTwoDigits()
@@ -284,7 +283,6 @@ fun SettingAlarmTime(
                     )
                     PrText(text = "몇 시에 알려드릴까요?", fontWeight = FontWeight.W600, fontSize = 13.sp)
                 }
-                val localContext = LocalContext.current
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
@@ -295,12 +293,7 @@ fun SettingAlarmTime(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                             onClick = {
-                                val dialog = TimePickerDialog(localContext, { _, h, m ->
-                                    hourState.value = h
-                                    minuteState.value = m
-                                }, hourState.value, minuteState.value, false)
-
-                                dialog.show()
+                                timePickerDialogState.value = true
                             }
                         )
                 ) {
@@ -315,17 +308,27 @@ fun SettingAlarmTime(
 @Preview(showBackground = true, widthDp = 319)
 @Composable
 fun SettingAlarmTimePreview() {
-
     val alarmState1 = remember { mutableStateOf(true) }
     val alarmState2 = remember { mutableStateOf(false) }
-    val hourState = remember { mutableStateOf(11) }
-    val minuteState = remember { mutableStateOf(0) }
+    val hourState = remember { mutableIntStateOf(11) }
+    val minuteState = remember { mutableIntStateOf(0) }
+    val timePickerDialogState = remember { mutableStateOf(false) }
 
     RoumoTheme {
         Column {
-            SettingAlarmTime(alarmState = alarmState1, hourState, minuteState)
+            SettingAlarmTime(
+                alarmState = alarmState1,
+                hourState,
+                minuteState,
+                timePickerDialogState = timePickerDialogState
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            SettingAlarmTime(alarmState = alarmState2, hourState, minuteState)
+            SettingAlarmTime(
+                alarmState = alarmState2,
+                hourState,
+                minuteState,
+                timePickerDialogState = timePickerDialogState
+            )
         }
     }
 }

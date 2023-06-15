@@ -14,6 +14,19 @@ fun Calendar.isNotPast(): Boolean {
     return Calendar.getInstance() <= this
 }
 
+/// first: hour
+/// second: minute
+/// third: am or pm
+fun getCurrentTime(): Triple<Int, Int, AmPmTime> {
+    val now = Calendar.getInstance()
+    return Triple(
+        now.get(Calendar.HOUR_OF_DAY),
+        now.get(Calendar.MINUTE),
+        if (now.get(Calendar.HOUR_OF_DAY) < 12) AmPmTime.AM else AmPmTime.PM
+    )
+}
+
+
 fun isToday(year: Int, month: Int, day: Int): Boolean {
     val todayCalendar = Calendar.getInstance()
     return todayCalendar.get(Calendar.YEAR) == year
