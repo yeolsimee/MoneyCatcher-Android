@@ -34,11 +34,15 @@ class GetRoutineViewModel @Inject constructor(private val routineUseCase: Routin
         }
     }
 
-    override fun showLoading() = intent {
-        postSideEffect(ApiCallSideEffect.Loading)
+    override fun showLoading() {
+        intent {
+            postSideEffect(ApiCallSideEffect.Loading)
+        }
     }
 
-    override fun showEmpty() = intent {
-        postSideEffect(ApiCallSideEffect.Empty)
+    override fun showEmpty() {
+        intent {
+            postSideEffect(ApiCallSideEffect.Empty)
+        }
     }
 }
