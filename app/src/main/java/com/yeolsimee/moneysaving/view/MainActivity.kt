@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -258,9 +259,10 @@ class MainActivity : ComponentActivity() {
                     containerColor = Color.Black,
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                    modifier = Modifier.padding(end = 12.dp, bottom = 24.dp)
+                    modifier = Modifier.padding(end = 12.dp, bottom = 24.dp).size(50.dp)
                 ) {
                     Image(
+                        modifier = Modifier.size(20.dp),
                         painter = painterResource(id = R.drawable.icon_plus),
                         contentDescription = "루틴 추가"
                     )
