@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +44,7 @@ import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.ui.theme.Silver
+import com.yeolsimee.moneysaving.ui.theme.rowdies
 import com.yeolsimee.moneysaving.utils.getTextFromDayOfWeek
 
 @Composable
@@ -68,10 +71,15 @@ fun RoundMoneyIcon(color: Color) {
             .clip(CircleShape)
             .background(color)
     ) {
-        PrText(
+        Text(
             text = "₩",
-            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Black),
-            modifier = Modifier.align(Alignment.Center)
+            style = TextStyle(
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Normal,
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+            ),
+            modifier = Modifier.align(Alignment.Center),
+            fontFamily = rowdies,
         )
     }
 }
@@ -92,7 +100,7 @@ fun TodayIcon() {
     Image(
         painter = painterResource(id = R.drawable.image_today),
         contentDescription = "오늘",
-        modifier = Modifier.size(28.dp)
+        modifier = Modifier.width(28.dp)
     )
 }
 
@@ -105,10 +113,15 @@ fun OtherMonthIcon() {
             .border(width = 1.5.dp, color = Gray17, shape = CircleShape)
             .clip(CircleShape)
     ) {
-        PrText(
+        Text(
             text = "₩",
-            fontSize = 15.sp, color = Gray17, fontWeight = FontWeight.W800,
-            modifier = Modifier.align(Alignment.Center)
+            style = TextStyle(
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Normal,
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+            ),
+            modifier = Modifier.align(Alignment.Center),
+            fontFamily = rowdies,
         )
     }
 }
@@ -238,20 +251,24 @@ fun DayOfMonthIcon(
                 MutableInteractionSource()
             }, indication = null, onClick = { onClick(date) })
     ) {
-        PrText(
-            text = "$day",
-            fontWeight = if (selected) FontWeight.W800 else FontWeight.W500,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center
-        )
+        Box(Modifier.height(if (selected) 13.dp else 12.dp)) {
+            PrText(
+                text = "$day",
+                modifier = Modifier.align(Alignment.Center),
+                fontWeight = if (selected) FontWeight.W700 else FontWeight.W500,
+                fontSize = if (selected) 10.5.sp else 10.sp,
+                textAlign = TextAlign.Center
+            )
+        }
         Spacer(Modifier.height(6.dp))
+        if (!selected) Spacer(Modifier.height(1.dp))
         DateIconBuilder(iconState)
         if (selected) {
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(7.dp))
             Divider()
             Spacer(Modifier.height(4.dp))
         } else {
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(11.dp))
         }
     }
 }

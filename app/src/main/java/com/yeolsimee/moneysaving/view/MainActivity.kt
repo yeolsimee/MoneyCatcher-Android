@@ -160,7 +160,6 @@ class MainActivity : ComponentActivity() {
             calendarViewModel.getFirstAndLastDate(dayList), today.month, dayList
         )
 
-
         val destination by navigator.destination.collectAsState()
         LaunchedEffect(destination) {
             if (navController.currentDestination?.route != destination.screenRoute) {
