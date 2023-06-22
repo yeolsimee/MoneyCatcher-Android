@@ -47,6 +47,7 @@ fun YearMonthDialog(
     dialogState: MutableState<Boolean>,
     year: Int,
     month: Int,
+    spread: MutableState<Boolean>,
     onConfirmClick: (Int, Int) -> Unit
 ) {
     val yearState = remember { mutableIntStateOf(year) }
@@ -113,6 +114,7 @@ fun YearMonthDialog(
                     PrText(
                         modifier = Modifier
                             .onClick {
+                                spread.value = true
                                 dialogState.value = false
                                 onConfirmClick(yearState.intValue, monthState.intValue)
                             }
@@ -261,6 +263,7 @@ fun YearMonthDialogPreview() {
         dialogState = remember { mutableStateOf(true) },
         year = 2023,
         month = 1,
+        spread = remember { mutableStateOf(false) },
         onConfirmClick = { year, month ->
             Toast.makeText(context, "${year}년 ${month}월", Toast.LENGTH_SHORT).show()
         }
