@@ -35,6 +35,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +50,7 @@ import com.yeolsimee.moneysaving.ui.list_item.UnSelectedItem
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.ui.theme.pretendard
 import com.yeolsimee.moneysaving.utils.getTwoDigits
 import com.yeolsimee.moneysaving.utils.getTwoDigitsHour
 
@@ -66,30 +68,37 @@ fun InputRoutineName(routineName: MutableState<String>, focusRequester: FocusReq
             )
         }
         Spacer(Modifier.height(4.dp))
+
         BasicTextField(
             value = routineName.value,
             textStyle = TextStyle(
                 fontWeight = FontWeight.W600,
                 fontSize = 14.sp,
-                color = Color.Black
+                lineHeight = 17.sp,
+                color = Color.Black,
+                fontFamily = pretendard,
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                letterSpacing = (-0.1).sp,
             ), onValueChange = { t ->
                 if (t.length <= 50) {
                     routineName.value = t
                 }
-            }, singleLine = true, decorationBox = { innerTextField ->
+            }, singleLine = true,
+            decorationBox = { innerTextField ->
                 Box {
                     if (routineName.value.isEmpty()) {
                         PrText(
                             text = "루틴명을 입력해주세요.",
                             color = Gray99,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.W400
+                            lineHeight = 17.sp,
+                            fontWeight = FontWeight.W600
                         )
                     }
                     innerTextField()
                 }
             }, modifier = Modifier
-                .padding(top = 10.dp, bottom = 9.dp)
+                .padding(top = 10.dp, start = 2.dp, bottom = 7.dp)
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
         )

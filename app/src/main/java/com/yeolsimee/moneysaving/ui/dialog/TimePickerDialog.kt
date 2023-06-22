@@ -63,15 +63,18 @@ fun TimePickerDialog(
         ) {
             Box(
                 modifier = Modifier
-                    .width(231.dp)
-                    .height(170.dp)
+                    .width(264.dp)
+                    .height(209.dp)
                     .clip(shape = RoundedCornerShape(4.dp))
                     .background(Color.White)
                     .padding(0.dp)
             ) {
                 Column {
-                    Box(modifier = Modifier.padding(top = 21.dp, start = 36.dp, end = 36.dp)) {
-                        Row(Modifier.fillMaxWidth()) {
+                    Box(modifier = Modifier.padding(top = 24.dp)) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 30.dp)) {
                             HourPicker(initialHour = hour, hourState)
                             MinutePicker(initialMinute = minute, minuteState = minuteState)
                             AmPmPicker(initialAmPm = ampm, ampmState = ampmState)
@@ -79,14 +82,14 @@ fun TimePickerDialog(
                         Divider(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 32.dp),
+                                .padding(top = 39.dp),
                             color = GrayF0,
                             thickness = 1.dp
                         )
                         Divider(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 61.dp),
+                                .padding(top = 81.dp),
                             color = GrayF0,
                             thickness = 1.dp
                         )
@@ -97,7 +100,7 @@ fun TimePickerDialog(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .fillMaxWidth()
-                        .padding(bottom = 9.dp, end = 14.dp)
+                        .padding(bottom = 15.dp, end = 18.dp)
                 ) {
                     PrText(
                         modifier = Modifier
@@ -140,7 +143,7 @@ fun HourPicker(
     hourState: MutableState<Int>
 ) {
     val length = 12
-    val height = 93.dp
+    val height = 120.dp
     val cellSize = height / 3
 
     val expandedSize = length * 10_000_000
@@ -159,7 +162,7 @@ fun HourPicker(
 
     Box(
         modifier = Modifier
-            .width(53.dp)
+            .width(66.dp)
             .height(height)
     ) {
         LazyColumn(
@@ -202,7 +205,7 @@ fun MinutePicker(
     minuteState: MutableState<Int>
 ) {
     val length = 60
-    val height = 93.dp
+    val height = 120.dp
     val cellSize = height / 3
 
     val expandedSize = length * 10_000_000
@@ -221,7 +224,7 @@ fun MinutePicker(
 
     Box(
         modifier = Modifier
-            .width(53.dp)
+            .width(66.dp)
             .height(height)
     ) {
         LazyColumn(
@@ -267,7 +270,7 @@ fun AmPmPicker(
     ampmState: MutableState<AmPmTime>
 ) {
     val length = 4
-    val height = 93.dp
+    val height = 120.dp
     val cellSize = height / 3
 
     val targetIndex = if (initialAmPm == AmPmTime.AM) 0 else 1
@@ -284,7 +287,7 @@ fun AmPmPicker(
 
     Box(
         modifier = Modifier
-            .width(53.dp)
+            .width(66.dp)
             .height(height)
     ) {
         LazyColumn(
@@ -305,7 +308,7 @@ fun AmPmPicker(
                         .height(cellSize),
                     contentAlignment = Alignment.Center
                 ) {
-                    val text = if (it == 1 || it == 2) ampm.name else ""
+                    val text = if (it == 1 || it == 2) ampm.text else ""
                     PrText(
                         text = text,
                         color = if (isCurrent) Color.Black else Gray99,

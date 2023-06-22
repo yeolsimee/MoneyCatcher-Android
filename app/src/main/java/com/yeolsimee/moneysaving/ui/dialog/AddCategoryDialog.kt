@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.TextButton
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +31,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.ui.theme.pretendard
 
 @Composable
 fun AddCategoryDialog(dialogState: MutableState<Boolean>, onConfirmClick: (String) -> Unit) {
@@ -38,9 +41,11 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, onConfirmClick: (Strin
         Dialog(onDismissRequest = { dialogState.value = false }) {
             Box(
                 modifier = Modifier
+                    .width(263.dp)
+                    .height(179.dp)
                     .clip(RoundedCornerShape(4.dp))
                     .background(Color.White)
-                    .padding(top = 20.dp, start = 20.dp)
+                    .padding(top = 28.dp, start = 28.dp)
             ) {
                 Column {
                     PrText(text = "카테고리 추가하기", fontWeight = FontWeight.W600, fontSize = 16.sp)
@@ -48,9 +53,12 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, onConfirmClick: (Strin
                     BasicTextField(
                         value = categoryName.value,
                         textStyle = TextStyle(
-                            fontWeight = FontWeight.W600,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 14.sp,
-                            color = Color.Black
+                            color = Color.Black,
+                            fontFamily = pretendard,
+                            platformStyle = PlatformTextStyle(includeFontPadding = false),
+                            letterSpacing = (-0.1).sp,
                         ), onValueChange = { t ->
                             if (t.length <= 14) {
                                 categoryName.value = t
@@ -68,12 +76,12 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, onConfirmClick: (Strin
                                 innerTextField()
                             }
                         }, modifier = Modifier
-                            .padding(top = 10.dp, bottom = 8.dp)
+                            .padding(top = 10.dp, start = 2.dp, bottom = 7.dp)
                             .fillMaxWidth()
                     )
                     Box(
                         modifier = Modifier
-                            .padding(end = 20.dp)
+                            .padding(end = 28.dp)
                             .fillMaxWidth()
                             .height(1.dp)
                             .background(Color.Black)
@@ -90,7 +98,7 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, onConfirmClick: (Strin
                             PrText(
                                 text = "취소",
                                 color = Gray66,
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.W400
                             )
                         }
@@ -102,8 +110,8 @@ fun AddCategoryDialog(dialogState: MutableState<Boolean>, onConfirmClick: (Strin
                             PrText(
                                 text = "확인",
                                 color = Color.Black,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.W500
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
