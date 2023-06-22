@@ -128,7 +128,7 @@ fun RoutineItems(
                             Column(Modifier.padding(start = 20.dp, end = 60.dp).align(Alignment.CenterStart)) {
                                 PrText(
                                     text = routine.routineName,
-                                    fontWeight = FontWeight.Medium,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 15.sp,
                                     color = Color.Black,
                                     textAlign = TextAlign.Start,

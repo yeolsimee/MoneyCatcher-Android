@@ -17,3 +17,7 @@ val pretendard = FontFamily(
     Font(R.font.pretendard_extralight, FontWeight.ExtraLight, FontStyle.Normal),
     Font(R.font.pretendard_thin, FontWeight.Thin, FontStyle.Normal)
 )
+
+val rowdies = FontFamily(
+    Font(R.font.rowdies_regular)
+)

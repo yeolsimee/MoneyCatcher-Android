@@ -218,7 +218,7 @@ private fun YearMonthSelectBox(
         Image(
             painter = painterResource(id = R.drawable.icon_calendar), contentDescription = "연/월 선택"
         )
-        Spacer(Modifier.width(2.dp))
+        Spacer(Modifier.width(5.dp))
 
         PrText(
             text = dateText,

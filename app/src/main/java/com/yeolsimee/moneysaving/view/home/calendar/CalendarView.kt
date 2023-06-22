@@ -51,7 +51,7 @@ fun ComposeCalendar(
         Spacer(Modifier.height(6.dp))
 
         CalendarGrid(days, spread, selected, month, calendarMonth, onItemSelected)
-        Spacer(modifier = Modifier.height(17.dp))
+        Spacer(modifier = Modifier.height(13.5.dp))
 
         CalendarSpreadButton(spread, selected, year, month, calendarMonth, restoreSelected)
     }
@@ -85,7 +85,7 @@ private fun CalendarGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         contentPadding = PaddingValues(0.dp),
-        modifier = Modifier.heightIn(min = 56.dp, max = (56 * 7).dp)
+        modifier = Modifier.heightIn(min = 68.dp, max = (68 * 7).dp)
     ) {
         items(days) { date ->
             AnimatedVisibility(visible = spread.value) {
@@ -140,7 +140,7 @@ private fun CalendarSpreadButton(
 @Composable
 fun ComposeCalendarPreview() {
     val days = getWeekDays(Calendar.getInstance())
-    val selected = remember { mutableStateOf(CalendarDay(2023, 4, 12)) }
+    val selected = remember { mutableStateOf(CalendarDay(2023, 6, 29)) }
     val spread = remember { mutableStateOf(true) }
     val calendarMonth = remember { mutableIntStateOf(4) }
     ComposeCalendar(days, selected, spread, 2023, 4, calendarMonth, {}) {}
