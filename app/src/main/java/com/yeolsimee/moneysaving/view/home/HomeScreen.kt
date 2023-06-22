@@ -91,6 +91,7 @@ fun HomeScreen(
             dialogState,
             year,
             month,
+            spread,
             onConfirmClick
         )
         Spacer(Modifier.height(16.dp))
@@ -99,7 +100,7 @@ fun HomeScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        YearMonthSelectBox(dialogState, calendarViewModel.date.observeAsState().value ?: "", spread)
+        YearMonthSelectBox(dialogState, calendarViewModel.date.observeAsState().value ?: "")
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -200,7 +201,7 @@ private fun DateText(selected: MutableState<CalendarDay>) {
 
 @Composable
 private fun YearMonthSelectBox(
-    dialogState: MutableState<Boolean>, dateText: String, spread: MutableState<Boolean>
+    dialogState: MutableState<Boolean>, dateText: String
 ) {
     Row(
         modifier = Modifier.clickable(
@@ -209,9 +210,7 @@ private fun YearMonthSelectBox(
             },
             indication = null,
             onClick = {
-                if (spread.value) {
-                    dialogState.value = !dialogState.value
-                }
+                dialogState.value = !dialogState.value
             }),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -225,13 +224,11 @@ private fun YearMonthSelectBox(
             fontWeight = FontWeight.W700,
             fontSize = 15.sp
         )
-        if (spread.value) {
-            Spacer(Modifier.width(7.dp))
-            Image(
-                painter = painterResource(id = R.drawable.icon_date_extend),
-                contentDescription = "연/월 선택"
-            )
-        }
+        Spacer(Modifier.width(7.dp))
+        Image(
+            painter = painterResource(id = R.drawable.icon_date_extend),
+            contentDescription = "연/월 선택"
+        )
     }
 }
 
@@ -254,10 +251,8 @@ fun DayOfWeekText(text: String) {
 @Preview(showBackground = true)
 @Composable
 fun YearMonthSelectBoxPreview() {
-    val spread = remember { mutableStateOf(true) }
     YearMonthSelectBox(
         dialogState = remember { mutableStateOf(false) },
-        dateText = "4월 12일 수요일",
-        spread = spread
+        dateText = "4월 12일 수요일"
     )
 }
