@@ -119,6 +119,7 @@ fun OtherMonthIcon() {
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
                 platformStyle = PlatformTextStyle(includeFontPadding = false),
+                color = Gray17
             ),
             modifier = Modifier.align(Alignment.Center),
             fontFamily = rowdies,
