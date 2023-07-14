@@ -1,12 +1,12 @@
 package com.yeolsimee.moneysaving.view.home.calendar
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
 import com.yeolsimee.moneysaving.domain.calendar.setNextDay
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
@@ -21,8 +21,8 @@ class CalendarViewModel @Inject constructor(): ViewModel() {
     val today: CalendarDay
         get() = _today
 
-    private val _dayList: MutableLiveData<MutableList<CalendarDay>>
-    val dayList: LiveData<MutableList<CalendarDay>>
+    private val _dayList: MutableStateFlow<MutableList<CalendarDay>>
+    val dayList: StateFlow<MutableList<CalendarDay>>
         get() = _dayList
 
 
@@ -38,7 +38,7 @@ class CalendarViewModel @Inject constructor(): ViewModel() {
             true
         )
         lastDayOfMonth = todayCalendar.getMaximum(Calendar.DAY_OF_MONTH)
-        _dayList = MutableLiveData(getWeekDays(calendar))
+        _dayList = MutableStateFlow(getWeekDays(calendar))
     }
     fun year(): Int {
         return calendar.get(Calendar.YEAR)
@@ -48,10 +48,10 @@ class CalendarViewModel @Inject constructor(): ViewModel() {
         return calendar.get(Calendar.MONTH) + 1
     }
 
-    private val _date: MutableLiveData<String> =
-        MutableLiveData("${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월")
+    private val _date =
+        MutableStateFlow("${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월")
 
-    val date: MutableLiveData<String>
+    val date: MutableStateFlow<String>
         get() = _date
 
     fun setDate(year: Int, month: Int): MutableList<CalendarDay> {

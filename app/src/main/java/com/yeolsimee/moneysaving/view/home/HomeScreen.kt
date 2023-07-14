@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -100,7 +99,7 @@ fun HomeScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        YearMonthSelectBox(dialogState, calendarViewModel.date.observeAsState().value ?: "")
+        YearMonthSelectBox(dialogState, calendarViewModel.date.collectAsState().value)
 
         Spacer(modifier = Modifier.height(10.dp))
 

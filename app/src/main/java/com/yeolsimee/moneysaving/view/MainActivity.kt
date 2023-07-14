@@ -36,9 +36,9 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,7 +57,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.MyPageRouteCode
@@ -68,7 +67,6 @@ import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.executeForTimeMillis
 import com.yeolsimee.moneysaving.utils.hasNotificationPermission
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
-import com.yeolsimee.moneysaving.utils.requestNotificationPermission
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -90,6 +88,8 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private lateinit var alarmState: State<Boolean>
+    private lateinit var snackbarState: SnackbarHostState
     private lateinit var callback: OnBackPressedCallback
     private var pressedTime: Long = 0
 
@@ -111,15 +111,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-    private val permissionLauncher: ActivityResultLauncher<String> =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val snackbarState = remember { SnackbarHostState() }
+            snackbarState = remember { SnackbarHostState() }
 
             RoumoTheme(navigationBarColor = Color.Black) {
                 MainScreenView(snackbarState)
@@ -155,7 +152,7 @@ class MainActivity : ComponentActivity() {
 
         val today = calendarViewModel.today
         selectedDateViewModel.find(today)
-        val dayList = calendarViewModel.dayList.value!!
+        val dayList = calendarViewModel.dayList.collectAsState().value
 
         findAllMyRoutineViewModel.find(
             calendarViewModel.getFirstAndLastDate(dayList), today.month, dayList
@@ -207,11 +204,11 @@ class MainActivity : ComponentActivity() {
                     composable(BottomNavItem.MyPage.screenRoute) {
                         floatingButtonVisible.value = false
 
-                        val alarmState = myPageViewModel.alarmState.observeAsState(false)
+                        alarmState = myPageViewModel.alarmState.collectAsState()
 
                         val scope = rememberCoroutineScope()
                         MyPageScreen(alarmState = alarmState, onChangeAlarmState = {
-                            if (hasNotificationPermission()) {
+                            if (hasNotificationPermission(requestPermissionLauncher)) {
                                 myPageViewModel.changeAlarmState()
                                 executeForTimeMillis(scope, 1000) {
                                     snackbarState.showSnackbar(
@@ -219,8 +216,6 @@ class MainActivity : ComponentActivity() {
                                         duration = SnackbarDuration.Short
                                     )
                                 }
-                            } else {
-                                requestNotificationPermission(permissionLauncher)
                             }
                         }, onLogout = {
                             CoroutineScope(Dispatchers.Default).launch {
@@ -259,7 +254,9 @@ class MainActivity : ComponentActivity() {
                     containerColor = Color.Black,
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                    modifier = Modifier.padding(end = 12.dp, bottom = 24.dp).size(50.dp)
+                    modifier = Modifier
+                        .padding(end = 12.dp, bottom = 24.dp)
+                        .size(50.dp)
                 ) {
                     Image(
                         modifier = Modifier.size(20.dp),
@@ -337,18 +334,27 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        myPageViewModel.getSettings(hasPermission = hasNotificationPermission())
-    }
-
-    fun navigateTo(navController: NavHostController, item: BottomNavItem) {
+    private fun navigateTo(navController: NavHostController, item: BottomNavItem) {
         navController.navigate(item.screenRoute) {
             navController.graph.startDestinationRoute?.let {
                 popUpTo(it) { saveState = true }
             }
             launchSingleTop = true
             restoreState = true
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            myPageViewModel.changeAlarmState()
+            executeForTimeMillis(CoroutineScope(Dispatchers.Main), 1000) {
+                snackbarState.showSnackbar(
+                    message = if (alarmState.value) "알림이 해제되었어요!" else "알림이 설정되었어요!",
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 }

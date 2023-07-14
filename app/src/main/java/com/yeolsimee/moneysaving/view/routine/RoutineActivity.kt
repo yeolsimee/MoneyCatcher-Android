@@ -14,16 +14,18 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.lifecycle.MutableLiveData
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineRequest
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineResponse
 import com.yeolsimee.moneysaving.ui.MyPageRouteCode
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.utils.hasNotificationPermission
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
-import com.yeolsimee.moneysaving.utils.requestNotificationPermission
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 @ExperimentalLayoutApi
 @ExperimentalMaterial3Api
@@ -35,7 +37,7 @@ class RoutineActivity : ComponentActivity() {
     private val alarmViewModel: AlarmViewModel by viewModels()
     private val getRoutineViewModel: GetRoutineViewModel by viewModels()
 
-    private val hasNotificationPermission = MutableLiveData<Boolean?>(null)
+    private val hasNotificationPermission = MutableStateFlow<Boolean?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +52,8 @@ class RoutineActivity : ComponentActivity() {
 
         setContent {
             val selectedCategoryId = remember { mutableStateOf(categoryId) }
-            val routine = getRoutineViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            val routine =
+                getRoutineViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
                     initial = RoutineResponse()
                 ).value
             val notificationCheckDialogState = remember { mutableStateOf(false) }
@@ -83,7 +86,10 @@ class RoutineActivity : ComponentActivity() {
                                 routine = routine,
                                 routineRequest = req,
                                 onSetAlarmCallback = { routine ->
-                                    alarmViewModel.updateCheckedRoutine(routine.alarmTime, req.alarmTime)
+                                    alarmViewModel.updateCheckedRoutine(
+                                        routine.alarmTime,
+                                        req.alarmTime
+                                    )
                                     setRoutineAlarm(hasWeekTypes, req, routine.routineId)
                                 },
                                 onDeleteAlarmCallback = { res ->
@@ -100,7 +106,7 @@ class RoutineActivity : ComponentActivity() {
                     toggleRoutineAlarm = { alarmState ->
                         setAlarmOnIfHasPermission(alarmState, notificationCheckDialogState)
                     },
-                    onCategoryAdded =  {
+                    onCategoryAdded = {
                         categoryViewModel.addCategory(it)
                     },
                     onCheckNotificationSetting = {
@@ -114,7 +120,7 @@ class RoutineActivity : ComponentActivity() {
     private fun setRoutineAlarm(
         hasWeekTypes: Boolean,
         req: RoutineRequest,
-        id: Int
+        id: Int,
     ) {
         if (hasWeekTypes) {
             RoutineAlarmManager.setRoutine(
@@ -143,20 +149,20 @@ class RoutineActivity : ComponentActivity() {
 
     private fun setAlarmOnIfHasPermission(
         alarmState: MutableState<Boolean>,
-        notificationCheckDialogState: MutableState<Boolean>
+        notificationCheckDialogState: MutableState<Boolean>,
     ) {
-        hasNotificationPermission.observe(this) {
-            if (hasNotificationPermission()) {
-                alarmViewModel.getAlarmState {
-                    if (it) {
-                        alarmState.value = !alarmState.value
-                        if (alarmState.value) alarmViewModel.setAlarmOn()
-                    } else {
-                        notificationCheckDialogState.value = true
+        CoroutineScope(Dispatchers.Main).launch {
+            hasNotificationPermission.collect {
+                if (hasNotificationPermission(requestPermissionLauncher)) {
+                    alarmViewModel.getAlarmState {
+                        if (it) {
+                            alarmState.value = !alarmState.value
+                            if (alarmState.value) alarmViewModel.setAlarmOn()
+                        } else {
+                            notificationCheckDialogState.value = true
+                        }
                     }
                 }
-            } else {
-                requestNotificationPermission(requestPermissionLauncher)
             }
         }
     }
@@ -176,10 +182,7 @@ class RoutineActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted) {
-            hasNotificationPermission.postValue(true)
-        } else {
-            hasNotificationPermission.postValue(false)
-        }
+        hasNotificationPermission.value = isGranted
     }
+
 }

@@ -2,14 +2,14 @@ package com.yeolsimee.moneysaving.auth
 
 import android.app.Activity
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.App
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object Apple {
-    fun login(activity: Activity, loadingState: MutableLiveData<Boolean>, onSuccess: (Result<String>) -> Unit) {
+    fun login(activity: Activity, loadingState: MutableStateFlow<Boolean>, onSuccess: (Result<String>) -> Unit) {
         val provider = OAuthProvider.newBuilder("apple.com")
         provider.addCustomParameter("locale", "ko_KR")
         Firebase.auth.startActivityForSignInWithProvider(activity, provider.build())

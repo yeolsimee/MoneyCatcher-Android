@@ -2,12 +2,12 @@ package com.yeolsimee.moneysaving.view.login
 
 import android.app.Activity
 import android.content.Intent
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yeolsimee.moneysaving.auth.Email
 import com.yeolsimee.moneysaving.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +26,7 @@ class EmailLoginViewModel @Inject constructor(private val userUseCase: UserUseCa
     fun receiveEmailResult(
         intent: Intent,
         activity: Activity,
-        loadingState: MutableLiveData<Boolean>? = null,
+        loadingState: MutableStateFlow<Boolean>? = null,
         signedUserCallback: () -> Unit,
         newUserCallback: () -> Unit,
         onFailure: () -> Unit = {}
