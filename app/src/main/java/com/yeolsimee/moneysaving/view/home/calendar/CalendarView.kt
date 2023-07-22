@@ -2,12 +2,16 @@ package com.yeolsimee.moneysaving.view.home.calendar
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -22,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,27 +46,38 @@ fun ComposeCalendar(
     month: Int,
     calendarMonth: MutableState<Int>,
     restoreSelected: (Int) -> Unit,
-    onItemSelected: (CalendarDay) -> Unit
+    onItemSelected: (CalendarDay) -> Unit,
+    modifier: Modifier
 ) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        DayOfWeekIndicator()
-        Spacer(Modifier.height(6.dp))
+    Box(modifier = modifier.background(Color.Transparent)) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            DayOfWeekIndicator(modifier = modifier)
+            Box(modifier = modifier.height(6.dp))
 
-        CalendarGrid(days, spread, selected, month, calendarMonth, onItemSelected)
-        Spacer(modifier = Modifier.height(13.5.dp))
+            CalendarGrid(modifier, days, spread, selected, month, calendarMonth, onItemSelected)
+            Box(modifier = modifier.height(13.5.dp))
 
-        CalendarSpreadButton(spread, selected, year, month, calendarMonth, restoreSelected)
+            CalendarSpreadButton(
+                modifier,
+                spread,
+                selected,
+                year,
+                month,
+                calendarMonth,
+                restoreSelected
+            )
+        }
     }
 }
 
 
 @Composable
-private fun DayOfWeekIndicator() {
+private fun DayOfWeekIndicator(modifier: Modifier) {
     LazyHorizontalGrid(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(14.32.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -75,12 +91,13 @@ private fun DayOfWeekIndicator() {
 
 @Composable
 private fun CalendarGrid(
+    modifier: Modifier,
     days: MutableList<CalendarDay>,
     spread: MutableState<Boolean>,
     selected: MutableState<CalendarDay>,
     month: Int,
     calendarMonth: MutableState<Int>,
-    onItemSelected: (CalendarDay) -> Unit
+    onItemSelected: (CalendarDay) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
@@ -89,7 +106,7 @@ private fun CalendarGrid(
     ) {
         items(days) { date ->
             AnimatedVisibility(visible = spread.value) {
-                DayOfMonthIcon(date, selected) {
+                DayOfMonthIcon(date, selected, modifier = modifier) {
                     selected.value = it
                     calendarMonth.value = month
                     onItemSelected(it)
@@ -97,7 +114,7 @@ private fun CalendarGrid(
             }
             AnimatedVisibility(visible = !spread.value) {
                 if (date.isSameWeek(selected.value)) {
-                    DayOfMonthIcon(date, selected) {
+                    DayOfMonthIcon(date, selected, modifier = modifier) {
                         selected.value = it
                         calendarMonth.value = month
                         onItemSelected(it)
@@ -110,15 +127,16 @@ private fun CalendarGrid(
 
 @Composable
 private fun CalendarSpreadButton(
+    modifier: Modifier,
     spread: MutableState<Boolean>,
     selected: MutableState<CalendarDay>,
     year: Int,
     month: Int,
     calendarMonth: MutableState<Int>,
-    restoreSelected: (Int) -> Unit
+    restoreSelected: (Int) -> Unit,
 ) {
     Image(
-        modifier = Modifier.clickable(
+        modifier = modifier.clickable(
             interactionSource = remember {
                 MutableInteractionSource()
             },
@@ -143,5 +161,10 @@ fun ComposeCalendarPreview() {
     val selected = remember { mutableStateOf(CalendarDay(2023, 6, 29)) }
     val spread = remember { mutableStateOf(true) }
     val calendarMonth = remember { mutableIntStateOf(4) }
-    ComposeCalendar(days, selected, spread, 2023, 4, calendarMonth, {}) {}
+    ComposeCalendar(days, selected, spread, 2023, 4, calendarMonth, {}, {}, Modifier.draggable(
+        orientation = Orientation.Vertical,
+        state = rememberDraggableState { dy ->
+            spread.value = dy > 0
+        }
+    ))
 }

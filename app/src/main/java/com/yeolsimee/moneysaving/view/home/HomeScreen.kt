@@ -3,6 +3,9 @@ package com.yeolsimee.moneysaving.view.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,6 +107,12 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         ComposeCalendar(
+            modifier = Modifier.draggable(
+                orientation = Orientation.Vertical,
+                state = rememberDraggableState { dy ->
+                    spread.value = dy > 0
+                }
+            ),
             days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
             selected = selected,
             spread = spread,
