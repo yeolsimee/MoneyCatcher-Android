@@ -1,6 +1,10 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.yeolsimee.moneysaving.view.home.calendar
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,11 +23,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,7 +55,8 @@ fun ComposeCalendar(
     calendarMonth: MutableState<Int>,
     restoreSelected: (Int) -> Unit,
     onItemSelected: (CalendarDay) -> Unit,
-    modifier: Modifier
+    onPageChanged: (PageChangedState) -> Unit,
+    modifier: Modifier,
 ) {
     Box(modifier = modifier.background(Color.Transparent)) {
         Column(
@@ -57,7 +66,16 @@ fun ComposeCalendar(
             DayOfWeekIndicator(modifier = modifier)
             Box(modifier = modifier.height(6.dp))
 
-            CalendarGrid(modifier, days, spread, selected, month, calendarMonth, onItemSelected)
+            CalendarGrid(
+                modifier,
+                days,
+                spread,
+                selected,
+                month,
+                calendarMonth,
+                onItemSelected,
+                onPageChanged
+            )
             Box(modifier = modifier.height(13.5.dp))
 
             CalendarSpreadButton(
@@ -98,31 +116,56 @@ private fun CalendarGrid(
     month: Int,
     calendarMonth: MutableState<Int>,
     onItemSelected: (CalendarDay) -> Unit,
+    onPageChanged: (PageChangedState) -> Unit,
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(7),
-        contentPadding = PaddingValues(0.dp),
-        modifier = Modifier.heightIn(min = 68.dp, max = (68 * 7).dp)
-    ) {
-        items(days) { date ->
-            AnimatedVisibility(visible = spread.value) {
-                DayOfMonthIcon(date, selected, modifier = modifier) {
-                    selected.value = it
-                    calendarMonth.value = month
-                    onItemSelected(it)
+
+    val pageState = rememberPagerState(pageCount = { 1000 }, initialPage = 500)
+    val currentPage = remember { mutableIntStateOf(500) }
+
+    LaunchedEffect(pageState) {
+        snapshotFlow { pageState.currentPage }.collect { page ->
+            if (spread.value) {
+                if (currentPage.intValue < page) {
+                    onPageChanged(PageChangedState.NEXT)
+                } else if (currentPage.intValue > page) {
+                    onPageChanged(PageChangedState.PREV)
                 }
+                currentPage.intValue = page
+                Log.i("ComposeCalendar", "page: ${page}, currentPage: ${pageState.currentPage}")
             }
-            AnimatedVisibility(visible = !spread.value) {
-                if (date.isSameWeek(selected.value)) {
+        }
+    }
+
+    HorizontalPager(state = pageState, pageSpacing = 56.dp) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),
+            contentPadding = PaddingValues(0.dp),
+            modifier = Modifier.heightIn(min = 68.dp, max = (68 * 7).dp)
+        ) {
+            items(days) { date ->
+                AnimatedVisibility(visible = spread.value) {
                     DayOfMonthIcon(date, selected, modifier = modifier) {
                         selected.value = it
                         calendarMonth.value = month
                         onItemSelected(it)
                     }
                 }
+                AnimatedVisibility(visible = !spread.value) {
+                    if (date.isSameWeek(selected.value)) {
+                        DayOfMonthIcon(date, selected, modifier = modifier) {
+                            selected.value = it
+                            calendarMonth.value = month
+                            onItemSelected(it)
+                        }
+                    }
+                }
             }
         }
     }
+}
+
+enum class PageChangedState {
+    PREV, NEXT
 }
 
 @Composable
@@ -161,10 +204,14 @@ fun ComposeCalendarPreview() {
     val selected = remember { mutableStateOf(CalendarDay(2023, 6, 29)) }
     val spread = remember { mutableStateOf(true) }
     val calendarMonth = remember { mutableIntStateOf(4) }
-    ComposeCalendar(days, selected, spread, 2023, 4, calendarMonth, {}, {}, Modifier.draggable(
-        orientation = Orientation.Vertical,
-        state = rememberDraggableState { dy ->
-            spread.value = dy > 0
-        }
-    ))
+    ComposeCalendar(
+        days, selected, spread, 2023, 4, calendarMonth, {}, {},
+        onPageChanged = {},
+        Modifier.draggable(
+            orientation = Orientation.Vertical,
+            state = rememberDraggableState { dy ->
+                spread.value = dy > 0
+            }
+        ),
+    )
 }

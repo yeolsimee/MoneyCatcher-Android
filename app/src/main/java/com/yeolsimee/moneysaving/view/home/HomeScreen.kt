@@ -48,6 +48,7 @@ import com.yeolsimee.moneysaving.utils.getReactiveHeight
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.ComposeCalendar
 import com.yeolsimee.moneysaving.view.home.calendar.FindAllMyRoutineViewModel
+import com.yeolsimee.moneysaving.view.home.calendar.PageChangedState
 import com.yeolsimee.moneysaving.view.home.calendar.SelectedDateViewModel
 
 @Composable
@@ -130,6 +131,23 @@ fun HomeScreen(
             },
             onItemSelected = {
                 selectedDateViewModel.find(it)
+            },
+            onPageChanged = { pageChangedState ->
+                if (pageChangedState == PageChangedState.PREV) {
+                    setOnYearMonthConfirm(
+                        calendarViewModel,
+                        calendarMonth,
+                        findAllMyRoutineViewModel,
+                        dialogState
+                    )(calendarViewModel.year(), calendarViewModel.month() - 1)
+                } else {
+                    setOnYearMonthConfirm(
+                        calendarViewModel,
+                        calendarMonth,
+                        findAllMyRoutineViewModel,
+                        dialogState
+                    )(calendarViewModel.year(), calendarViewModel.month() + 1)
+                }
             }
         )
 
@@ -173,7 +191,6 @@ fun HomeScreen(
     }
 }
 
-@Composable
 private fun setOnYearMonthConfirm(
     calendarViewModel: CalendarViewModel,
     calendarMonth: MutableState<Int>,
@@ -181,8 +198,19 @@ private fun setOnYearMonthConfirm(
     dialogState: MutableState<Boolean>
 ): (Int, Int) -> Unit {
     val confirmButtonListener: (Int, Int) -> Unit = { selectedYear, selectedMonth ->
-        val resultDayList = calendarViewModel.setDate(selectedYear, selectedMonth - 1)
-        calendarMonth.value = selectedMonth
+
+        var year = selectedYear
+        var month = selectedMonth
+        if (selectedMonth == 0) {
+            year -= 1
+            month = 12
+        } else if (selectedMonth == 13) {
+            year += 1
+            month = 1
+        }
+
+        val resultDayList = calendarViewModel.setDate(year, month - 1)
+        calendarMonth.value = month
 
         findAllMyRoutineViewModel.find(
             dateRange = calendarViewModel.getFirstAndLastDate(resultDayList),
