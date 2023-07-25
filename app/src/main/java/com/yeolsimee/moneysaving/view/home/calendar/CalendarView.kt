@@ -118,7 +118,6 @@ private fun CalendarGrid(
     onItemSelected: (CalendarDay) -> Unit,
     onPageChanged: (PageChangedState) -> Unit,
 ) {
-
     val pageState = rememberPagerState(pageCount = { 1000 }, initialPage = 500)
     val currentPage = remember { mutableIntStateOf(500) }
 
@@ -126,23 +125,30 @@ private fun CalendarGrid(
         snapshotFlow { pageState.currentPage }.collect { page ->
             if (spread.value) {
                 if (currentPage.intValue < page) {
+                    currentPage.intValue = page
                     onPageChanged(PageChangedState.NEXT)
                 } else if (currentPage.intValue > page) {
+                    currentPage.intValue = page
                     onPageChanged(PageChangedState.PREV)
                 }
-                currentPage.intValue = page
                 Log.i("ComposeCalendar", "page: ${page}, currentPage: ${pageState.currentPage}")
             }
         }
     }
 
-    HorizontalPager(state = pageState, pageSpacing = 56.dp) {
+    HorizontalPager(state = pageState, pageSpacing = 56.dp, verticalAlignment = Alignment.Top) { page ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.heightIn(min = 68.dp, max = (68 * 7).dp)
         ) {
-            items(days) { date ->
+            val dayList = if (page < currentPage.intValue) getWeekDays(days.first().getPreviousCalendar())
+            else if (page == currentPage.intValue) days
+            else getWeekDays(days.last().getNextCalendar())
+
+            Log.i("ComposeCalendar", "page: ${page}, currentPage: ${currentPage.intValue}")
+
+            items(dayList) { date ->
                 AnimatedVisibility(visible = spread.value) {
                     DayOfMonthIcon(date, selected, modifier = modifier) {
                         selected.value = it

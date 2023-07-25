@@ -1,6 +1,5 @@
 package com.yeolsimee.moneysaving.domain.calendar
 
-import android.util.Log
 import java.util.Calendar
 
 fun Calendar.isToday(): Boolean {
@@ -8,10 +7,6 @@ fun Calendar.isToday(): Boolean {
     return todayCalendar.get(Calendar.YEAR) == this.get(Calendar.YEAR)
             && todayCalendar.get(Calendar.MONTH) == this.get(Calendar.MONTH)
             && todayCalendar.get(Calendar.DAY_OF_MONTH) == this.get(Calendar.DAY_OF_MONTH)
-}
-
-fun Calendar.isNotPast(): Boolean {
-    return Calendar.getInstance() <= this
 }
 
 /// first: hour
@@ -75,7 +70,6 @@ fun getWeekDays(calendar: Calendar): MutableList<CalendarDay> {
     val tempCal = calendar.clone() as Calendar
 
     tempCal.set(Calendar.DAY_OF_MONTH, 1)
-    Log.i("CalendarUtil", "${tempCal.time}")
     val amount = 1 - tempCal.get(Calendar.DAY_OF_WEEK)
     if (amount < 0) {
         tempCal.add(Calendar.DAY_OF_MONTH, amount + 1)
