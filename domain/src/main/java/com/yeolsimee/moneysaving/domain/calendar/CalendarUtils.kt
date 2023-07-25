@@ -29,6 +29,16 @@ fun isToday(year: Int, month: Int, day: Int): Boolean {
             && todayCalendar.get(Calendar.DAY_OF_MONTH) == day
 }
 
+fun isFuture(year: Int, month: Int, day: Int): Boolean {
+    val todayCalendar = Calendar.getInstance()
+    return todayCalendar.get(Calendar.YEAR) < year
+            || (todayCalendar.get(Calendar.YEAR) == year
+            && todayCalendar.get(Calendar.MONTH) < month - 1)
+            || (todayCalendar.get(Calendar.YEAR) == year
+            && todayCalendar.get(Calendar.MONTH) == month - 1
+            && todayCalendar.get(Calendar.DAY_OF_MONTH) < day)
+}
+
 fun isTodayFromString(date: String?): Boolean {
     if (date == null) return false
     val year = date.substring(0, 4).toInt()

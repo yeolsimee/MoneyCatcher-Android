@@ -101,3 +101,20 @@ fun getIntDayOfWeekFromEnglish(dayOfWeek: String) = when (dayOfWeek) {
     "SUNDAY" -> Calendar.SUNDAY
     else -> -1
 }
+
+fun getMonthsPassedSince2023(year: Int, month: Int): Int {
+    val startDate = Calendar.getInstance()
+    startDate.set(2023, Calendar.JANUARY, 1)
+
+    val currentDate = Calendar.getInstance()
+    currentDate.set(Calendar.YEAR, year)
+    currentDate.set(Calendar.MONTH, month - 1)
+
+    var monthsPassed = 0
+    while (startDate.before(currentDate)) {
+        startDate.add(Calendar.MONTH, 1)
+        monthsPassed++
+    }
+
+    return monthsPassed - 1 // To account for the initial month (January 2023)
+}

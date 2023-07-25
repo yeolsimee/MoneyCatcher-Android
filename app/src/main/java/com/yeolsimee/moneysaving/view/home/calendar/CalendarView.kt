@@ -42,6 +42,7 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
 import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
+import com.yeolsimee.moneysaving.utils.getMonthsPassedSince2023
 import com.yeolsimee.moneysaving.view.home.DayOfWeekText
 import java.util.Calendar
 
@@ -71,6 +72,7 @@ fun ComposeCalendar(
                 days,
                 spread,
                 selected,
+                year,
                 month,
                 calendarMonth,
                 onItemSelected,
@@ -113,27 +115,35 @@ private fun CalendarGrid(
     days: MutableList<CalendarDay>,
     spread: MutableState<Boolean>,
     selected: MutableState<CalendarDay>,
+    year: Int,
     month: Int,
     calendarMonth: MutableState<Int>,
     onItemSelected: (CalendarDay) -> Unit,
     onPageChanged: (PageChangedState) -> Unit,
 ) {
-    val pageState = rememberPagerState(pageCount = { 1000 }, initialPage = 500)
-    val currentPage = remember { mutableIntStateOf(500) }
+    val initialPage = getMonthsPassedSince2023(year, month)
+    val pageState = rememberPagerState(pageCount = { 924 }, initialPage = initialPage)
+    val currentPage = remember { mutableIntStateOf(initialPage) }
 
     LaunchedEffect(pageState) {
         snapshotFlow { pageState.currentPage }.collect { page ->
             if (spread.value) {
                 if (currentPage.intValue < page) {
-                    currentPage.intValue = page
                     onPageChanged(PageChangedState.NEXT)
                 } else if (currentPage.intValue > page) {
-                    currentPage.intValue = page
                     onPageChanged(PageChangedState.PREV)
                 }
                 Log.i("ComposeCalendar", "page: ${page}, currentPage: ${pageState.currentPage}")
+                currentPage.intValue = page
             }
         }
+    }
+
+    // year와 month가 변경될 때마다 실행되는 LaunchedEffect
+    LaunchedEffect(year, month) {
+        val newInitialPage = getMonthsPassedSince2023(year, month)
+        currentPage.intValue = newInitialPage
+        pageState.scrollToPage(newInitialPage)
     }
 
     HorizontalPager(state = pageState, pageSpacing = 56.dp, verticalAlignment = Alignment.Top) { page ->
@@ -146,7 +156,7 @@ private fun CalendarGrid(
             else if (page == currentPage.intValue) days
             else getWeekDays(days.last().getNextCalendar())
 
-            Log.i("ComposeCalendar", "page: ${page}, currentPage: ${currentPage.intValue}")
+            Log.i("ComposeCalendar", "page: ${page}, currentPage: ${currentPage.intValue}, month: ${month}")
 
             items(dayList) { date ->
                 AnimatedVisibility(visible = spread.value) {

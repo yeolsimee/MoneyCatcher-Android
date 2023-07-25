@@ -39,4 +39,16 @@ class DateUtilsTest : BehaviorSpec({
             }
         }
     }
+
+    // getMonthsPassedSince2023 Test
+    given("2023년 7월은 2023년 1월부터 6개월이 지났다.") {
+        `when`("2023년 7월을 입력하면") {
+            val year = 2023
+            val month = 7
+            val result = getMonthsPassedSince2023(year, month)
+            then("6이 반환된다.") {
+                result shouldBe 6
+            }
+        }
+    }
 })
