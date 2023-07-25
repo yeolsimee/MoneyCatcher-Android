@@ -118,3 +118,8 @@ fun getMonthsPassedSince2023(year: Int, month: Int): Int {
 
     return monthsPassed - 1 // To account for the initial month (January 2023)
 }
+
+fun getMonthFromPage(page: Int): Int {
+    val month = page % 12
+    return if (month == 0) 0 else month + 1
+}

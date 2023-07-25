@@ -42,8 +42,10 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
 import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
+import com.yeolsimee.moneysaving.utils.getMonthFromPage
 import com.yeolsimee.moneysaving.utils.getMonthsPassedSince2023
 import com.yeolsimee.moneysaving.view.home.DayOfWeekText
+import kotlinx.coroutines.delay
 import java.util.Calendar
 
 @Composable
@@ -128,6 +130,7 @@ private fun CalendarGrid(
     LaunchedEffect(pageState) {
         snapshotFlow { pageState.currentPage }.collect { page ->
             if (spread.value) {
+                delay(500)
                 if (currentPage.intValue < page) {
                     onPageChanged(PageChangedState.NEXT)
                 } else if (currentPage.intValue > page) {
@@ -152,26 +155,29 @@ private fun CalendarGrid(
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.heightIn(min = 68.dp, max = (68 * 7).dp)
         ) {
-            val dayList = if (page < currentPage.intValue) getWeekDays(days.first().getPreviousCalendar())
-            else if (page == currentPage.intValue) days
-            else getWeekDays(days.last().getNextCalendar())
+            val currentMonth = getMonthFromPage(page)
 
-            Log.i("ComposeCalendar", "page: ${page}, currentPage: ${currentPage.intValue}, month: ${month}")
+            if (days.isNotEmpty()) {
+                Log.i("ComposeCalendar", "page: ${page}, currentPage: ${currentPage.intValue}, month: $month, currentMonth: $currentMonth, days[15].month: ${days[15].month}")
+                val dayList = if (page < currentPage.intValue || currentMonth < days[15].month) getWeekDays(days.first().getPreviousCalendar())
+                else if (page == currentPage.intValue && (currentMonth == month) && days[15].month == month) days
+                else getWeekDays(days.last().getNextCalendar())
 
-            items(dayList) { date ->
-                AnimatedVisibility(visible = spread.value) {
-                    DayOfMonthIcon(date, selected, modifier = modifier) {
-                        selected.value = it
-                        calendarMonth.value = month
-                        onItemSelected(it)
-                    }
-                }
-                AnimatedVisibility(visible = !spread.value) {
-                    if (date.isSameWeek(selected.value)) {
+                items(dayList) { date ->
+                    AnimatedVisibility(visible = spread.value) {
                         DayOfMonthIcon(date, selected, modifier = modifier) {
                             selected.value = it
                             calendarMonth.value = month
                             onItemSelected(it)
+                        }
+                    }
+                    AnimatedVisibility(visible = !spread.value) {
+                        if (date.isSameWeek(selected.value)) {
+                            DayOfMonthIcon(date, selected, modifier = modifier) {
+                                selected.value = it
+                                calendarMonth.value = month
+                                onItemSelected(it)
+                            }
                         }
                     }
                 }
