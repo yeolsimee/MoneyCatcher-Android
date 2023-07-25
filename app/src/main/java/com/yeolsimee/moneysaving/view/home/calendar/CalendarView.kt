@@ -149,7 +149,7 @@ private fun CalendarGrid(
         pageState.scrollToPage(newInitialPage)
     }
 
-    HorizontalPager(state = pageState, pageSpacing = 56.dp, verticalAlignment = Alignment.Top) { page ->
+    HorizontalPager(state = pageState, pageSpacing = 56.dp, verticalAlignment = Alignment.Top, userScrollEnabled = spread.value) { page ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             contentPadding = PaddingValues(0.dp),
