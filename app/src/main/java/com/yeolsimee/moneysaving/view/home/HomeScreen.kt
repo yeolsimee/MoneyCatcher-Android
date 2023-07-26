@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.yeolsimee.moneysaving.view.home
 
 import androidx.compose.foundation.Image
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -28,10 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,6 +60,7 @@ fun HomeScreen(
     routineCheckViewModel: RoutineCheckViewModel,
     routineDeleteViewModel: RoutineDeleteViewModel,
     floatingButtonVisible: MutableState<Boolean>,
+    categoryModifyDialogState: MutableState<Boolean>,
     onItemClick: (Int, String) -> Unit = { _, _ -> },
     onDelete: (routineId: Int) -> Unit = {}
 ) {
@@ -153,41 +155,38 @@ fun HomeScreen(
 
         Spacer(Modifier.height(22.dp))
 
+        DateText(selected)
         val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
             RoutinesOfDay("loading")
         )
 
-        Box(modifier = Modifier) {
-            Column {
-                DateText(selected)
-                if (routinesOfDayState.isEmpty()) {
-                    Spacer(Modifier.height(50.dp))
-                    EmptyRoutine()
-                    Spacer(Modifier.height(getReactiveHeight(135)))
-                } else if (routinesOfDayState.isNotLoading()) {
-                    RoutineItems(
-                        routinesOfDayState = routinesOfDayState,
-                        onItemClick = onItemClick,
-                        onRoutineCheck = { check, routine ->
-                            routineCheckViewModel.check(check, routine) { routinesOfDay ->
-                                selectedDateViewModel.refresh(
-                                    routinesOfDay
-                                )
-                            }
-                        }
-                    ) {
-                        routineDeleteViewModel.delete(it.routineId) {
-                            onDelete(it.routineId)
-                            findAllMyRoutineViewModel.refresh {
-                                selectedDateViewModel.find(selected.value)
-                            }
+        if (routinesOfDayState.isEmpty()) {
+            Spacer(Modifier.height(50.dp))
+            EmptyRoutine()
+            Spacer(Modifier.height(getReactiveHeight(135)))
+        } else if (routinesOfDayState.isNotLoading()) {
+
+            RoutineItems(
+                routinesOfDayState = routinesOfDayState,
+                categoryModifyDialogState = categoryModifyDialogState,
+                onItemClick = onItemClick,
+                onRoutineCheck = { check, routine ->
+                    routineCheckViewModel.check(check, routine) { routinesOfDay ->
+                        selectedDateViewModel.refresh(
+                            routinesOfDay
+                        )
+                    }
+                },
+                onItemDelete = {
+                    routineDeleteViewModel.delete(it.routineId) {
+                        onDelete(it.routineId)
+                        findAllMyRoutineViewModel.refresh {
+                            selectedDateViewModel.find(selected.value)
                         }
                     }
                 }
-            }
+            )
         }
-
-
     }
 }
 
@@ -268,21 +267,6 @@ private fun YearMonthSelectBox(
     }
 }
 
-
-@Composable
-fun DayOfWeekText(text: String) {
-    val config = LocalConfiguration.current
-    val itemWidth = (config.screenWidthDp.dp - (28.dp * 2)) / 7
-    PrText(
-        text = text,
-        modifier = Modifier
-            .width(itemWidth),
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp,
-        lineHeight = 14.32.sp,
-        textAlign = TextAlign.Center
-    )
-}
 
 @Preview(showBackground = true)
 @Composable

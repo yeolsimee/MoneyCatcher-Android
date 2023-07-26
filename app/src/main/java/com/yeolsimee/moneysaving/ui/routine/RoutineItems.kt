@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RoutineItems(
     routinesOfDayState: RoutinesOfDay,
+    categoryModifyDialogState: MutableState<Boolean> = remember { mutableStateOf(false) },
     onItemClick: (Int, String) -> Unit = { _, _ -> },
     onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
     onItemDelete: (Routine) -> Unit = {},
@@ -71,7 +72,10 @@ fun RoutineItems(
             PrText(
                 text = category.categoryName,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.ExtraBold
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.onClick {
+                    categoryModifyDialogState.value = true
+                }
             )
             Spacer(Modifier.height(8.dp))
 
@@ -125,7 +129,10 @@ fun RoutineItems(
                                     }
                                 )
                         ) {
-                            Column(Modifier.padding(start = 20.dp, end = 60.dp).align(Alignment.CenterStart)) {
+                            Column(
+                                Modifier
+                                    .padding(start = 20.dp, end = 60.dp)
+                                    .align(Alignment.CenterStart)) {
                                 PrText(
                                     text = routine.routineName,
                                     fontWeight = FontWeight.SemiBold,

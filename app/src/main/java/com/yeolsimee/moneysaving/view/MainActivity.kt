@@ -36,6 +36,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,6 +62,7 @@ import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.MyPageRouteCode
 import com.yeolsimee.moneysaving.ui.PrText
+import com.yeolsimee.moneysaving.ui.dialog.CategoryModifyDialog
 import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
@@ -146,6 +148,7 @@ class MainActivity : ComponentActivity() {
     fun MainScreenView(snackbarState: SnackbarHostState) {
         val navController = rememberNavController()
         val floatingButtonVisible = remember { mutableStateOf(false) }
+        val categoryModifyDialogState = remember { mutableStateOf(false) }
 
         val routineCheckViewModel: RoutineCheckViewModel = hiltViewModel()
         val routineDeleteViewModel: RoutineDeleteViewModel = hiltViewModel()
@@ -184,6 +187,7 @@ class MainActivity : ComponentActivity() {
                             routineCheckViewModel = routineCheckViewModel,
                             routineDeleteViewModel = routineDeleteViewModel,
                             floatingButtonVisible = floatingButtonVisible,
+                            categoryModifyDialogState = categoryModifyDialogState,
                             onItemClick = { routineId, categoryId ->
                                 val intent = Intent(this@MainActivity, RoutineActivity::class.java)
                                 intent.putExtra("routineId", routineId)
@@ -265,15 +269,31 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-        }, bottomBar = { MainBottomNavigation(navController) })
+        }, bottomBar = { MainBottomNavigation(navController, categoryModifyDialogState) })
     }
 
     @Composable
-    fun MainBottomNavigation(navController: NavHostController) {
+    fun MainBottomNavigation(
+        navController: NavHostController,
+        categoryModifyDialogState: MutableState<Boolean>
+    ) {
         val items = listOf(
             BottomNavItem.Home, BottomNavItem.Recommend, BottomNavItem.MyPage
         )
 
+        Column(modifier = Modifier) {
+            if (categoryModifyDialogState.value) {
+                CategoryModifyDialog(state = categoryModifyDialogState)
+            }
+            BottomNavigator(navController, items)
+        }
+    }
+
+    @Composable
+    private fun BottomNavigator(
+        navController: NavHostController,
+        items: List<BottomNavItem>,
+    ) {
         NavigationBar(
             contentColor = Color.Black,
             containerColor = Color.Black,
@@ -292,7 +312,10 @@ class MainActivity : ComponentActivity() {
 
                 NavigationBarItem(
                     icon = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxHeight()) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxHeight()
+                        ) {
                             Box(
                                 Modifier
                                     .height(3.dp)

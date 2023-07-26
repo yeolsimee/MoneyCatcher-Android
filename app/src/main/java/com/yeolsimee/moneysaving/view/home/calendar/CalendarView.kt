@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -35,16 +36,20 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.calendar.getWeekDays
+import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
 import com.yeolsimee.moneysaving.utils.getMonthFromPage
 import com.yeolsimee.moneysaving.utils.getMonthsPassedSince2023
-import com.yeolsimee.moneysaving.view.home.DayOfWeekText
 import kotlinx.coroutines.delay
 import java.util.Calendar
 
@@ -110,6 +115,22 @@ private fun DayOfWeekIndicator(modifier: Modifier) {
         }
     }
 }
+
+@Composable
+fun DayOfWeekText(text: String) {
+    val config = LocalConfiguration.current
+    val itemWidth = (config.screenWidthDp.dp - (28.dp * 2)) / 7
+    PrText(
+        text = text,
+        modifier = Modifier
+            .width(itemWidth),
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+        lineHeight = 14.32.sp,
+        textAlign = TextAlign.Center
+    )
+}
+
 
 @Composable
 private fun CalendarGrid(
