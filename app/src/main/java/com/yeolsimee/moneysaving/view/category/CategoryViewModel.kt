@@ -25,7 +25,7 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
         getCategoryList()
     }
 
-    fun getCategoryList() = intent {
+    private fun getCategoryList() = intent {
         showLoading()
         reduce { mutableListOf() }
         viewModelScope.launch {
