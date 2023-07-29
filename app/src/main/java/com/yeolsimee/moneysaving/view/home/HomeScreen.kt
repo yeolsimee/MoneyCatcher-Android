@@ -28,21 +28,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
+import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.utils.getReactiveHeight
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
@@ -59,6 +59,8 @@ fun HomeScreen(
     routineCheckViewModel: RoutineCheckViewModel,
     routineDeleteViewModel: RoutineDeleteViewModel,
     floatingButtonVisible: MutableState<Boolean>,
+    categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>>,
+    selectedState: MutableState<CalendarDay>,
     onItemClick: (Int, String) -> Unit = { _, _ -> },
     onDelete: (routineId: Int) -> Unit = {}
 ) {
@@ -77,10 +79,9 @@ fun HomeScreen(
     ) {
         val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
-        val selected = remember { mutableStateOf(today) }
         val calendarMonth = remember { mutableIntStateOf(today.month) }
 
-        floatingButtonVisible.value = selected.value.toString() == today.toString()
+        floatingButtonVisible.value = selectedState.value.toString() == today.toString()
 
         val onConfirmClick: (Int, Int) -> Unit =
             setOnYearMonthConfirm(
@@ -115,17 +116,17 @@ fun HomeScreen(
                 }
             ),
             days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
-            selected = selected,
+            selected = selectedState,
             spread = spread,
             year = year,
             month = month,
             calendarMonth = calendarMonth,
             restoreSelected = {
                 val resultDayList =
-                    calendarViewModel.setDate(selected.value.year, selected.value.month - 1)
+                    calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
                 findAllMyRoutineViewModel.find(
                     calendarViewModel.getFirstAndLastDate(resultDayList),
-                    selected.value.month,
+                    selectedState.value.month,
                     resultDayList
                 )
             },
@@ -153,41 +154,38 @@ fun HomeScreen(
 
         Spacer(Modifier.height(22.dp))
 
+        DateText(selectedState)
         val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
             RoutinesOfDay("loading")
         )
 
-        Box(modifier = Modifier) {
-            Column {
-                DateText(selected)
-                if (routinesOfDayState.isEmpty()) {
-                    Spacer(Modifier.height(50.dp))
-                    EmptyRoutine()
-                    Spacer(Modifier.height(getReactiveHeight(135)))
-                } else if (routinesOfDayState.isNotLoading()) {
-                    RoutineItems(
-                        routinesOfDayState = routinesOfDayState,
-                        onItemClick = onItemClick,
-                        onRoutineCheck = { check, routine ->
-                            routineCheckViewModel.check(check, routine) { routinesOfDay ->
-                                selectedDateViewModel.refresh(
-                                    routinesOfDay
-                                )
-                            }
-                        }
-                    ) {
-                        routineDeleteViewModel.delete(it.routineId) {
-                            onDelete(it.routineId)
-                            findAllMyRoutineViewModel.refresh {
-                                selectedDateViewModel.find(selected.value)
-                            }
+        if (routinesOfDayState.isEmpty()) {
+            Spacer(Modifier.height(50.dp))
+            EmptyRoutine()
+            Spacer(Modifier.height(getReactiveHeight(135)))
+        } else if (routinesOfDayState.isNotLoading()) {
+
+            RoutineItems(
+                routinesOfDayState = routinesOfDayState,
+                categoryModifyDialogState = categoryModifyDialogState,
+                onItemClick = onItemClick,
+                onRoutineCheck = { check, routine ->
+                    routineCheckViewModel.check(check, routine) { routinesOfDay ->
+                        selectedDateViewModel.refresh(
+                            routinesOfDay
+                        )
+                    }
+                },
+                onItemDelete = {
+                    routineDeleteViewModel.delete(it.routineId) {
+                        onDelete(it.routineId)
+                        findAllMyRoutineViewModel.refresh {
+                            selectedDateViewModel.find(selectedState.value)
                         }
                     }
                 }
-            }
+            )
         }
-
-
     }
 }
 
@@ -268,21 +266,6 @@ private fun YearMonthSelectBox(
     }
 }
 
-
-@Composable
-fun DayOfWeekText(text: String) {
-    val config = LocalConfiguration.current
-    val itemWidth = (config.screenWidthDp.dp - (28.dp * 2)) / 7
-    PrText(
-        text = text,
-        modifier = Modifier
-            .width(itemWidth),
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp,
-        lineHeight = 14.32.sp,
-        textAlign = TextAlign.Center
-    )
-}
 
 @Preview(showBackground = true)
 @Composable

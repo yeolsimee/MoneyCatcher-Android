@@ -49,12 +49,14 @@ import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.onClick
 import kotlinx.coroutines.launch
 
 @Composable
 fun RoutineItems(
     routinesOfDayState: RoutinesOfDay,
+    categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>> = remember { mutableStateOf(DialogState(false, null)) },
     onItemClick: (Int, String) -> Unit = { _, _ -> },
     onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
     onItemDelete: (Routine) -> Unit = {},
@@ -71,7 +73,10 @@ fun RoutineItems(
             PrText(
                 text = category.categoryName,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.ExtraBold
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.onClick {
+                    categoryModifyDialogState.value = DialogState(true, category)
+                }
             )
             Spacer(Modifier.height(8.dp))
 
@@ -125,7 +130,10 @@ fun RoutineItems(
                                     }
                                 )
                         ) {
-                            Column(Modifier.padding(start = 20.dp, end = 60.dp).align(Alignment.CenterStart)) {
+                            Column(
+                                Modifier
+                                    .padding(start = 20.dp, end = 60.dp)
+                                    .align(Alignment.CenterStart)) {
                                 PrText(
                                     text = routine.routineName,
                                     fontWeight = FontWeight.SemiBold,

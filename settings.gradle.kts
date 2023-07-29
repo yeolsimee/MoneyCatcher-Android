@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
     repositories {
         google()
@@ -13,6 +15,6 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "ROUMO"
-include ':app'
-include ':domain'
-include ':data'
+include(":app")
+include(":domain")
+include(":data")
