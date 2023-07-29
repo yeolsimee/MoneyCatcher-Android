@@ -60,15 +60,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yeolsimee.moneysaving.BottomNavItem
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
+import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.ui.MyPageRouteCode
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.CategoryModifyDialog
+import com.yeolsimee.moneysaving.ui.dialog.CategoryUpdateDialog
+import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.executeForTimeMillis
 import com.yeolsimee.moneysaving.utils.hasNotificationPermission
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
+import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
 import com.yeolsimee.moneysaving.view.home.RoutineCheckViewModel
 import com.yeolsimee.moneysaving.view.home.RoutineDeleteViewModel
@@ -105,9 +112,7 @@ class MainActivity : ComponentActivity() {
     private val routineActivityLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                findAllMyRoutineViewModel.refresh {
-                    selectedDateViewModel.find(calendarViewModel.today)
-                }
+                selectedDateViewModel.find(calendarViewModel.today)
             } else if (result.resultCode == MyPageRouteCode) {
                 navigator.navigate(BottomNavItem.MyPage)
             }
@@ -148,18 +153,19 @@ class MainActivity : ComponentActivity() {
     fun MainScreenView(snackbarState: SnackbarHostState) {
         val navController = rememberNavController()
         val floatingButtonVisible = remember { mutableStateOf(false) }
-        val categoryModifyDialogState = remember { mutableStateOf(false) }
+        val categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>> =
+            remember { mutableStateOf(DialogState(false, null)) }
 
         val routineCheckViewModel: RoutineCheckViewModel = hiltViewModel()
         val routineDeleteViewModel: RoutineDeleteViewModel = hiltViewModel()
 
         val today = calendarViewModel.today
-        selectedDateViewModel.find(today)
         val dayList = calendarViewModel.dayList.collectAsState().value
 
         findAllMyRoutineViewModel.find(
             calendarViewModel.getFirstAndLastDate(dayList), today.month, dayList
         )
+        selectedDateViewModel.find(today)
 
         val destination by navigator.destination.collectAsState()
         LaunchedEffect(destination) {
@@ -167,124 +173,185 @@ class MainActivity : ComponentActivity() {
                 navigateTo(navController, destination)
             }
         }
-
-        Scaffold(content = {
-            Box(
-                Modifier
-                    .padding(it)
-                    .background(Color.White)
-            ) {
-                NavHost(
-                    navController = navController, startDestination = BottomNavItem.Home.screenRoute
+        val selectedDateState = remember { mutableStateOf(calendarViewModel.today) }
+        Scaffold(
+            content = {
+                Box(
+                    Modifier
+                        .padding(it)
+                        .background(Color.White)
                 ) {
-                    composable(BottomNavItem.Home.screenRoute) {
-                        floatingButtonVisible.value = true
+                    NavHost(
+                        navController = navController,
+                        startDestination = BottomNavItem.Home.screenRoute
+                    ) {
+                        composable(BottomNavItem.Home.screenRoute) {
+                            floatingButtonVisible.value = true
 
-                        HomeScreen(
-                            calendarViewModel = calendarViewModel,
-                            selectedDateViewModel = selectedDateViewModel,
-                            findAllMyRoutineViewModel = findAllMyRoutineViewModel,
-                            routineCheckViewModel = routineCheckViewModel,
-                            routineDeleteViewModel = routineDeleteViewModel,
-                            floatingButtonVisible = floatingButtonVisible,
-                            categoryModifyDialogState = categoryModifyDialogState,
-                            onItemClick = { routineId, categoryId ->
-                                val intent = Intent(this@MainActivity, RoutineActivity::class.java)
-                                intent.putExtra("routineId", routineId)
-                                intent.putExtra("routineType", RoutineModifyOption.Update)
-                                intent.putExtra("categoryId", categoryId)
-                                routineActivityLauncher.launch(intent)
-                            },
-                            onDelete = { routineId ->
-                                RoutineAlarmManager.delete(this@MainActivity, routineId)
-                            }
-                        )
-                        CustomSnackBarHost(snackbarState)
-                    }
-                    composable(BottomNavItem.Recommend.screenRoute) {
-                        floatingButtonVisible.value = false
-                        RecommendScreen()
-                    }
-                    composable(BottomNavItem.MyPage.screenRoute) {
-                        floatingButtonVisible.value = false
-
-                        alarmState = myPageViewModel.alarmState.collectAsState()
-
-                        val scope = rememberCoroutineScope()
-                        MyPageScreen(alarmState = alarmState, onChangeAlarmState = {
-                            if (hasNotificationPermission(requestPermissionLauncher)) {
-                                myPageViewModel.changeAlarmState()
-                                executeForTimeMillis(scope, 1000) {
-                                    snackbarState.showSnackbar(
-                                        message = if (alarmState.value) "알림이 해제되었어요!" else "알림이 설정되었어요!",
-                                        duration = SnackbarDuration.Short
-                                    )
+                            HomeScreen(
+                                calendarViewModel = calendarViewModel,
+                                selectedDateViewModel = selectedDateViewModel,
+                                findAllMyRoutineViewModel = findAllMyRoutineViewModel,
+                                routineCheckViewModel = routineCheckViewModel,
+                                routineDeleteViewModel = routineDeleteViewModel,
+                                floatingButtonVisible = floatingButtonVisible,
+                                categoryModifyDialogState = categoryModifyDialogState,
+                                selectedState = selectedDateState,
+                                onItemClick = { routineId, categoryId ->
+                                    val intent =
+                                        Intent(this@MainActivity, RoutineActivity::class.java)
+                                    intent.putExtra("routineId", routineId)
+                                    intent.putExtra("routineType", RoutineModifyOption.Update)
+                                    intent.putExtra("categoryId", categoryId)
+                                    routineActivityLauncher.launch(intent)
+                                },
+                                onDelete = { routineId ->
+                                    RoutineAlarmManager.delete(this@MainActivity, routineId)
                                 }
-                            }
-                        }, onLogout = {
-                            CoroutineScope(Dispatchers.Default).launch {
-                                myPageViewModel.logoutAndCancelAlarms(this@MainActivity) {
-                                    val intent = Intent(
-                                        this@MainActivity, LoginActivity::class.java
-                                    )
+                            )
+                            CustomSnackBarHost(snackbarState)
+                        }
+                        composable(BottomNavItem.Recommend.screenRoute) {
+                            floatingButtonVisible.value = false
+                            RecommendScreen()
+                        }
+                        composable(BottomNavItem.MyPage.screenRoute) {
+                            floatingButtonVisible.value = false
+
+                            alarmState = myPageViewModel.alarmState.collectAsState()
+
+                            val scope = rememberCoroutineScope()
+                            MyPageScreen(alarmState = alarmState, onChangeAlarmState = {
+                                if (hasNotificationPermission(requestPermissionLauncher)) {
+                                    myPageViewModel.changeAlarmState()
+                                    executeForTimeMillis(scope, 1000) {
+                                        snackbarState.showSnackbar(
+                                            message = if (alarmState.value) "알림이 해제되었어요!" else "알림이 설정되었어요!",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                }
+                            }, onLogout = {
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    myPageViewModel.logoutAndCancelAlarms(this@MainActivity) {
+                                        val intent = Intent(
+                                            this@MainActivity, LoginActivity::class.java
+                                        )
+                                        startActivity(intent)
+                                        finishAffinity()
+                                    }
+                                }
+                            }, onWithdraw = {
+                                myPageViewModel.withdraw(this@MainActivity) {
+                                    val intent =
+                                        Intent(this@MainActivity, LoginActivity::class.java)
                                     startActivity(intent)
                                     finishAffinity()
                                 }
-                            }
-                        }, onWithdraw = {
-                            myPageViewModel.withdraw(this@MainActivity) {
-                                val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                                startActivity(intent)
-                                finishAffinity()
-                            }
-                        }, openInternetBrowser = { url ->
-                            startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                            )
-                        })
+                            }, openInternetBrowser = { url ->
+                                startActivity(
+                                    Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                )
+                            })
 
-                        CustomSnackBarHost(snackbarState)
+                            CustomSnackBarHost(snackbarState)
+                        }
                     }
                 }
-            }
-        }, floatingActionButton = {
-            if (floatingButtonVisible.value) {
-                FloatingActionButton(
-                    onClick = {
-                        val intent = Intent(this@MainActivity, RoutineActivity::class.java)
-                        intent.putExtra("routineType", RoutineModifyOption.Add)
-                        routineActivityLauncher.launch(intent)
-                    },
-                    containerColor = Color.Black,
-                    shape = CircleShape,
-                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                    modifier = Modifier
-                        .padding(end = 12.dp, bottom = 24.dp)
-                        .size(50.dp)
-                ) {
-                    Image(
-                        modifier = Modifier.size(20.dp),
-                        painter = painterResource(id = R.drawable.icon_plus),
-                        contentDescription = "루틴 추가"
-                    )
+            },
+            floatingActionButton = {
+                if (floatingButtonVisible.value) {
+                    FloatingActionButton(
+                        onClick = {
+                            val intent = Intent(this@MainActivity, RoutineActivity::class.java)
+                            intent.putExtra("routineType", RoutineModifyOption.Add)
+                            routineActivityLauncher.launch(intent)
+                        },
+                        containerColor = Color.Black,
+                        shape = CircleShape,
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                        modifier = Modifier
+                            .padding(end = 12.dp, bottom = 24.dp)
+                            .size(50.dp)
+                    ) {
+                        Image(
+                            modifier = Modifier.size(20.dp),
+                            painter = painterResource(id = R.drawable.icon_plus),
+                            contentDescription = "루틴 추가"
+                        )
+                    }
                 }
-            }
-        }, bottomBar = { MainBottomNavigation(navController, categoryModifyDialogState) })
+            },
+            bottomBar = {
+                MainBottomNavigation(
+                    navController,
+                    categoryModifyDialogState,
+                    selectedDateState
+                )
+            })
     }
 
     @Composable
     fun MainBottomNavigation(
         navController: NavHostController,
-        categoryModifyDialogState: MutableState<Boolean>
+        categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>>,
+        selectedDateState: MutableState<CalendarDay>,
     ) {
         val items = listOf(
             BottomNavItem.Home, BottomNavItem.Recommend, BottomNavItem.MyPage
         )
 
         Column(modifier = Modifier) {
-            if (categoryModifyDialogState.value) {
-                CategoryModifyDialog(state = categoryModifyDialogState)
+            val categoryUpdateDialogState: MutableState<Boolean> =
+                remember { mutableStateOf(false) }
+            val categoryDeleteDialogState: MutableState<Boolean> =
+                remember { mutableStateOf(false) }
+
+            val dialogState = categoryModifyDialogState.value
+            if (dialogState.isShowing) {
+                CategoryModifyDialog(
+                    state = categoryModifyDialogState,
+                    categoryUpdateDialogState,
+                    categoryDeleteDialogState
+                )
             }
+            val categoryViewModel: CategoryViewModel = hiltViewModel()
+            if (categoryUpdateDialogState.value) {
+                val category = dialogState.data!!.getTextItem()
+                categoryModifyDialogState.value = dialogState.copy(isShowing = false)
+                CategoryUpdateDialog(
+                    dialogState = categoryUpdateDialogState,
+                    categoryName = remember { mutableStateOf(category.name) },
+                    onConfirmClick = { categoryName ->
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val result =
+                                categoryViewModel.update(TextItem(category.id, categoryName))
+                            if (result.isSuccess) {
+                                selectedDateViewModel.find(selectedDateState.value)
+                            }
+                        }
+                    }
+                )
+            }
+
+            if (categoryDeleteDialogState.value) {
+                val category = dialogState.data!!.getTextItem()
+                categoryModifyDialogState.value = dialogState.copy(isShowing = false)
+                TwoButtonOneTitleDialog(
+                    text = "카테고리 삭제시 해당 루틴들도 함께 사라져요.\n" +
+                            "해당 카테고리를 정말 삭제하시겠어요?",
+                    dialogState = categoryDeleteDialogState,
+                    onConfirmClick = {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            categoryViewModel.delete(category).onSuccess {
+                                selectedDateViewModel.find(selectedDateState.value)
+                            }
+                        }
+                    },
+                    onCancelClick = {}
+                )
+            }
+
             BottomNavigator(navController, items)
         }
     }
@@ -358,12 +425,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun navigateTo(navController: NavHostController, item: BottomNavItem) {
-        navController.navigate(item.screenRoute) {
-            navController.graph.startDestinationRoute?.let {
-                popUpTo(it) { saveState = true }
+        try {
+            navController.navigate(item.screenRoute) {
+                navController.graph.startDestinationRoute?.let {
+                    popUpTo(it) { saveState = true }
+                }
+                launchSingleTop = true
+                restoreState = true
             }
-            launchSingleTop = true
-            restoreState = true
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

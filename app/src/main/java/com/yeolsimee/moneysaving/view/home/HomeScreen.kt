@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.yeolsimee.moneysaving.view.home
 
 import androidx.compose.foundation.Image
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -38,12 +35,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
+import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.utils.getReactiveHeight
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
@@ -60,7 +59,8 @@ fun HomeScreen(
     routineCheckViewModel: RoutineCheckViewModel,
     routineDeleteViewModel: RoutineDeleteViewModel,
     floatingButtonVisible: MutableState<Boolean>,
-    categoryModifyDialogState: MutableState<Boolean>,
+    categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>>,
+    selectedState: MutableState<CalendarDay>,
     onItemClick: (Int, String) -> Unit = { _, _ -> },
     onDelete: (routineId: Int) -> Unit = {}
 ) {
@@ -79,10 +79,9 @@ fun HomeScreen(
     ) {
         val spread = remember { mutableStateOf(false) }
         val dialogState = remember { mutableStateOf(false) }
-        val selected = remember { mutableStateOf(today) }
         val calendarMonth = remember { mutableIntStateOf(today.month) }
 
-        floatingButtonVisible.value = selected.value.toString() == today.toString()
+        floatingButtonVisible.value = selectedState.value.toString() == today.toString()
 
         val onConfirmClick: (Int, Int) -> Unit =
             setOnYearMonthConfirm(
@@ -117,17 +116,17 @@ fun HomeScreen(
                 }
             ),
             days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
-            selected = selected,
+            selected = selectedState,
             spread = spread,
             year = year,
             month = month,
             calendarMonth = calendarMonth,
             restoreSelected = {
                 val resultDayList =
-                    calendarViewModel.setDate(selected.value.year, selected.value.month - 1)
+                    calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
                 findAllMyRoutineViewModel.find(
                     calendarViewModel.getFirstAndLastDate(resultDayList),
-                    selected.value.month,
+                    selectedState.value.month,
                     resultDayList
                 )
             },
@@ -155,7 +154,7 @@ fun HomeScreen(
 
         Spacer(Modifier.height(22.dp))
 
-        DateText(selected)
+        DateText(selectedState)
         val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
             RoutinesOfDay("loading")
         )
@@ -181,7 +180,7 @@ fun HomeScreen(
                     routineDeleteViewModel.delete(it.routineId) {
                         onDelete(it.routineId)
                         findAllMyRoutineViewModel.refresh {
-                            selectedDateViewModel.find(selected.value)
+                            selectedDateViewModel.find(selectedState.value)
                         }
                     }
                 }

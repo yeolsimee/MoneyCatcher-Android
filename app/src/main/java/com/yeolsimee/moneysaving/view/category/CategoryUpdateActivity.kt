@@ -9,6 +9,9 @@ import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CategoryUpdateActivity : ComponentActivity() {
@@ -35,10 +38,16 @@ class CategoryUpdateActivity : ComponentActivity() {
                     categoryList = list.value,
                     sideEffect = sideEffect,
                     onCategoryUpdate = {
-                        categoryViewModel.update(it)
+                        CoroutineScope(Dispatchers.Default).launch {
+                            categoryViewModel.update(it)
+                        }
                     },
                     onDelete = {
-                        categoryViewModel.delete(it)
+                        CoroutineScope(Dispatchers.Default).launch {
+                            categoryViewModel.delete(it).onSuccess {
+                                categoryViewModel.getCategoryList()
+                            }
+                        }
                     }
                 )
             }
