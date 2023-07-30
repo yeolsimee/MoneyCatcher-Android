@@ -4,14 +4,13 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.actionCodeSettings
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.yeolsimee.moneysaving.App
-import java.lang.Exception
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object Email {
     fun send(
@@ -37,7 +36,7 @@ object Email {
     fun receive(
         intent: Intent?,
         activity: Activity,
-        loadingState: MutableLiveData<Boolean>? = null,
+        loadingState: MutableStateFlow<Boolean>? = null,
         onFailure: () -> Unit,
         onComplete: (AuthResult) -> Unit
     ) {

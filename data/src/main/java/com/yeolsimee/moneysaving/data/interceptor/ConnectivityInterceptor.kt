@@ -28,7 +28,6 @@ class ConnectivityInterceptor: Interceptor {
                 body.writeTo(buffer)
                 Log.d("OkHttp Request body", "Request Body: " + buffer.readUtf8())
             }
-            Log.d("OkHttp response body", content)
             response.newBuilder()
                 .body(ResponseBody.create(response.body()?.contentType(), content)).build()
         } catch (e: IOException) {

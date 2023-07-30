@@ -29,4 +29,8 @@ data class CategoryWithRoutines(
         result = 31 * result + routineDatas.contentHashCode()
         return result
     }
+
+    fun getTextItem(): TextItem {
+        return TextItem(categoryId, categoryName)
+    }
 }

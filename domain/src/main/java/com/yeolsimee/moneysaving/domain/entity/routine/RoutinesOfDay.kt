@@ -8,7 +8,6 @@ data class RoutinesOfDay(
     val routineDay: String? = "",
     val categoryDatas: Array<CategoryWithRoutines> = arrayOf()
 ) {
-    fun isNotLoadingAndNotEmpty() = routineDay != "loading" && categoryDatas.isNotEmpty()
     fun isNotLoading() = routineDay != "loading"
     fun isEmpty() = routineDay != "loading" && categoryDatas.isEmpty()
     fun isToday() = isTodayFromString(routineDay)
