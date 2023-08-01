@@ -113,6 +113,7 @@ fun getMonthsPassedSince2023(year: Int, month: Int): Int {
 
     var monthsPassed = 0
     while (startDate.before(currentDate) || startDate.isSameMonth(currentDate)) {
+
         startDate.add(Calendar.MONTH, 1)
         monthsPassed++
     }
