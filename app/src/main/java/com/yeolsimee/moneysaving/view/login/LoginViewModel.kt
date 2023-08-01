@@ -7,7 +7,6 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -23,6 +22,7 @@ import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -71,7 +71,7 @@ class LoginViewModel @Inject constructor(
 
     fun appleLogin(
         loginActivity: LoginActivity,
-        loadingState: MutableLiveData<Boolean>,
+        loadingState: MutableStateFlow<Boolean>,
         signedUserCallback: () -> Unit,
         newUserCallback: () -> Unit,
         loginFailCallback: () -> Unit = {}

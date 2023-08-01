@@ -65,20 +65,13 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
         }
     }
 
-    fun delete(category: TextItem) = intent {
-        viewModelScope.launch {
-            categoryApi.delete(category)
-                .onSuccess {
-                    getCategoryList()
-                }.onFailure {
-                    showEmpty()
-                }
+    suspend fun delete(category: TextItem): Result<Any> {
+        return categoryApi.delete(category).onFailure {
+            showEmpty()
         }
     }
 
-    fun update(category: TextItem) {
-        viewModelScope.launch {
-            categoryApi.update(category)
-        }
+    suspend fun update(category: TextItem): Result<Any> {
+        return categoryApi.update(category)
     }
 }

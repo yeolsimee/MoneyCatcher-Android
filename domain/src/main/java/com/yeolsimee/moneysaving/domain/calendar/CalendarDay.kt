@@ -27,6 +27,20 @@ data class CalendarDay(
         }
     }
 
+    fun getPreviousCalendar(): Calendar {
+        val calendar = getCalendar()
+        calendar.add(Calendar.DAY_OF_MONTH, -1)
+
+        return calendar
+    }
+
+    fun getNextCalendar(): Calendar {
+        val calendar = getCalendar()
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+
+        return calendar
+    }
+
     fun getNextDay(): CalendarDay {
         val calendar = getCalendar()
         calendar.add(Calendar.DAY_OF_MONTH, 1)
@@ -85,14 +99,6 @@ data class CalendarDay(
             }
             return true
         }
-    }
-
-    fun isToday(): Boolean {
-        return getCalendar().isToday()
-    }
-
-    fun isNotPast(): Boolean {
-        return getCalendar().isNotPast()
     }
 
     override fun equals(other: Any?): Boolean {

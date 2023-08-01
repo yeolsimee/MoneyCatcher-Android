@@ -1,6 +1,7 @@
 package com.yeolsimee.moneysaving.domain.entity.routine
 
 import com.yeolsimee.moneysaving.domain.calendar.DateIconState
+import com.yeolsimee.moneysaving.domain.calendar.isFuture
 import com.yeolsimee.moneysaving.domain.calendar.isToday
 
 data class RoutineAchievement(
@@ -10,10 +11,11 @@ data class RoutineAchievement(
     fun convertToDateIconState(selectedMonth: Int): DateIconState {
         val (year, month, day) = getYearMonthDay()
         val isToday = isToday(year, month, day)
+        val isFuture = isFuture(year, month, day)
 
         // 과거 루틴은 기록이 있으니까 표시하고
         val iconState = if (selectedMonth > month) {
-            if (routineAchievement != "NONE") {
+            if (routineAchievement != "NONE" && !isFuture) {
                 DateIconState.OtherMonth
             } else {
                 DateIconState.EmptyOtherMonth
