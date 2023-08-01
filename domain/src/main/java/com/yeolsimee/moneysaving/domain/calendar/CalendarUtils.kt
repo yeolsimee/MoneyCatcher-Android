@@ -130,3 +130,8 @@ fun getCalendarFromCalendarDay(calendarDay: CalendarDay): Calendar {
     calendar.set(Calendar.DAY_OF_MONTH, calendarDay.day)
     return calendar
 }
+
+fun Calendar.isSameMonth(calendar: Calendar): Boolean {
+    return this.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)
+            && this.get(Calendar.MONTH) == calendar.get(Calendar.MONTH)
+}

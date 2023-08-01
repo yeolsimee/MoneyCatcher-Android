@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.utils
 
+import com.yeolsimee.moneysaving.domain.calendar.isSameMonth
 import java.util.Calendar
 
 fun getTextFromDayOfWeek(dayOfWeek: Int): String {
@@ -104,14 +105,14 @@ fun getIntDayOfWeekFromEnglish(dayOfWeek: String) = when (dayOfWeek) {
 
 fun getMonthsPassedSince2023(year: Int, month: Int): Int {
     val startDate = Calendar.getInstance()
-    startDate.set(2023, Calendar.JANUARY, 1)
+    startDate.set(2023, Calendar.JANUARY, 2)
 
     val currentDate = Calendar.getInstance()
     currentDate.set(Calendar.YEAR, year)
     currentDate.set(Calendar.MONTH, month - 1)
 
     var monthsPassed = 0
-    while (startDate.before(currentDate)) {
+    while (startDate.before(currentDate) || startDate.isSameMonth(currentDate)) {
         startDate.add(Calendar.MONTH, 1)
         monthsPassed++
     }
