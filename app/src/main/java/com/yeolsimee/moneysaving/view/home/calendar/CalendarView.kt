@@ -50,7 +50,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.calendar.DayOfMonthIcon
 import com.yeolsimee.moneysaving.utils.getMonthFromPage
 import com.yeolsimee.moneysaving.utils.getMonthsPassedSince2023
-import kotlinx.coroutines.delay
+
 import java.util.Calendar
 
 @Composable
@@ -151,7 +151,6 @@ private fun CalendarGrid(
     LaunchedEffect(pageState) {
         snapshotFlow { pageState.currentPage }.collect { page ->
             if (spread.value) {
-                delay(500)
                 if (currentPage.intValue < page) {
                     onPageChanged(PageChangedState.NEXT)
                 } else if (currentPage.intValue > page) {
