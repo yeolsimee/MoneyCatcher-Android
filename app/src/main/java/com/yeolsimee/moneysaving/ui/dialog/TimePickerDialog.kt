@@ -21,7 +21,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,8 +50,8 @@ fun TimePickerDialog(
     ampm: AmPmTime,
     onConfirmClick: (Int, Int, AmPmTime) -> Unit
 ) {
-    val hourState = remember { mutableIntStateOf(hour) }
-    val minuteState = remember { mutableIntStateOf(minute) }
+    val hourState = remember { mutableStateOf(hour) }
+    val minuteState = remember { mutableStateOf(minute) }
     val ampmState = remember { mutableStateOf(ampm) }
 
     if (dialogState.value) {
@@ -117,8 +116,8 @@ fun TimePickerDialog(
                             .onClick {
                                 dialogState.value = false
                                 onConfirmClick(
-                                    hourState.intValue,
-                                    minuteState.intValue,
+                                    hourState.value,
+                                    minuteState.value,
                                     ampmState.value
                                 )
                             }

@@ -25,7 +25,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -171,7 +170,7 @@ fun SelectRoutineRepeatPreview() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SelectRoutineTimeZone(
-    selectedId: MutableState<String>,
+    selectedId: String,
     selectCallback: (String) -> Unit
 ) {
     val timeZoneList = remember {
@@ -204,7 +203,7 @@ fun SelectRoutineTimeZone(
         Spacer(Modifier.height(11.dp))
         FlowRow {
             timeZoneList.forEach {
-                if (selectedId.value == it.id) {
+                if (selectedId == it.id) {
                     SelectedItem(it, selectCallback)
                 } else {
                     UnSelectedItem(it, selectCallback)
@@ -219,10 +218,7 @@ fun SelectRoutineTimeZone(
 @Composable
 fun SelectRoutineTimeZonePreview() {
     RoumoTheme {
-        SelectRoutineTimeZone(
-            selectedId = remember {
-                mutableStateOf("1")
-            }) {}
+        SelectRoutineTimeZone(selectedId = "1") {}
     }
 }
 
@@ -231,8 +227,9 @@ fun SettingAlarmTime(
     alarmState: MutableState<Boolean>,
     hourState: MutableState<Int>,
     minuteState: MutableState<Int>,
-    toggleRoutineAlarm: (MutableState<Boolean>) -> Unit = {},
+    toggleRoutineAlarm: (MutableState<Boolean>, MutableState<Boolean>) -> Unit = {_, _ -> },
     timePickerDialogState: MutableState<Boolean>,
+    notificationCheckDialogState: MutableState<Boolean>,
 ) {
     val timeText = hourState.value.getTwoDigitsHour() + ":" +
             minuteState.value.getTwoDigits()
@@ -271,7 +268,7 @@ fun SettingAlarmTime(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            toggleRoutineAlarm(alarmState)
+                            toggleRoutineAlarm(alarmState, notificationCheckDialogState)
                         }
                     )
                 )
@@ -319,9 +316,10 @@ fun SettingAlarmTime(
 fun SettingAlarmTimePreview() {
     val alarmState1 = remember { mutableStateOf(true) }
     val alarmState2 = remember { mutableStateOf(false) }
-    val hourState = remember { mutableIntStateOf(11) }
-    val minuteState = remember { mutableIntStateOf(0) }
+    val hourState = remember { mutableStateOf(11) }
+    val minuteState = remember { mutableStateOf(0) }
     val timePickerDialogState = remember { mutableStateOf(false) }
+    val notificationCheckDialogState = remember { mutableStateOf(false) }
 
     RoumoTheme {
         Column {
@@ -329,14 +327,16 @@ fun SettingAlarmTimePreview() {
                 alarmState = alarmState1,
                 hourState,
                 minuteState,
-                timePickerDialogState = timePickerDialogState
+                timePickerDialogState = timePickerDialogState,
+                notificationCheckDialogState = notificationCheckDialogState
             )
             Spacer(modifier = Modifier.height(8.dp))
             SettingAlarmTime(
                 alarmState = alarmState2,
                 hourState,
                 minuteState,
-                timePickerDialogState = timePickerDialogState
+                timePickerDialogState = timePickerDialogState,
+                notificationCheckDialogState = notificationCheckDialogState
             )
         }
     }

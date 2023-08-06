@@ -93,23 +93,23 @@ dependencies {
     implementation(project(":domain"))
 
     val composeVersion = "1.4.3"
-    val hiltVersion = "2.46.1"
+    val hiltVersion = "2.47"
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.2.0-alpha02")
+    implementation("androidx.compose.material3:material3:1.1.1")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
 
     // ui
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // status bar color
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.25.1")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
     // Firebase 로그인, Functions, Dynamic Links
-    implementation(platform("com.google.firebase:firebase-bom:32.1.1"))
+    implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
@@ -117,10 +117,10 @@ dependencies {
     implementation("com.google.firebase:firebase-dynamic-links-ktx")
 
     // Google 로그인
-    implementation("com.google.android.gms:play-services-auth:20.5.0")
+    implementation("com.google.android.gms:play-services-auth:20.6.0")
 
     // naver
-    implementation("com.navercorp.nid:oauth:5.6.0")
+    implementation("com.navercorp.nid:oauth:5.7.0")
 
     // ViewModel-Compose 사용
     val lifecycleVersion = "2.6.1"
@@ -135,7 +135,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // Coroutine
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // orbit mvi
     implementation("org.orbit-mvi:orbit-compose:6.0.0")

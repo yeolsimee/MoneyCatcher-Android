@@ -12,3 +12,15 @@ sealed class BottomNavItem(
         BottomNavItem("내 정보", R.drawable.icon_mypage_off, R.drawable.icon_mypage_on, "MyPage")
 
 }
+
+object Routes {
+    const val splash = "splash"
+    const val login = "login"
+    const val agreement = "agreement"
+    const val main = "main"
+    const val routine = "routine"
+    const val emailLogin = "email_login"
+
+    const val routineAdd = "routine_add"
+    const val routineUpdate = "routine_modify"
+}

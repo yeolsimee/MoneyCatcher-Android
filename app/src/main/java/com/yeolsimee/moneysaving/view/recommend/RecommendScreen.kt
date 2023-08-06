@@ -35,7 +35,9 @@ fun RecommendScreen() {
             modifier = Modifier.padding(start = 28.dp, top = 16.dp)
         )
         Column(
-            modifier = Modifier.fillMaxSize().padding(top = 18.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 18.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

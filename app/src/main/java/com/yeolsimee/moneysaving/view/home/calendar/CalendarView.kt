@@ -29,7 +29,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -85,7 +84,7 @@ fun ComposeCalendar(
                 onItemSelected,
                 onPageChanged
             )
-            Box(modifier = modifier.height(13.5.dp))
+            Box(modifier = modifier.height(4.dp))
 
             CalendarSpreadButton(
                 modifier,
@@ -145,19 +144,19 @@ private fun CalendarGrid(
     onPageChanged: (PageChangedState) -> Unit,
 ) {
     val initialPage = getMonthsPassedSince2023(year, month)
-    val pageState = rememberPagerState(pageCount = { 924 }, initialPage = initialPage)
-    val currentPage = remember { mutableIntStateOf(initialPage) }
+    val pageState = rememberPagerState(initialPage = initialPage)
+    val currentPage = remember { mutableStateOf(initialPage) }
 
     LaunchedEffect(pageState) {
         snapshotFlow { pageState.currentPage }.collect { page ->
             if (spread.value) {
-                if (currentPage.intValue < page) {
+                if (currentPage.value < page) {
                     onPageChanged(PageChangedState.NEXT)
-                } else if (currentPage.intValue > page) {
+                } else if (currentPage.value > page) {
                     onPageChanged(PageChangedState.PREV)
                 }
                 Log.i("ComposeCalendar", "page: ${page}, currentPage: ${pageState.currentPage}")
-                currentPage.intValue = page
+                currentPage.value = page
             }
         }
     }
@@ -165,11 +164,11 @@ private fun CalendarGrid(
     // year와 month가 변경될 때마다 실행되는 LaunchedEffect
     LaunchedEffect(year, month) {
         val newInitialPage = getMonthsPassedSince2023(year, month)
-        currentPage.intValue = newInitialPage
+        currentPage.value = newInitialPage
         pageState.scrollToPage(newInitialPage)
     }
 
-    HorizontalPager(state = pageState, pageSpacing = 56.dp, verticalAlignment = Alignment.Top, userScrollEnabled = spread.value) { page ->
+    HorizontalPager(pageCount = 924, state = pageState, pageSpacing = 56.dp, verticalAlignment = Alignment.Top, userScrollEnabled = spread.value) { page ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             contentPadding = PaddingValues(0.dp),
@@ -178,9 +177,8 @@ private fun CalendarGrid(
             val currentMonth = getMonthFromPage(page)
 
             if (days.isNotEmpty()) {
-                Log.i("ComposeCalendar", "page: ${page}, currentPage: ${currentPage.intValue}, month: $month, currentMonth: $currentMonth, days[15].month: ${days[15].month}")
-                val dayList = if (page < currentPage.intValue || currentMonth < days[15].month) getWeekDays(days.first().getPreviousCalendar())
-                else if (page == currentPage.intValue && (currentMonth == month) && days[15].month == month) days
+                val dayList = if (page < currentPage.value || currentMonth < days[15].month) getWeekDays(days.first().getPreviousCalendar())
+                else if (page == currentPage.value && (currentMonth == month) && days[15].month == month) days
                 else getWeekDays(days.last().getNextCalendar())
 
                 items(dayList) { date ->
@@ -245,7 +243,7 @@ fun ComposeCalendarPreview() {
     val days = getWeekDays(Calendar.getInstance())
     val selected = remember { mutableStateOf(CalendarDay(2023, 6, 29)) }
     val spread = remember { mutableStateOf(true) }
-    val calendarMonth = remember { mutableIntStateOf(4) }
+    val calendarMonth = remember { mutableStateOf(4) }
     ComposeCalendar(
         days, selected, spread, 2023, 4, calendarMonth, {}, {},
         onPageChanged = {},

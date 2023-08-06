@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
@@ -42,6 +42,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
+import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.utils.getReactiveHeight
@@ -56,8 +57,8 @@ fun HomeScreen(
     calendarViewModel: CalendarViewModel,
     selectedDateViewModel: SelectedDateViewModel,
     findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
-    routineCheckViewModel: RoutineCheckViewModel,
-    routineDeleteViewModel: RoutineDeleteViewModel,
+    routineCheckViewModel: RoutineCheckViewModel = hiltViewModel(),
+    routineDeleteViewModel: RoutineDeleteViewModel = hiltViewModel(),
     floatingButtonVisible: MutableState<Boolean>,
     categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>>,
     selectedState: MutableState<CalendarDay>,
@@ -69,122 +70,123 @@ fun HomeScreen(
     val today = calendarViewModel.today
 
     val scrollState = rememberScrollState()
+    RoumoTheme(navigationBarColor = Color.Black) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(start = 28.dp, end = 28.dp)
+                .verticalScroll(scrollState)
+        ) {
+            val spread = remember { mutableStateOf(false) }
+            val dialogState = remember { mutableStateOf(false) }
+            val calendarMonth = remember { mutableStateOf(today.month) }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(start = 28.dp, end = 28.dp)
-            .verticalScroll(scrollState)
-    ) {
-        val spread = remember { mutableStateOf(false) }
-        val dialogState = remember { mutableStateOf(false) }
-        val calendarMonth = remember { mutableIntStateOf(today.month) }
+            floatingButtonVisible.value = selectedState.value.toString() == today.toString()
 
-        floatingButtonVisible.value = selectedState.value.toString() == today.toString()
+            val onConfirmClick: (Int, Int) -> Unit =
+                setOnYearMonthConfirm(
+                    calendarViewModel,
+                    calendarMonth,
+                    findAllMyRoutineViewModel,
+                    dialogState
+                )
 
-        val onConfirmClick: (Int, Int) -> Unit =
-            setOnYearMonthConfirm(
-                calendarViewModel,
-                calendarMonth,
-                findAllMyRoutineViewModel,
-                dialogState
+            YearMonthDialog(
+                dialogState,
+                year,
+                month,
+                spread,
+                onConfirmClick
+            )
+            Spacer(Modifier.height(16.dp))
+
+            AppLogoImage()
+
+            Spacer(Modifier.height(20.dp))
+
+            YearMonthSelectBox(dialogState, calendarViewModel.date.collectAsState().value)
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            ComposeCalendar(
+                modifier = Modifier.draggable(
+                    orientation = Orientation.Vertical,
+                    state = rememberDraggableState { dy ->
+                        spread.value = dy > 0
+                    }
+                ),
+                days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
+                selected = selectedState,
+                spread = spread,
+                year = year,
+                month = month,
+                calendarMonth = calendarMonth,
+                restoreSelected = {
+                    val resultDayList =
+                        calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
+                    findAllMyRoutineViewModel.find(
+                        calendarViewModel.getFirstAndLastDate(resultDayList),
+                        selectedState.value.month,
+                        resultDayList
+                    )
+                },
+                onItemSelected = {
+                    selectedDateViewModel.find(it)
+                },
+                onPageChanged = { pageChangedState ->
+                    if (pageChangedState == PageChangedState.PREV) {
+                        setOnYearMonthConfirm(
+                            calendarViewModel,
+                            calendarMonth,
+                            findAllMyRoutineViewModel,
+                            dialogState
+                        )(calendarViewModel.year(), calendarViewModel.month() - 1)
+                    } else {
+                        setOnYearMonthConfirm(
+                            calendarViewModel,
+                            calendarMonth,
+                            findAllMyRoutineViewModel,
+                            dialogState
+                        )(calendarViewModel.year(), calendarViewModel.month() + 1)
+                    }
+                }
             )
 
-        YearMonthDialog(
-            dialogState,
-            year,
-            month,
-            spread,
-            onConfirmClick
-        )
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(22.dp))
 
-        AppLogoImage()
+            DateText(selectedState)
+            val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+                RoutinesOfDay("loading")
+            )
 
-        Spacer(Modifier.height(20.dp))
+            if (routinesOfDayState.isEmpty()) {
+                Spacer(Modifier.height(50.dp))
+                EmptyRoutine()
+                Spacer(Modifier.height(getReactiveHeight(135)))
+            } else if (routinesOfDayState.isNotLoading()) {
 
-        YearMonthSelectBox(dialogState, calendarViewModel.date.collectAsState().value)
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        ComposeCalendar(
-            modifier = Modifier.draggable(
-                orientation = Orientation.Vertical,
-                state = rememberDraggableState { dy ->
-                    spread.value = dy > 0
-                }
-            ),
-            days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
-            selected = selectedState,
-            spread = spread,
-            year = year,
-            month = month,
-            calendarMonth = calendarMonth,
-            restoreSelected = {
-                val resultDayList =
-                    calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
-                findAllMyRoutineViewModel.find(
-                    calendarViewModel.getFirstAndLastDate(resultDayList),
-                    selectedState.value.month,
-                    resultDayList
-                )
-            },
-            onItemSelected = {
-                selectedDateViewModel.find(it)
-            },
-            onPageChanged = { pageChangedState ->
-                if (pageChangedState == PageChangedState.PREV) {
-                    setOnYearMonthConfirm(
-                        calendarViewModel,
-                        calendarMonth,
-                        findAllMyRoutineViewModel,
-                        dialogState
-                    )(calendarViewModel.year(), calendarViewModel.month() - 1)
-                } else {
-                    setOnYearMonthConfirm(
-                        calendarViewModel,
-                        calendarMonth,
-                        findAllMyRoutineViewModel,
-                        dialogState
-                    )(calendarViewModel.year(), calendarViewModel.month() + 1)
-                }
-            }
-        )
-
-        Spacer(Modifier.height(22.dp))
-
-        DateText(selectedState)
-        val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
-            RoutinesOfDay("loading")
-        )
-
-        if (routinesOfDayState.isEmpty()) {
-            Spacer(Modifier.height(50.dp))
-            EmptyRoutine()
-            Spacer(Modifier.height(getReactiveHeight(135)))
-        } else if (routinesOfDayState.isNotLoading()) {
-
-            RoutineItems(
-                routinesOfDayState = routinesOfDayState,
-                categoryModifyDialogState = categoryModifyDialogState,
-                onItemClick = onItemClick,
-                onRoutineCheck = { check, routine ->
-                    routineCheckViewModel.check(check, routine) { routinesOfDay ->
-                        selectedDateViewModel.refresh(
-                            routinesOfDay
-                        )
-                    }
-                },
-                onItemDelete = {
-                    routineDeleteViewModel.delete(it.routineId) {
-                        onDelete(it.routineId)
-                        findAllMyRoutineViewModel.refresh {
-                            selectedDateViewModel.find(selectedState.value)
+                RoutineItems(
+                    routinesOfDayState = routinesOfDayState,
+                    categoryModifyDialogState = categoryModifyDialogState,
+                    onItemClick = onItemClick,
+                    onRoutineCheck = { check, routine ->
+                        routineCheckViewModel.check(check, routine) { routinesOfDay ->
+                            selectedDateViewModel.refresh(
+                                routinesOfDay
+                            )
+                        }
+                    },
+                    onItemDelete = {
+                        routineDeleteViewModel.delete(it.routineId) {
+                            onDelete(it.routineId)
+                            findAllMyRoutineViewModel.refresh {
+                                selectedDateViewModel.find(selectedState.value)
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

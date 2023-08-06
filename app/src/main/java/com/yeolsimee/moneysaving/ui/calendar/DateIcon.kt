@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -247,29 +246,24 @@ fun DayOfMonthIcon(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .width(38.dp)
-            .wrapContentHeight()
             .clickable(interactionSource = remember {
                 MutableInteractionSource()
             }, indication = null, onClick = { onClick(date) })
     ) {
-        Box(Modifier.height(if (selected) 13.dp else 12.dp)) {
-            PrText(
-                text = "$day",
-                modifier = Modifier.align(Alignment.Center),
-                fontWeight = if (selected) FontWeight.W700 else FontWeight.W500,
-                fontSize = if (selected) 10.5.sp else 10.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-        Spacer(Modifier.height(6.dp))
-        if (!selected) Spacer(Modifier.height(1.dp))
+        PrText(
+            text = "$day",
+            fontWeight = if (selected) FontWeight.W700 else FontWeight.W500,
+            fontSize = if (selected) 10.5.sp else 10.sp,
+            textAlign = TextAlign.Center,
+            lineHeight = if (selected) 12.5.sp else 12.sp,
+        )
+        Spacer(Modifier.height(7.dp))
         DateIconBuilder(iconState)
         if (selected) {
             Spacer(Modifier.height(7.dp))
             Divider()
-            Spacer(Modifier.height(4.dp))
         } else {
-            Spacer(Modifier.height(11.dp))
+            Spacer(Modifier.height(18.dp))
         }
     }
 }

@@ -145,7 +145,7 @@ fun RoutineItems(
                                     textDecoration = if (checked) TextDecoration.LineThrough else null,
                                 )
                                 Spacer(Modifier.height(8.dp))
-                                Row {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     RoutineTimeZone(routine)
                                     Spacer(Modifier.width(8.dp))
                                     AlarmIconAndText(routine)

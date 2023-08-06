@@ -1,5 +1,6 @@
 package com.yeolsimee.moneysaving.ui
 
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 
@@ -42,7 +43,7 @@ fun PrText(
 ) {
     Text(
         text = text,
-        modifier,
+        modifier.wrapContentHeight(),
         color,
         fontSize,
         fontStyle,
