@@ -71,8 +71,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setSplashScreenOn()
-
         super.onCreate(savedInstanceState)
 
         initAuth()
@@ -110,7 +108,7 @@ class MainActivity : ComponentActivity() {
                                     this@MainActivity,
                                     loadingState = loadingState,
                                     signedUserCallback = {
-                                        navController.navigate(Routes.main)
+                                        navigateToMain()
                                     },
                                     newUserCallback = { navController.navigate(Routes.agreement) },
                                     loginFailCallback = { loadingState.value = false },
@@ -145,7 +143,11 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.main) {
 
                         LaunchedEffect(Unit) {
-                            myPageViewModel.getSettings(hasPermission = hasNotificationPermission(postNotificationPermissionLauncher))
+                            myPageViewModel.getSettings(
+                                hasPermission = hasNotificationPermission(
+                                    postNotificationPermissionLauncher
+                                )
+                            )
                         }
 
                         alarmState = myPageViewModel.alarmState.collectAsState()
@@ -187,18 +189,15 @@ class MainActivity : ComponentActivity() {
 
                 loginViewModel.autoLogin(
                     signedUserCallback = {
-                        setSplashScreenOff()
                         loadingState.value = false
-                        navController.navigate(Routes.main)
+                        navigateToMain()
                     },
                     newUserCallback = {
                         loadingState.value = false
                         loginViewModel.logout()
-                        setSplashScreenOff()
                         navController.navigate(Routes.agreement)
                     },
                     notLoggedInCallback = {
-                        setSplashScreenOff()
                         loadingState.value = false
                         navController.navigate(Routes.login)
                     }
@@ -207,20 +206,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setSplashScreenOn() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            val splashScreen = installSplashScreen()
-//            splashScreen.setKeepOnScreenCondition { true }
-//            Log.i("SplashActivity", "SplashScreen is on")
-//        }
-    }
-
-    private fun setSplashScreenOff() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            val splashScreen = installSplashScreen()
-//            splashScreen.setKeepOnScreenCondition { false }
-//            Log.i("SplashActivity", "SplashScreen is off")
-//        }
+    private fun navigateToMain() {
+        loginViewModel.updateRoutineAlarms(this@MainActivity) {
+            CoroutineScope(Dispatchers.Main).launch {
+                navController.navigate(Routes.main)
+            }
+        }
     }
 
     private fun setRoutineAlarm(
@@ -285,12 +276,12 @@ class MainActivity : ComponentActivity() {
             intent = intent,
             activity = this@MainActivity,
             signedUserCallback = {
-                setSplashScreenOff()
-                navController.navigate(Routes.main)
+
+                navigateToMain()
             },
             newUserCallback = {
                 loadingState.value = false
-                setSplashScreenOff()
+
                 navController.navigate(Routes.agreement)
             }
         )
@@ -303,11 +294,11 @@ class MainActivity : ComponentActivity() {
                     loginViewModel.naverInit(
                         result = it,
                         signedUserCallback = {
-                            setSplashScreenOff()
-                            navController.navigate(Routes.main)
+
+                            navigateToMain()
                         },
                         newUserCallback = {
-                            setSplashScreenOff()
+
                             navController.navigate(Routes.agreement)
                         },
                         loginFailCallback = { loadingState.value = false },
@@ -322,11 +313,11 @@ class MainActivity : ComponentActivity() {
         loginViewModel.init(
             this@MainActivity,
             signedUserCallback = {
-                setSplashScreenOff()
-                navController.navigate(Routes.main)
+
+                navigateToMain()
             },
             newUserCallback = {
-                setSplashScreenOff()
+
                 navController.navigate(Routes.agreement)
             },
             loginFailCallback = { loadingState.value = false },
