@@ -44,7 +44,7 @@ import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 @Composable
 fun CategoryGridView(
     categories: MutableList<TextItem>,
-    selectedId: MutableState<String>,
+    selectedId: String,
     addCategoryState: MutableState<Boolean>,
     selectCallback: (String) -> Unit,
     addCallback: (String) -> Unit = {},
@@ -63,7 +63,7 @@ fun CategoryGridView(
         Spacer(Modifier.height(11.dp))
         FlowRow {
             categories.forEach {
-                if (selectedId.value == it.id) {
+                if (selectedId == it.id) {
                     SelectedItem(it, selectCallback)
                 } else {
                     UnSelectedItem(it, selectCallback)
@@ -115,7 +115,7 @@ fun SelectCategoryPreview() {
                 TextItem("3", "임티는 사용자 자유"),
                 TextItem("4", "열네글자까지들어가요일이삼사")
             ),
-            selectedId = selectedCategoryId,
+            selectedId = "1",
             addCategoryState = addCategoryState,
             selectCallback = {
                 selectedCategoryId.value = it

@@ -12,7 +12,7 @@ import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.yeolsimee.moneysaving.R
-import com.yeolsimee.moneysaving.view.SplashActivity
+import com.yeolsimee.moneysaving.view.MainActivity
 
 class NotificationHelper(context: Context?): ContextWrapper(context)  {
 
@@ -42,7 +42,7 @@ class NotificationHelper(context: Context?): ContextWrapper(context)  {
 
     fun getChannelNotification(title: String, message: String, context: Context): NotificationCompat.Builder {
 
-        val intent = Intent(context, SplashActivity::class.java).apply {
+        val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 

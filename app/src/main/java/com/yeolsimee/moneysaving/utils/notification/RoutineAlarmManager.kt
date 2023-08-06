@@ -187,7 +187,7 @@ class RoutineAlarmManager {
             return time
         }
 
-        fun delete(context: Context, res: RoutineResponse, onDelete: (Int) -> Unit = {}) {
+        fun delete(context: Context, res: RoutineResponse, onDelete: (alarmId: Int) -> Unit = {}) {
             val alarmManager = getAlarmManager(context)
 
             val routineId = res.routineId

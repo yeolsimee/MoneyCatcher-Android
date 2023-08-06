@@ -70,14 +70,14 @@ class LoginViewModel @Inject constructor(
     }
 
     fun appleLogin(
-        loginActivity: LoginActivity,
+        activity: Activity,
         loadingState: MutableStateFlow<Boolean>,
         signedUserCallback: () -> Unit,
         newUserCallback: () -> Unit,
         loginFailCallback: () -> Unit = {}
     ) {
         viewModelScope.launch {
-            Apple.login(loginActivity, loadingState) {
+            Apple.login(activity, loadingState) {
                 login(signedUserCallback, newUserCallback, loginFailCallback)
             }
         }

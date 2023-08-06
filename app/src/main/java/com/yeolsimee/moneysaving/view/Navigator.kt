@@ -5,8 +5,4 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class Navigator {
     var destination: MutableStateFlow<BottomNavItem> = MutableStateFlow(BottomNavItem.Home)
-
-    fun navigate(destination: BottomNavItem) {
-        this.destination.value = destination
-    }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
@@ -32,4 +33,16 @@ fun AlarmIconAndText(routine: Routine) {
             color = Gray99
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewRoutineTimeZone() {
+    RoutineTimeZone(Routine())
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAlarmIconAndText() {
+    AlarmIconAndText(Routine())
 }

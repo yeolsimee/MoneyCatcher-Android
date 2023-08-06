@@ -18,6 +18,11 @@ class ConnectivityInterceptor: Interceptor {
             val code = response.code()
             Log.d("OkHttp Response", "code: $code")
             if (code == 401) {
+                // get request header
+                val headers = request.headers()
+                val header = headers.get("x-auth")
+                Log.i("OkHttp Request", "header: $header")
+
                 FirebaseAuth.getInstance().currentUser?.getIdToken(true)
             }
 

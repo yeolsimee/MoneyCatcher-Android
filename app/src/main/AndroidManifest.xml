@@ -23,7 +23,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".view.SplashActivity"
+            android:name=".view.MainActivity"
             android:exported="true"
             android:theme="@style/SplashScreenTheme">
             <intent-filter>
@@ -31,15 +31,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".view.login.LoginActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.login.EmailLoginActivity"
-            android:exported="true">
 
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
@@ -52,20 +43,7 @@
                     android:scheme="https" />
 
             </intent-filter>
-
         </activity>
-
-        <activity
-            android:name=".view.MainActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.routine.RoutineActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".view.notification.TestActivity"
-            android:exported="false" />
 
         <receiver
             android:name=".utils.receiver.NotificationReceiver"
@@ -86,9 +64,6 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".view.signup.AgreementActivity"
-            android:exported="false" />
 
     </application>
 

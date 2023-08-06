@@ -36,6 +36,7 @@ class GetRoutineViewModel @Inject constructor(private val routineUseCase: Routin
 
     override fun showLoading() {
         intent {
+            reduce { RoutineResponse() }
             postSideEffect(ApiCallSideEffect.Loading)
         }
     }
