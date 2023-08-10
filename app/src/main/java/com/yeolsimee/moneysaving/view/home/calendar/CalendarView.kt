@@ -71,8 +71,6 @@ fun ComposeCalendar(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DayOfWeekIndicator(modifier = modifier)
-            Box(modifier = modifier.height(6.dp))
-
             CalendarGrid(
                 modifier,
                 days,

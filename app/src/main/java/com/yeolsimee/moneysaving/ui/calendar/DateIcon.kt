@@ -250,20 +250,36 @@ fun DayOfMonthIcon(
                 MutableInteractionSource()
             }, indication = null, onClick = { onClick(date) })
     ) {
-        PrText(
-            text = "$day",
-            fontWeight = if (selected) FontWeight.W700 else FontWeight.W500,
-            fontSize = if (selected) 10.5.sp else 10.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = if (selected) 12.5.sp else 12.sp,
-        )
-        Spacer(Modifier.height(7.dp))
+        if (iconState == DateIconState.Today) {
+            Spacer(Modifier.height(3.dp))
+            PrText(
+                text = "$day",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.W700,
+                color = Color.White,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black)
+            )
+            Spacer(Modifier.height(3.dp))
+        } else {
+            Spacer(Modifier.height(7.dp))
+            PrText(
+                text = "$day",
+                fontWeight = if (selected) FontWeight.W700 else FontWeight.W500,
+                fontSize = if (selected) 10.5.sp else 10.sp,
+                textAlign = TextAlign.Center,
+                lineHeight = if (selected) 12.5.sp else 12.sp,
+            )
+            Spacer(Modifier.height(7.dp))
+        }
         DateIconBuilder(iconState)
         if (selected) {
             Spacer(Modifier.height(7.dp))
             Divider()
         } else {
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(11.dp))
         }
     }
 }
