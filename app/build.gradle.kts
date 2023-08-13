@@ -104,6 +104,8 @@ dependencies {
 
     // ui
     implementation("androidx.core:core-splashscreen:1.0.1")
+    // reorderable
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
     // status bar color
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")

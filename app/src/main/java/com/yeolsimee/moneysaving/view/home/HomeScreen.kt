@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -69,14 +67,11 @@ fun HomeScreen(
     val month = calendarViewModel.month()
     val today = calendarViewModel.today
 
-    val scrollState = rememberScrollState()
     RoumoTheme(navigationBarColor = Color.Black) {
         Column(
             Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(start = 28.dp, end = 28.dp)
-                .verticalScroll(scrollState)
         ) {
             val spread = remember { mutableStateOf(false) }
             val dialogState = remember { mutableStateOf(false) }
@@ -92,70 +87,74 @@ fun HomeScreen(
                     dialogState
                 )
 
-            YearMonthDialog(
-                dialogState,
-                year,
-                month,
-                spread,
-                onConfirmClick
-            )
-            Spacer(Modifier.height(16.dp))
+            Column(Modifier.padding(horizontal = 28.dp)) {
+                YearMonthDialog(
+                    dialogState,
+                    year,
+                    month,
+                    spread,
+                    onConfirmClick
+                )
+                Spacer(Modifier.height(16.dp))
 
-            AppLogoImage()
+                AppLogoImage()
 
-            Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(20.dp))
 
-            YearMonthSelectBox(dialogState, calendarViewModel.date.collectAsState().value)
+                YearMonthSelectBox(dialogState, calendarViewModel.date.collectAsState().value)
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-            ComposeCalendar(
-                modifier = Modifier.draggable(
-                    orientation = Orientation.Vertical,
-                    state = rememberDraggableState { dy ->
-                        spread.value = dy > 0
+                ComposeCalendar(
+                    modifier = Modifier.draggable(
+                        orientation = Orientation.Vertical,
+                        state = rememberDraggableState { dy ->
+                            spread.value = dy > 0
+                        }
+                    ),
+                    days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
+                    selected = selectedState,
+                    spread = spread,
+                    year = year,
+                    month = month,
+                    calendarMonth = calendarMonth,
+                    restoreSelected = {
+                        val resultDayList =
+                            calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
+                        findAllMyRoutineViewModel.find(
+                            calendarViewModel.getFirstAndLastDate(resultDayList),
+                            selectedState.value.month,
+                            resultDayList
+                        )
+                    },
+                    onItemSelected = {
+                        selectedDateViewModel.find(it)
+                    },
+                    onPageChanged = { pageChangedState ->
+                        if (pageChangedState == PageChangedState.PREV) {
+                            setOnYearMonthConfirm(
+                                calendarViewModel,
+                                calendarMonth,
+                                findAllMyRoutineViewModel,
+                                dialogState
+                            )(calendarViewModel.year(), calendarViewModel.month() - 1)
+                        } else {
+                            setOnYearMonthConfirm(
+                                calendarViewModel,
+                                calendarMonth,
+                                findAllMyRoutineViewModel,
+                                dialogState
+                            )(calendarViewModel.year(), calendarViewModel.month() + 1)
+                        }
                     }
-                ),
-                days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
-                selected = selectedState,
-                spread = spread,
-                year = year,
-                month = month,
-                calendarMonth = calendarMonth,
-                restoreSelected = {
-                    val resultDayList =
-                        calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
-                    findAllMyRoutineViewModel.find(
-                        calendarViewModel.getFirstAndLastDate(resultDayList),
-                        selectedState.value.month,
-                        resultDayList
-                    )
-                },
-                onItemSelected = {
-                    selectedDateViewModel.find(it)
-                },
-                onPageChanged = { pageChangedState ->
-                    if (pageChangedState == PageChangedState.PREV) {
-                        setOnYearMonthConfirm(
-                            calendarViewModel,
-                            calendarMonth,
-                            findAllMyRoutineViewModel,
-                            dialogState
-                        )(calendarViewModel.year(), calendarViewModel.month() - 1)
-                    } else {
-                        setOnYearMonthConfirm(
-                            calendarViewModel,
-                            calendarMonth,
-                            findAllMyRoutineViewModel,
-                            dialogState
-                        )(calendarViewModel.year(), calendarViewModel.month() + 1)
-                    }
-                }
-            )
+                )
 
-            Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.height(22.dp))
 
-            DateText(selectedState)
+                DateText(selectedState)
+            }
+
+
             val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
                 RoutinesOfDay("loading")
             )
@@ -165,7 +164,7 @@ fun HomeScreen(
                 EmptyRoutine()
                 Spacer(Modifier.height(getReactiveHeight(135)))
             } else if (routinesOfDayState.isNotLoading()) {
-
+                Spacer(Modifier.height(10.dp))
                 RoutineItems(
                     routinesOfDayState = routinesOfDayState,
                     categoryModifyDialogState = categoryModifyDialogState,
@@ -186,6 +185,7 @@ fun HomeScreen(
                         }
                     }
                 )
+                Spacer(Modifier.height(20.dp))
             }
         }
     }

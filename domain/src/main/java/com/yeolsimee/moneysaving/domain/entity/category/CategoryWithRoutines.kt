@@ -1,13 +1,14 @@
 package com.yeolsimee.moneysaving.domain.entity.category
 
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
+import java.io.Serializable
 
 data class CategoryWithRoutines(
     val categoryId: String,
     val categoryName: String,
-    val remainingRoutineNum: String,
+    val remainingRoutineNum: String?,
     val routineDatas: Array<Routine>
-) {
+): Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

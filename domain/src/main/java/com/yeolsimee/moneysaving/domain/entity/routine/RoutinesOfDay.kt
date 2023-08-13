@@ -6,7 +6,7 @@ import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 
 data class RoutinesOfDay(
     val routineDay: String? = "",
-    val categoryDatas: Array<CategoryWithRoutines> = arrayOf()
+    val categoryDatas: List<CategoryWithRoutines> = mutableListOf()
 ) {
     fun isNotLoading() = routineDay != "loading"
     fun isEmpty() = routineDay != "loading" && categoryDatas.isEmpty()
@@ -20,14 +20,12 @@ data class RoutinesOfDay(
         other as RoutinesOfDay
 
         if (routineDay != other.routineDay) return false
-        if (!categoryDatas.contentEquals(other.categoryDatas)) return false
-
-        return true
+        return categoryDatas == other.categoryDatas
     }
 
     override fun hashCode(): Int {
         var result = routineDay.hashCode()
-        result = 31 * result + categoryDatas.contentHashCode()
+        result = 31 * result + categoryDatas.hashCode()
         return result
     }
 
@@ -39,7 +37,7 @@ data class RoutinesOfDay(
         return y + m + d
     }
 
-    fun getYearMonthDay(): Triple<Int, Int, Int> {
+    private fun getYearMonthDay(): Triple<Int, Int, Int> {
         if (routineDay?.isEmpty() != false) return Triple(0,0,0)
         val year = routineDay.substring(0, 4).toInt()
         val month = routineDay.substring(4, 6).toInt()
