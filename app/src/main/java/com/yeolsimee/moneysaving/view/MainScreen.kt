@@ -292,8 +292,10 @@ fun MainScreen(
                                             }
                                         },
                                         onFinishCallback = {
-                                            navController.popBackStack()
-                                            selectedDateViewModel.find(calendarViewModel.today)
+                                            CoroutineScope(Dispatchers.Main).launch {
+                                                navController.popBackStack()
+                                                selectedDateViewModel.find(calendarViewModel.today)
+                                            }
                                         }
                                     )
                                 },
