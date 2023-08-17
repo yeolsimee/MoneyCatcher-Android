@@ -16,6 +16,7 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
     private object PreferencesKeys {
         val ALARM_STATE = booleanPreferencesKey("alarm_state")
         val FIRST_USING_STATE = booleanPreferencesKey("first_using_state")
+        val ROUTINE_VIEW_STATE = booleanPreferencesKey("routine_view_state")
     }
 
     suspend fun getAlarmState(callback: (Boolean) -> Unit) {
@@ -95,6 +96,18 @@ class SettingsSource(private val dataStoreService: DataStoreService) {
             val current = it[PreferencesKeys.FIRST_USING_STATE] ?: true
             it[PreferencesKeys.FIRST_USING_STATE] = false
             callback(current)
+        }
+    }
+
+    fun getRoutineViewState() = flow {
+        dataStoreService.getDataStore().data.collect {
+            emit(it[PreferencesKeys.ROUTINE_VIEW_STATE] ?: false)
+        }
+    }
+
+    suspend fun setRoutineViewState(state: Boolean) {
+        dataStoreService.getDataStore().edit {
+            it[PreferencesKeys.ROUTINE_VIEW_STATE] = state
         }
     }
 }

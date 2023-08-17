@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,11 +36,13 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.domain.calendar.CalendarDay
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutinesOfDay
+import com.yeolsimee.moneysaving.ui.AnimatedToggleButton
 import com.yeolsimee.moneysaving.ui.AppLogoImage
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.YearMonthDialog
 import com.yeolsimee.moneysaving.ui.routine.EmptyRoutine
 import com.yeolsimee.moneysaving.ui.routine.RoutineItems
+import com.yeolsimee.moneysaving.ui.routine.RoutineItemsWithCategories
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
@@ -57,6 +60,7 @@ fun HomeScreen(
     findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
     routineCheckViewModel: RoutineCheckViewModel = hiltViewModel(),
     routineDeleteViewModel: RoutineDeleteViewModel = hiltViewModel(),
+    routineStateViewModel: RoutineStateViewModel = hiltViewModel(),
     floatingButtonVisible: MutableState<Boolean>,
     categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>>,
     selectedState: MutableState<CalendarDay>,
@@ -76,6 +80,10 @@ fun HomeScreen(
             val spread = remember { mutableStateOf(false) }
             val dialogState = remember { mutableStateOf(false) }
             val calendarMonth = remember { mutableStateOf(today.month) }
+            val routineViewState = routineStateViewModel.getRoutineState().collectAsState(initial = false)
+            val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+                RoutinesOfDay("loading")
+            )
 
             floatingButtonVisible.value = selectedState.value.toString() == today.toString()
 
@@ -151,13 +159,17 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(22.dp))
 
-                DateText(selectedState)
+                Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    DateText(selectedState)
+
+                    if (!routinesOfDayState.isEmpty()) {
+                        AnimatedToggleButton(
+                            routineViewState = routineViewState.value,
+                        )
+                    }
+                }
             }
 
-
-            val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
-                RoutinesOfDay("loading")
-            )
 
             if (routinesOfDayState.isEmpty()) {
                 Spacer(Modifier.height(50.dp))
@@ -165,18 +177,18 @@ fun HomeScreen(
                 Spacer(Modifier.height(getReactiveHeight(135)))
             } else if (routinesOfDayState.isNotLoading()) {
                 Spacer(Modifier.height(10.dp))
-                RoutineItems(
-                    routinesOfDayState = routinesOfDayState,
-                    categoryModifyDialogState = categoryModifyDialogState,
-                    onItemClick = onItemClick,
-                    onRoutineCheck = { check, routine ->
-                        routineCheckViewModel.check(check, routine) { routinesOfDay ->
-                            selectedDateViewModel.refresh(
-                                routinesOfDay
-                            )
+                if (routineViewState.value) {
+                    RoutineItems(
+                        routinesOfDayState = routinesOfDayState,
+                        onItemClick = onItemClick,
+                        onRoutineCheck = { check, routine ->
+                            routineCheckViewModel.check(check, routine) { routinesOfDay ->
+                                selectedDateViewModel.refresh(
+                                    routinesOfDay
+                                )
+                            }
                         }
-                    },
-                    onItemDelete = {
+                    ) {
                         routineDeleteViewModel.delete(it.routineId) {
                             onDelete(it.routineId)
                             findAllMyRoutineViewModel.refresh {
@@ -184,7 +196,28 @@ fun HomeScreen(
                             }
                         }
                     }
-                )
+                } else {
+                    RoutineItemsWithCategories(
+                        routinesOfDayState = routinesOfDayState,
+                        categoryModifyDialogState = categoryModifyDialogState,
+                        onItemClick = onItemClick,
+                        onRoutineCheck = { check, routine ->
+                            routineCheckViewModel.check(check, routine) { routinesOfDay ->
+                                selectedDateViewModel.refresh(
+                                    routinesOfDay
+                                )
+                            }
+                        },
+                        onItemDelete = {
+                            routineDeleteViewModel.delete(it.routineId) {
+                                onDelete(it.routineId)
+                                findAllMyRoutineViewModel.refresh {
+                                    selectedDateViewModel.find(selectedState.value)
+                                }
+                            }
+                        }
+                    )
+                }
                 Spacer(Modifier.height(20.dp))
             }
         }
@@ -224,7 +257,7 @@ private fun setOnYearMonthConfirm(
 
 @Composable
 private fun DateText(selected: MutableState<CalendarDay>) {
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box {
         PrText(
             text = "${selected.value.month}월 ${selected.value.day}일 ${selected.value.getDayOfWeek()}",
             color = Color.Black,
@@ -276,4 +309,22 @@ fun YearMonthSelectBoxPreview() {
         dialogState = remember { mutableStateOf(false) },
         dateText = "4월 12일 수요일"
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DateTextPreview() {
+    RoumoTheme {
+        DateText(
+            selected = remember {
+                mutableStateOf(
+                    CalendarDay(
+                        year = 2021,
+                        month = 4,
+                        day = 12
+                    )
+                )
+            }
+        )
+    }
 }

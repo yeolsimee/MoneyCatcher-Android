@@ -63,6 +63,172 @@ import org.burnoutcrew.reorderable.reorderable
 
 @Composable
 fun RoutineItems(
+    routinesOfDayState: RoutinesOfDay = RoutinesOfDay("", mutableListOf()),
+    onItemClick: (Int, String) -> Unit = { _, _ -> },
+    onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
+    onItemDelete: (Routine) -> Unit = {},
+) {
+    val isToday = routinesOfDayState.isToday()
+    val isNotPast = routinesOfDayState.isNotPast()
+
+    val totalRoutines = mutableListOf<Pair<Routine, String>>()
+    val notDoneRoutines = mutableListOf<Pair<Routine, String>>()
+    val doneRoutines = mutableListOf<Pair<Routine, String>>()
+
+    routinesOfDayState.categoryDatas.forEach {
+        it.routineDatas.filter { data -> data.routineCheckYN == "Y" }.forEach { routine ->
+            doneRoutines.add(Pair(routine, it.categoryId))
+        }
+        it.routineDatas.filter { data -> data.routineCheckYN == "N" }.forEach { routine ->
+            notDoneRoutines.add(Pair(routine, it.categoryId))
+        }
+    }
+    notDoneRoutines.forEach { totalRoutines.add(it) }
+    doneRoutines.forEach { totalRoutines.add(it) }
+
+    val date = routinesOfDayState.getDate()
+    val cantEditDialogState = remember { mutableStateOf(false) }
+
+    LazyColumn {
+        items(totalRoutines, { it }) { routineWithCategoryId ->
+            val routine = routineWithCategoryId.first
+            val categoryId = routineWithCategoryId.second
+            Column(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(horizontal = 28.dp)
+            ) {
+                val checked = routine.routineCheckYN == "Y"
+
+                val deleteDialogState = remember { mutableStateOf(false) }
+
+                val swipeState =
+                    setRoutineSwipeState(isNotPast, routine, cantEditDialogState) {
+                        deleteDialogState.value = true
+                    }
+
+                SwipeToDismiss(
+                    state = swipeState,
+                    background = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(DismissRed)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icon_trash),
+                                contentDescription = "루틴 지우기",
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 20.dp)
+                            )
+                        }
+                    },
+                    directions = setOf(DismissDirection.EndToStart),
+                    dismissContent = {
+                        Box(
+                            modifier = Modifier
+                                .border(
+                                    width = 1.5.dp,
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = if (checked) Color.Black else GrayF0
+                                )
+                                .background(color = if (checked) GrayF0 else Color.White)
+                                .fillMaxWidth()
+                                .height(70.dp)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = {
+                                        if (isNotPast) {
+                                            onItemClick(
+                                                routine.routineId,
+                                                categoryId
+                                            )
+                                        } else {
+                                            cantEditDialogState.value = true
+                                        }
+                                    }
+                                )
+                        ) {
+                            Column(
+                                Modifier
+                                    .padding(start = 20.dp, end = 60.dp)
+                                    .align(Alignment.CenterStart)
+                            ) {
+                                PrText(
+                                    text = routine.routineName,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 15.sp,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Start,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textDecoration = if (checked) TextDecoration.LineThrough else null,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RoutineTimeZone(routine)
+                                    Spacer(Modifier.width(8.dp))
+                                    AlarmIconAndText(routine)
+                                }
+                            }
+
+                            if (isToday) {
+                                Box(modifier = Modifier
+                                    .width(60.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .onClick {
+                                        onRoutineCheck(
+                                            RoutineCheckRequest(
+                                                routineCheckYN = if (checked) "N" else "Y",
+                                                routineId = routine.routineId,
+                                                routineDay = date
+                                            ),
+                                            routine
+                                        )
+                                    }
+                                ) {
+                                    Image(
+                                        painter = painterResource(
+                                            id = if (checked) R.drawable.icon_check
+                                            else R.drawable.icon_nonecheck
+                                        ),
+                                        contentDescription = "루틴 체크",
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                )
+                Spacer(Modifier.height(10.dp))
+
+                val scope = rememberCoroutineScope()
+                TwoButtonOneTitleDialog(
+                    dialogState = deleteDialogState,
+                    text = "해당 아이템을 삭제하시겠습니까?",
+                    onConfirmClick = {
+                        onItemDelete(routine)
+                    },
+                    onCancelClick = {
+                        scope.launch { swipeState.reset() }
+                    }
+                )
+            }
+        }
+    }
+
+    if (cantEditDialogState.value) {
+        OneButtonOneTitleDialog(
+            dialogState = cantEditDialogState,
+            text = "현재 날짜에서만 루틴을 수정할 수 있습니다"
+        )
+    }
+}
+
+@Composable
+fun RoutineItemsWithCategories(
     routinesOfDayState: RoutinesOfDay,
     categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>> = remember {
         mutableStateOf(
@@ -266,6 +432,73 @@ private fun setRoutineSwipeState(
         false
     },
 )
+
+@Preview(showBackground = true)
+@Composable
+fun RoutineItemWithCategoriesPreview() {
+    RoumoTheme {
+        Box(modifier = Modifier.padding(10.dp)) {
+            RoutineItemsWithCategories(
+                routinesOfDayState = RoutinesOfDay(
+                    routineDay = "20230519",
+                    categoryDatas = mutableListOf(
+                        CategoryWithRoutines(
+                            categoryId = "1",
+                            categoryName = "테스트 카테고리명",
+                            remainingRoutineNum = "",
+                            routineDatas = arrayOf(
+                                Routine(
+                                    routineId = 1,
+                                    routineName = "루틴명 테스트",
+                                    routineCheckYN = "Y",
+                                    routineTimeZone = "1",
+                                    alarmTimeHour = "11",
+                                    alarmTimeMinute = "00"
+                                ),
+                                Routine(
+                                    routineId = 2,
+                                    routineName = "루틴명 테스트",
+                                    routineCheckYN = "Y",
+                                    routineTimeZone = "2",
+                                )
+                            )
+                        ),
+                        CategoryWithRoutines(
+                            categoryId = "2",
+                            categoryName = "테스트 카테고리명",
+                            remainingRoutineNum = "",
+                            routineDatas = arrayOf(
+                                Routine(
+                                    routineId = 3,
+                                    routineName = "루틴명 테스트",
+                                    routineCheckYN = "N",
+                                    routineTimeZone = "3",
+                                    alarmTimeHour = "14",
+                                    alarmTimeMinute = "00"
+                                )
+                            )
+                        ),
+                        CategoryWithRoutines(
+                            categoryId = "3",
+                            categoryName = "테스트 카테고리명",
+                            remainingRoutineNum = "",
+                            routineDatas = arrayOf(
+                                Routine(
+                                    routineId = 3,
+                                    routineName = "루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트 루틴명 테스트",
+                                    routineCheckYN = "N",
+                                    routineTimeZone = "3",
+                                    alarmTimeHour = "14",
+                                    alarmTimeMinute = "00"
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
