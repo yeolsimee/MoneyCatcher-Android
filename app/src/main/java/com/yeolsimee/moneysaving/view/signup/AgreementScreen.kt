@@ -8,12 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -38,6 +35,8 @@ import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
@@ -70,7 +69,7 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}, onBrows
                         fontWeight = FontWeight.W800,
                         color = Color.Black
                     )
-                    Spacer(Modifier.height(44.dp))
+                    44.VerticalSpacer()
                     Row(
                         Modifier
                             .padding(vertical = 16.dp)
@@ -88,7 +87,7 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}, onBrows
                                 else R.drawable.icon_nonecheck
                             ), contentDescription = "전체동의 체크"
                         )
-                        Spacer(Modifier.width(8.dp))
+                        8.HorizontalSpacer()
                         PrText(
                             text = "전체동의",
                             color = Color.Black,
@@ -117,7 +116,7 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}, onBrows
                                     else R.drawable.icon_nonecheck
                                 ), contentDescription = "서비스 이용 약관 체크"
                             )
-                            Spacer(Modifier.width(8.dp))
+                            8.HorizontalSpacer()
                             PrText(
                                 text = "서비스 이용 약관",
                                 color = if (firstCheck.value) Black33 else Gray66,
@@ -147,7 +146,7 @@ fun AgreementScreen(onFinish: () -> Unit = {}, onClick: () -> Unit = {}, onBrows
                                     else R.drawable.icon_nonecheck
                                 ), contentDescription = "개인 정보 처리 방침 체크"
                             )
-                            Spacer(Modifier.width(8.dp))
+                            8.HorizontalSpacer()
                             PrText(
                                 text = "개인 정보 처리 방침",
                                 color = if (secondCheck.value) Black33 else Gray66,

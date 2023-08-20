@@ -7,7 +7,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,6 +53,7 @@ import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
 import com.yeolsimee.moneysaving.ui.theme.Black33
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
 import kotlinx.coroutines.launch
 
@@ -76,7 +76,7 @@ fun CategoryUpdateScreen(
             .addFocusCleaner(focusManager)
     ) {
         TopBackButtonTitleAppBar(text = "카테고리 수정", onClick = { onBackPressed() })
-        Spacer(Modifier.height(21.dp))
+        21.VerticalSpacer()
         val targetCategory = remember { mutableStateOf<TextItem?>(null) }
         Column(
             Modifier
@@ -164,7 +164,7 @@ fun CategoryUpdateScreen(
                             }
                         }
                     )
-                    Spacer(Modifier.height(8.dp))
+                    8.VerticalSpacer()
                 }
 
                 val scope = rememberCoroutineScope()

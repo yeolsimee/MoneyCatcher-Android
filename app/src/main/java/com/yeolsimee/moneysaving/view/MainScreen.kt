@@ -62,6 +62,7 @@ import com.yeolsimee.moneysaving.ui.snackbar.CustomSnackBarHost
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.DialogState
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.notification.RoutineAlarmManager
 import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import com.yeolsimee.moneysaving.view.home.HomeScreen
@@ -188,8 +189,8 @@ fun MainScreen(
 
                         MyPageScreen(
                             alarmState = alarmState,
-                            onChangeAlarmState = {
-                                onChangeAlarmState(it)
+                            onChangeAlarmState = { changedState ->
+                                onChangeAlarmState(changedState)
                             },
                             onLogout = {
                                 myPageViewModel.logoutAndCancelAlarms(activity) {
@@ -414,7 +415,7 @@ fun BottomNavigator(
                             .clip(RoundedCornerShape(size = 2.5.dp))
                             .background(color = if (isSelected) Color.White else Color.Black)
                     )
-                    Spacer(Modifier.height(9.dp))
+                    9.VerticalSpacer()
                     Icon(
                         painter = painterResource(id = resId),
                         contentDescription = item.title,

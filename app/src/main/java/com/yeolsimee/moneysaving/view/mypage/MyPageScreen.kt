@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +27,7 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonTwoTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
@@ -52,7 +52,7 @@ fun MyPageScreen(
                 contentDescription = "ROUMO",
                 modifier = Modifier.padding(start = 28.dp, top = 16.dp)
             )
-            Spacer(Modifier.height(17.dp))
+            17.VerticalSpacer()
             AlarmItem(alarmState) {
                 onChangeAlarmState(it)
             }

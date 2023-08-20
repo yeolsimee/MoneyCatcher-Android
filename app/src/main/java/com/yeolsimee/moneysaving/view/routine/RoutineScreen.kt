@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -33,6 +31,7 @@ import com.yeolsimee.moneysaving.ui.dialog.TimePickerDialog
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonOneTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
 import com.yeolsimee.moneysaving.utils.getTwoDigits
 import com.yeolsimee.moneysaving.utils.getWeekTypeCheckList
@@ -127,7 +126,7 @@ fun RoutineScreen(
             ) {
                 Column(Modifier.verticalScroll(scrollState)) {
                     InputRoutineName(nameState, focusRequester)
-                    Spacer(Modifier.height(20.dp))
+                    20.VerticalSpacer()
                     CategoryGridView(
                         categoryList,
                         selectedId = selectedCategoryId.value,
@@ -139,17 +138,17 @@ fun RoutineScreen(
                             categoryViewModel.addCategory(categoryName)
                         }
                     )
-                    Spacer(Modifier.height(20.dp))
+                    20.VerticalSpacer()
                     SelectRoutineRepeat(repeatSelectList.toList()) { i ->
                         repeatSelectList[i] = !repeatSelectList[i]
                     }
-                    Spacer(Modifier.height(20.dp))
+                    20.VerticalSpacer()
                     SelectRoutineTimeZone(
                         selectedId = selectedRoutineTimeZoneId.value
                     ) { id ->
                         selectedRoutineTimeZoneId.value = id
                     }
-                    Spacer(Modifier.height(20.dp))
+                    20.VerticalSpacer()
                     SettingAlarmTime(
                         alarmState,
                         hourState,

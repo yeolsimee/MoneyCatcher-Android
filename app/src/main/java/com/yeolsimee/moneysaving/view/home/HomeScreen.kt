@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -45,6 +44,8 @@ import com.yeolsimee.moneysaving.ui.routine.RoutineItems
 import com.yeolsimee.moneysaving.ui.routine.RoutineItemsWithCategories
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.DialogState
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.utils.getReactiveHeight
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
@@ -103,11 +104,11 @@ fun HomeScreen(
                     spread,
                     onConfirmClick
                 )
-                Spacer(Modifier.height(16.dp))
+                16.VerticalSpacer()
 
                 AppLogoImage()
 
-                Spacer(Modifier.height(20.dp))
+                20.VerticalSpacer()
 
                 YearMonthSelectBox(dialogState, calendarViewModel.date.collectAsState().value)
 
@@ -157,7 +158,7 @@ fun HomeScreen(
                     }
                 )
 
-                Spacer(Modifier.height(22.dp))
+                22.VerticalSpacer()
 
                 Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     DateText(selectedState)
@@ -172,11 +173,11 @@ fun HomeScreen(
 
 
             if (routinesOfDayState.isEmpty()) {
-                Spacer(Modifier.height(50.dp))
+                50.VerticalSpacer()
                 EmptyRoutine()
                 Spacer(Modifier.height(getReactiveHeight(135)))
             } else if (routinesOfDayState.isNotLoading()) {
-                Spacer(Modifier.height(10.dp))
+                10.VerticalSpacer()
                 if (routineViewState.value) {
                     RoutineItems(
                         routinesOfDayState = routinesOfDayState,
@@ -218,7 +219,7 @@ fun HomeScreen(
                         }
                     )
                 }
-                Spacer(Modifier.height(20.dp))
+                20.VerticalSpacer()
             }
         }
     }
@@ -286,14 +287,14 @@ private fun YearMonthSelectBox(
         Image(
             painter = painterResource(id = R.drawable.icon_calendar), contentDescription = "연/월 선택"
         )
-        Spacer(Modifier.width(5.dp))
+        5.HorizontalSpacer()
 
         PrText(
             text = dateText,
             fontWeight = FontWeight.W700,
             fontSize = 15.sp
         )
-        Spacer(Modifier.width(7.dp))
+        7.HorizontalSpacer()
         Image(
             painter = painterResource(id = R.drawable.icon_date_extend),
             contentDescription = "연/월 선택"

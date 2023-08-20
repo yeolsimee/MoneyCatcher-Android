@@ -9,7 +9,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,6 +43,7 @@ import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.ui.theme.Silver
 import com.yeolsimee.moneysaving.ui.theme.rowdies
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.getTextFromDayOfWeek
 
 @Composable
@@ -251,7 +251,7 @@ fun DayOfMonthIcon(
             }, indication = null, onClick = { onClick(date) })
     ) {
         if (iconState == DateIconState.Today) {
-            Spacer(Modifier.height(3.dp))
+            3.VerticalSpacer()
             PrText(
                 text = "$day",
                 fontSize = 10.sp,
@@ -262,9 +262,9 @@ fun DayOfMonthIcon(
                     .clip(CircleShape)
                     .background(Color.Black)
             )
-            Spacer(Modifier.height(3.dp))
+            3.VerticalSpacer()
         } else {
-            Spacer(Modifier.height(7.dp))
+            7.VerticalSpacer()
             PrText(
                 text = "$day",
                 fontWeight = if (selected) FontWeight.W700 else FontWeight.W500,
@@ -272,14 +272,14 @@ fun DayOfMonthIcon(
                 textAlign = TextAlign.Center,
                 lineHeight = if (selected) 12.5.sp else 12.sp,
             )
-            Spacer(Modifier.height(7.dp))
+            7.VerticalSpacer()
         }
         DateIconBuilder(iconState)
         if (selected) {
-            Spacer(Modifier.height(7.dp))
+            7.VerticalSpacer()
             Divider()
         } else {
-            Spacer(Modifier.height(11.dp))
+            11.VerticalSpacer()
         }
     }
 }

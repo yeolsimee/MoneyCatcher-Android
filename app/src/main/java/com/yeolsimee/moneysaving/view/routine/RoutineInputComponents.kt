@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
@@ -50,6 +49,8 @@ import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.ui.theme.pretendard
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.getTwoDigits
 import com.yeolsimee.moneysaving.utils.getTwoDigitsHour
 
@@ -61,12 +62,12 @@ fun InputRoutineName(routineName: MutableState<String>, focusRequester: FocusReq
                 painter = painterResource(id = R.drawable.image_pencil),
                 contentDescription = "루틴명 입력"
             )
-            Spacer(Modifier.width(4.dp))
+            4.HorizontalSpacer()
             PrText(
                 text = "루틴명은 무엇인가요?", fontWeight = FontWeight.W700, fontSize = 15.sp
             )
         }
-        Spacer(Modifier.height(4.dp))
+        4.VerticalSpacer()
 
         BasicTextField(
             value = routineName.value,
@@ -116,17 +117,17 @@ fun InputRoutineNamePreview() {
     val focusRequester by remember { mutableStateOf(FocusRequester()) }
     RoumoTheme {
         Column(modifier = Modifier) {
-            Spacer(Modifier.height(8.dp))
+            8.VerticalSpacer()
             InputRoutineName(
                 routineName = remember { mutableStateOf("") },
                 focusRequester = focusRequester
             )
-            Spacer(Modifier.height(8.dp))
+            8.VerticalSpacer()
             InputRoutineName(
                 routineName = remember { mutableStateOf("루틴명") },
                 focusRequester = focusRequester
             )
-            Spacer(Modifier.height(8.dp))
+            8.VerticalSpacer()
         }
     }
 }
@@ -139,14 +140,14 @@ fun SelectRoutineRepeat(selectedList: List<Boolean>, onClick: (Int) -> Unit) {
                 painter = painterResource(id = R.drawable.image_refresh),
                 contentDescription = "루틴 반복 설정"
             )
-            Spacer(Modifier.width(4.dp))
+            4.HorizontalSpacer()
             PrText(text = "루틴을 언제 반복할까요?", fontWeight = FontWeight.W700, fontSize = 15.sp)
         }
-        Spacer(Modifier.height(12.dp))
+        12.VerticalSpacer()
         Row {
             for (i in 0 until 7) {
                 if (i != 0) {
-                    Spacer(Modifier.width(10.dp))
+                    10.HorizontalSpacer()
                 }
                 DayOfWeekIcon(
                     dayOfWeek = i,
@@ -193,14 +194,14 @@ fun SelectRoutineTimeZone(
                 painter = painterResource(id = R.drawable.image_time),
                 contentDescription = "루틴 수행 시간대"
             )
-            Spacer(Modifier.width(4.dp))
+            4.HorizontalSpacer()
             PrText(
                 text = "루틴을 수행할 시간대를 설정해주세요",
                 fontWeight = FontWeight.W700,
                 fontSize = 15.sp,
             )
         }
-        Spacer(Modifier.height(11.dp))
+        11.VerticalSpacer()
         FlowRow {
             timeZoneList.forEach {
                 if (selectedId == it.id) {
@@ -245,7 +246,7 @@ fun SettingAlarmTime(
                     painter = painterResource(id = R.drawable.image_alram),
                     contentDescription = "알림"
                 )
-                Spacer(Modifier.width(4.dp))
+                4.HorizontalSpacer()
                 PrText(text = "알림이 필요하세요?", fontWeight = FontWeight.W700, fontSize = 15.sp)
             }
             if (alarmState.value) {
@@ -275,7 +276,7 @@ fun SettingAlarmTime(
             }
         }
         if (alarmState.value) {
-            Spacer(Modifier.height(16.dp))
+            16.VerticalSpacer()
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,

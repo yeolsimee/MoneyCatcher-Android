@@ -11,7 +11,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,6 +53,8 @@ import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.DialogState
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.onClick
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
@@ -166,10 +167,10 @@ fun RoutineItems(
                                     overflow = TextOverflow.Ellipsis,
                                     textDecoration = if (checked) TextDecoration.LineThrough else null,
                                 )
-                                Spacer(Modifier.height(8.dp))
+                                8.VerticalSpacer()
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     RoutineTimeZone(routine)
-                                    Spacer(Modifier.width(8.dp))
+                                    8.HorizontalSpacer()
                                     AlarmIconAndText(routine)
                                 }
                             }
@@ -202,7 +203,7 @@ fun RoutineItems(
                         }
                     }
                 )
-                Spacer(Modifier.height(10.dp))
+                10.VerticalSpacer()
 
                 val scope = rememberCoroutineScope()
                 TwoButtonOneTitleDialog(
@@ -271,7 +272,7 @@ fun RoutineItemsWithCategories(
                         .background(Color.White)
                         .padding(horizontal = 28.dp)
                 ) {
-                    Spacer(Modifier.height(10.dp))
+                    10.VerticalSpacer()
                     PrText(
                         text = category.categoryName,
                         fontSize = 14.sp,
@@ -280,7 +281,7 @@ fun RoutineItemsWithCategories(
                             categoryModifyDialogState.value = DialogState(true, category)
                         }
                     )
-                    Spacer(Modifier.height(8.dp))
+                    8.VerticalSpacer()
 
                     for (routine in category.routineDatas) {
                         val checked = routine.routineCheckYN == "Y"
@@ -351,10 +352,10 @@ fun RoutineItemsWithCategories(
                                             overflow = TextOverflow.Ellipsis,
                                             textDecoration = if (checked) TextDecoration.LineThrough else null,
                                         )
-                                        Spacer(Modifier.height(8.dp))
+                                        8.VerticalSpacer()
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             RoutineTimeZone(routine)
-                                            Spacer(Modifier.width(8.dp))
+                                            8.HorizontalSpacer()
                                             AlarmIconAndText(routine)
                                         }
                                     }
@@ -387,7 +388,7 @@ fun RoutineItemsWithCategories(
                                 }
                             }
                         )
-                        Spacer(Modifier.height(10.dp))
+                        10.VerticalSpacer()
 
                         val scope = rememberCoroutineScope()
                         TwoButtonOneTitleDialog(

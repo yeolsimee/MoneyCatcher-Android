@@ -6,12 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Scaffold
@@ -44,6 +42,8 @@ import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
 
 @Composable
@@ -102,7 +102,7 @@ fun EmailLoginScreen(
                         fontWeight = FontWeight.W800,
                         color = Color.Black
                     )
-                    Spacer(Modifier.height(60.dp))
+                    60.VerticalSpacer()
                     BasicTextField(
                         value = emailState.value,
                         textStyle = TextStyle(
@@ -158,9 +158,9 @@ fun EmailLoginScreen(
                                 modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
                             )
                         } else {
-                            Spacer(Modifier.height(28.dp))
+                            28.VerticalSpacer()
                         }
-                    } else Spacer(Modifier.height(28.dp))
+                    } else 28.VerticalSpacer()
 
                     Box(
                         modifier = Modifier
@@ -179,7 +179,7 @@ fun EmailLoginScreen(
                                 painter = painterResource(id = R.drawable.icon_error),
                                 contentDescription = "이메일 경고"
                             )
-                            Spacer(Modifier.width(8.dp))
+                            8.HorizontalSpacer()
                             PrText(
                                 text = emailNotice,
                                 fontWeight = FontWeight.W500,
