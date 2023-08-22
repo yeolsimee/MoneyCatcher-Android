@@ -177,7 +177,7 @@ fun HomeScreen(
                 EmptyRoutine()
                 Spacer(Modifier.height(getReactiveHeight(135)))
             } else if (routinesOfDayState.isNotLoading()) {
-                10.VerticalSpacer()
+                12.VerticalSpacer()
                 if (routineViewState.value) {
                     RoutineItems(
                         routinesOfDayState = routinesOfDayState,

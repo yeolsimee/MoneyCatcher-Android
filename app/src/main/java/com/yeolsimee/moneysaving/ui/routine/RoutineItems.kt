@@ -272,7 +272,7 @@ fun RoutineItemsWithCategories(
                         .background(Color.White)
                         .padding(horizontal = 28.dp)
                 ) {
-                    10.VerticalSpacer()
+                    18.VerticalSpacer()
                     PrText(
                         text = category.categoryName,
                         fontSize = 14.sp,
