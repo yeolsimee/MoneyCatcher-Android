@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,11 +39,13 @@ import com.yeolsimee.moneysaving.ui.dialog.AddCategoryDialog
 import com.yeolsimee.moneysaving.ui.list_item.SelectedItem
 import com.yeolsimee.moneysaving.ui.list_item.UnSelectedItem
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 
 @Composable
 fun CategoryGridView(
     categories: MutableList<TextItem>,
-    selectedId: MutableState<String>,
+    selectedId: String,
     addCategoryState: MutableState<Boolean>,
     selectCallback: (String) -> Unit,
     addCallback: (String) -> Unit = {},
@@ -55,15 +56,15 @@ fun CategoryGridView(
                 painter = painterResource(id = R.drawable.image_tag),
                 contentDescription = "루틴 카테고리 설정"
             )
-            Spacer(Modifier.width(4.dp))
+            4.HorizontalSpacer()
             PrText(
                 text = "루틴의 카테고리를 설정해주세요", fontWeight = FontWeight.W700, fontSize = 15.sp
             )
         }
-        Spacer(Modifier.height(11.dp))
+        11.VerticalSpacer()
         FlowRow {
             categories.forEach {
-                if (selectedId.value == it.id) {
+                if (selectedId == it.id) {
                     SelectedItem(it, selectCallback)
                 } else {
                     UnSelectedItem(it, selectCallback)
@@ -115,7 +116,7 @@ fun SelectCategoryPreview() {
                 TextItem("3", "임티는 사용자 자유"),
                 TextItem("4", "열네글자까지들어가요일이삼사")
             ),
-            selectedId = selectedCategoryId,
+            selectedId = "1",
             addCategoryState = addCategoryState,
             selectCallback = {
                 selectedCategoryId.value = it

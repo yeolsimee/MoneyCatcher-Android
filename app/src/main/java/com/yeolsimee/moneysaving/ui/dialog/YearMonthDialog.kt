@@ -21,7 +21,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -50,8 +49,8 @@ fun YearMonthDialog(
     spread: MutableState<Boolean>,
     onConfirmClick: (Int, Int) -> Unit
 ) {
-    val yearState = remember { mutableIntStateOf(year) }
-    val monthState = remember { mutableIntStateOf(month) }
+    val yearState = remember { mutableStateOf(year) }
+    val monthState = remember { mutableStateOf(month) }
     if (dialogState.value) {
         Dialog(
             onDismissRequest = {
@@ -116,7 +115,7 @@ fun YearMonthDialog(
                             .onClick {
                                 spread.value = true
                                 dialogState.value = false
-                                onConfirmClick(yearState.intValue, monthState.intValue)
+                                onConfirmClick(yearState.value, monthState.value)
                             }
                             .padding(12.dp),
                         text = "확인",

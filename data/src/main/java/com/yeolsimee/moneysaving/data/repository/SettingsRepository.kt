@@ -23,4 +23,7 @@ class SettingsRepository(
 
     suspend fun isFirstInstall(callback: (Boolean) -> Unit) =
         settingsSource.isFirstInstall(callback)
+
+    fun getRoutineViewState() = settingsSource.getRoutineViewState()
+    suspend fun setRoutineViewState(state: Boolean) = settingsSource.setRoutineViewState(state)
 }

@@ -6,12 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Scaffold
@@ -33,32 +31,57 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.appbar.BottomButtonAppBar
 import com.yeolsimee.moneysaving.ui.appbar.TopBackButtonTitleAppBar
+import com.yeolsimee.moneysaving.ui.dialog.OneButtonTwoTitleDialog
 import com.yeolsimee.moneysaving.ui.emailNotice
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
 import com.yeolsimee.moneysaving.ui.theme.Gray99
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.addFocusCleaner
 
 @Composable
-fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit = {}) {
-
+fun EmailLoginScreen(
+    onBackClick: () -> Unit = {},
+    onConfirmClick: (String) -> Unit = {}
+) {
     val buttonState = remember { mutableStateOf(false) }
     val emailState = remember { mutableStateOf("") }
     val hasWritten = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val focusRequester by remember { mutableStateOf(FocusRequester()) }
 
+    val emailLoginViewModel: EmailLoginViewModel = hiltViewModel()
+
     RoumoTheme(navigationBarColor = if (buttonState.value) Color.Black else Gray99) {
+
+        val completeDialogState = remember { mutableStateOf(false) }
+        val failureDialogState = remember { mutableStateOf(false) }
+        val errorDialogState = remember { mutableStateOf(false) }
+
         Scaffold(
             topBar = { TopBackButtonTitleAppBar { onBackClick() } },
             bottomBar = {
                 BottomButtonAppBar(buttonState = buttonState.value, buttonText = "확인") {
                     onConfirmClick(emailState.value)
+
+                    emailLoginViewModel.send(emailState.value,
+                        onComplete = {
+                            completeDialogState.value = true
+                        },
+                        onError = {
+                            errorDialogState.value = true
+                        },
+                        onFailure = {
+                            failureDialogState.value = true
+                        }
+                    )
                 }
             }
         ) {
@@ -79,7 +102,7 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
                         fontWeight = FontWeight.W800,
                         color = Color.Black
                     )
-                    Spacer(Modifier.height(60.dp))
+                    60.VerticalSpacer()
                     BasicTextField(
                         value = emailState.value,
                         textStyle = TextStyle(
@@ -135,9 +158,9 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
                                 modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
                             )
                         } else {
-                            Spacer(Modifier.height(28.dp))
+                            28.VerticalSpacer()
                         }
-                    } else Spacer(Modifier.height(28.dp))
+                    } else 28.VerticalSpacer()
 
                     Box(
                         modifier = Modifier
@@ -156,7 +179,7 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
                                 painter = painterResource(id = R.drawable.icon_error),
                                 contentDescription = "이메일 경고"
                             )
-                            Spacer(Modifier.width(8.dp))
+                            8.HorizontalSpacer()
                             PrText(
                                 text = emailNotice,
                                 fontWeight = FontWeight.W500,
@@ -171,11 +194,35 @@ fun EmailLoginScreen(onBackClick: () -> Unit, onConfirmClick: (String) -> Unit =
                 }
             }
         }
+
+        if (completeDialogState.value) {
+            OneButtonTwoTitleDialog(
+                dialogState = completeDialogState,
+                title = "인증 메일 발송",
+                subTitle = "메일주소로 인증 메일이 발송되었습니다\n" +
+                        "이메일 링크로 로그인을 완료해주세요",
+            )
+        }
+        if (failureDialogState.value) {
+            OneButtonTwoTitleDialog(
+                title = "인증 실패",
+                subTitle = "다른 계정으로 시도 해보세요",
+                dialogState = remember { mutableStateOf(true) }
+            )
+        }
+        if (errorDialogState.value) {
+            OneButtonTwoTitleDialog(
+                title = "오류",
+                subTitle = "서비스 오류로 인해 일반 가입이 안되고 있어요\n" +
+                        "소셜로그인을 이용해 주세요",
+                dialogState = remember { mutableStateOf(true) }
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun EmailLoginScreenPreview() {
-    EmailLoginScreen({}, {})
+    EmailLoginScreen({}) {}
 }

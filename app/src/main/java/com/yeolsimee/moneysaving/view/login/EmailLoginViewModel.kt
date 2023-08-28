@@ -31,7 +31,6 @@ class EmailLoginViewModel @Inject constructor(private val userUseCase: UserUseCa
         newUserCallback: () -> Unit,
         onFailure: () -> Unit = {}
     ) {
-        // 1. Email SignIn
         Email.receive(intent, activity, loadingState, onFailure) {
             viewModelScope.launch {
                 userUseCase.login().onSuccess {

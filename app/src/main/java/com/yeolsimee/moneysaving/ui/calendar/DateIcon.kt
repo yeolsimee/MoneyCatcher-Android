@@ -9,11 +9,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -45,6 +43,7 @@ import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.ui.theme.Silver
 import com.yeolsimee.moneysaving.ui.theme.rowdies
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.getTextFromDayOfWeek
 
 @Composable
@@ -247,29 +246,40 @@ fun DayOfMonthIcon(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .width(38.dp)
-            .wrapContentHeight()
             .clickable(interactionSource = remember {
                 MutableInteractionSource()
             }, indication = null, onClick = { onClick(date) })
     ) {
-        Box(Modifier.height(if (selected) 13.dp else 12.dp)) {
+        if (iconState == DateIconState.Today) {
+            3.VerticalSpacer()
             PrText(
                 text = "$day",
-                modifier = Modifier.align(Alignment.Center),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.W700,
+                color = Color.White,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black)
+            )
+            3.VerticalSpacer()
+        } else {
+            7.VerticalSpacer()
+            PrText(
+                text = "$day",
                 fontWeight = if (selected) FontWeight.W700 else FontWeight.W500,
                 fontSize = if (selected) 10.5.sp else 10.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                lineHeight = if (selected) 12.5.sp else 12.sp,
             )
+            7.VerticalSpacer()
         }
-        Spacer(Modifier.height(6.dp))
-        if (!selected) Spacer(Modifier.height(1.dp))
         DateIconBuilder(iconState)
         if (selected) {
-            Spacer(Modifier.height(7.dp))
+            7.VerticalSpacer()
             Divider()
-            Spacer(Modifier.height(4.dp))
         } else {
-            Spacer(Modifier.height(11.dp))
+            11.VerticalSpacer()
         }
     }
 }

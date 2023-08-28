@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,12 +27,13 @@ import com.yeolsimee.moneysaving.R
 import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.dialog.TwoButtonTwoTitleDialog
 import com.yeolsimee.moneysaving.ui.theme.DismissRed
+import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.onClick
 
 @Composable
 fun MyPageScreen(
     alarmState: State<Boolean>,
-    onChangeAlarmState: () -> Unit = {},
+    onChangeAlarmState: (Boolean) -> Unit = {},
     onLogout: () -> Unit = {},
     onWithdraw: () -> Unit = {},
     openInternetBrowser: (String) -> Unit = {}
@@ -52,9 +52,9 @@ fun MyPageScreen(
                 contentDescription = "ROUMO",
                 modifier = Modifier.padding(start = 28.dp, top = 16.dp)
             )
-            Spacer(Modifier.height(17.dp))
+            17.VerticalSpacer()
             AlarmItem(alarmState) {
-                onChangeAlarmState()
+                onChangeAlarmState(it)
             }
             val agreementUrl = stringResource(R.string.agreement_url)
             val policyUrl = stringResource(R.string.policy_url)
@@ -91,12 +91,13 @@ fun MyPageScreen(
             onLeftClick = { onWithdraw() }
         )
     }
+
 }
 
 @Composable
 private fun AlarmItem(
     alarmState: State<Boolean>,
-    onChange: () -> Unit = {}
+    onChange: (Boolean) -> Unit = {}
 ) {
     Row(
         Modifier
@@ -114,7 +115,7 @@ private fun AlarmItem(
         Image(
             painter = painterResource(id = if (alarmState.value) R.drawable.toggle_on else R.drawable.toggle_off),
             contentDescription = "푸쉬 토글 버튼",
-            modifier = Modifier.onClick { onChange() }
+            modifier = Modifier.onClick { onChange(!alarmState.value) }
         )
     }
 }
@@ -161,19 +162,14 @@ fun MoveListItemPreview() {
 @Composable
 fun AlarmItemPreview() {
     Column {
-        AlarmItem(alarmState = remember {
+        val state = remember {
             mutableStateOf(false)
+        }
+        AlarmItem(alarmState = state, onChange = {
+            state.value = !state.value
         })
         AlarmItem(alarmState = remember {
             mutableStateOf(true)
         })
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MyPageScreenPreview() {
-    MyPageScreen(
-        alarmState = remember { mutableStateOf(true) }
-    )
 }

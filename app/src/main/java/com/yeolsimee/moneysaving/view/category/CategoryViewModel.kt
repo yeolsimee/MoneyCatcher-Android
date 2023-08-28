@@ -2,6 +2,7 @@ package com.yeolsimee.moneysaving.view.category
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryOrderChangeRequest
 import com.yeolsimee.moneysaving.domain.entity.category.TextItem
 import com.yeolsimee.moneysaving.domain.repository.ICategoryApiRepository
 import com.yeolsimee.moneysaving.ui.side_effect.ApiCallSideEffect
@@ -73,5 +74,17 @@ class CategoryViewModel @Inject constructor(private val categoryApi: ICategoryAp
 
     suspend fun update(category: TextItem): Result<Any> {
         return categoryApi.update(category)
+    }
+
+    fun changeOrder(changeOrderChangeRequest: CategoryOrderChangeRequest, onResult: (result: Boolean) -> Unit) {
+        viewModelScope.launch {
+            categoryApi.changeOrder(changeOrderChangeRequest).collect {
+                it.onSuccess {
+                    onResult(true)
+                }.onFailure { _ ->
+                    onResult(false)
+                }
+            }
+        }
     }
 }

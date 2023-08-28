@@ -2,6 +2,7 @@ package com.yeolsimee.moneysaving.data.api
 
 import com.yeolsimee.moneysaving.data.entity.CategoryEntity
 import com.yeolsimee.moneysaving.domain.entity.ApiResponse
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryOrderChangeRequest
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryIdRequest
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryNameRequest
 import retrofit2.Response
@@ -26,4 +27,7 @@ interface CategoryApiService {
 
     @POST("category/update")
     suspend fun updateCategory(@Body category: CategoryEntity): Response<ApiResponse<Any>>
+
+    @POST("category/order/update")
+    suspend fun changeOrder(@Body body: CategoryOrderChangeRequest): Response<ApiResponse<Any>>
 }

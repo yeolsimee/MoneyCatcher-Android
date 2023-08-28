@@ -6,9 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,6 +23,7 @@ import com.yeolsimee.moneysaving.ui.PrText
 import com.yeolsimee.moneysaving.ui.theme.Gray66
 import com.yeolsimee.moneysaving.ui.theme.GrayF0
 import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
+import com.yeolsimee.moneysaving.utils.HorizontalSpacer
 
 
 @Composable
@@ -52,7 +51,7 @@ fun SelectedItem(it: TextItem, selectCallback: (String) -> Unit) {
                 )
             )
         }
-        Spacer(Modifier.width(8.dp))
+        8.HorizontalSpacer()
     }
 }
 
@@ -80,7 +79,7 @@ fun UnSelectedItem(it: TextItem, selectCallback: (String) -> Unit) {
                 )
             )
         }
-        Spacer(Modifier.width(8.dp))
+        8.HorizontalSpacer()
     }
 }
 
