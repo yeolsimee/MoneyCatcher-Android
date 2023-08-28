@@ -216,6 +216,11 @@ fun HomeScreen(
                                     selectedDateViewModel.find(selectedState.value)
                                 }
                             }
+                        },
+                        onItemOrderChanged = {
+                            findAllMyRoutineViewModel.refresh {
+                                selectedDateViewModel.find(selectedState.value)
+                            }
                         }
                     )
                 }

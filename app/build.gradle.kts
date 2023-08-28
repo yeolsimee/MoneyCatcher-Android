@@ -35,8 +35,8 @@ android {
         applicationId = "com.yeolsimee.moneysaving"
         minSdk = 24
         targetSdk = 33
-        versionCode = 25
-        versionName = "1.0.25"
+        versionCode = 26
+        versionName = "1.0.26"
         ndk.debugSymbolLevel = "FULL"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

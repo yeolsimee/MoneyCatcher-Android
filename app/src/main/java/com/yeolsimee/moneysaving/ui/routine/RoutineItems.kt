@@ -41,7 +41,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.yeolsimee.moneysaving.R
+import com.yeolsimee.moneysaving.domain.entity.category.CategoryOrderChangeRequest
 import com.yeolsimee.moneysaving.domain.entity.category.CategoryWithRoutines
 import com.yeolsimee.moneysaving.domain.entity.routine.Routine
 import com.yeolsimee.moneysaving.domain.entity.routine.RoutineCheckRequest
@@ -56,6 +58,7 @@ import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.HorizontalSpacer
 import com.yeolsimee.moneysaving.utils.VerticalSpacer
 import com.yeolsimee.moneysaving.utils.onClick
+import com.yeolsimee.moneysaving.view.category.CategoryViewModel
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -230,6 +233,7 @@ fun RoutineItems(
 
 @Composable
 fun RoutineItemsWithCategories(
+    categoryViewModel: CategoryViewModel = hiltViewModel(),
     routinesOfDayState: RoutinesOfDay,
     categoryModifyDialogState: MutableState<DialogState<CategoryWithRoutines>> = remember {
         mutableStateOf(
@@ -239,6 +243,7 @@ fun RoutineItemsWithCategories(
     onItemClick: (Int, String) -> Unit = { _, _ -> },
     onRoutineCheck: (RoutineCheckRequest, Routine) -> Unit = { _, _ -> },
     onItemDelete: (Routine) -> Unit = {},
+    onItemOrderChanged: () -> Unit = {},
 ) {
     val isToday = routinesOfDayState.isToday()
     val isNotPast = routinesOfDayState.isNotPast()
@@ -248,6 +253,17 @@ fun RoutineItemsWithCategories(
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         categoriesState.value = categoriesState.value.toMutableList().apply {
             add(to.index, removeAt(from.index))
+        }
+    }, onDragEnd = { from, to ->
+        categoryViewModel.changeOrder(
+            CategoryOrderChangeRequest(
+                categoriesState.value[to].categoryId,
+                categoriesState.value[from].categoryId
+            )
+        ) {
+            if (it) {
+                onItemOrderChanged()
+            }
         }
     })
 
@@ -261,6 +277,7 @@ fun RoutineItemsWithCategories(
         items(categoriesState.value, { it }) { category ->
             ReorderableItem(state, key = category) { isDragging ->
                 val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp, label = "")
+
                 Column(
                     modifier = Modifier
                         .shadow(
