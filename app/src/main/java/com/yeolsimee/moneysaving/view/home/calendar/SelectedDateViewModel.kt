@@ -8,6 +8,7 @@ import com.yeolsimee.moneysaving.domain.usecase.RoutineUseCase
 import com.yeolsimee.moneysaving.ui.side_effect.IToastSideEffect
 import com.yeolsimee.moneysaving.ui.side_effect.ToastSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
@@ -36,7 +37,9 @@ class SelectedDateViewModel @Inject constructor(private val routineUseCase: Rout
     }
 
     fun refresh(routinesOfDay: RoutinesOfDay) = intent {
-        viewModelScope.launch { reduce { routinesOfDay } }
+        reduce { RoutinesOfDay("loading") }
+        delay(100)
+        reduce { routinesOfDay }
     }
 
     override fun showSideEffect(message: String?) {

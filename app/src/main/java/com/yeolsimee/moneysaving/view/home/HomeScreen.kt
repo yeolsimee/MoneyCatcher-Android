@@ -46,7 +46,6 @@ import com.yeolsimee.moneysaving.ui.theme.RoumoTheme
 import com.yeolsimee.moneysaving.utils.DialogState
 import com.yeolsimee.moneysaving.utils.HorizontalSpacer
 import com.yeolsimee.moneysaving.utils.VerticalSpacer
-import com.yeolsimee.moneysaving.utils.collectAsStateWithLifecycleRemember
 import com.yeolsimee.moneysaving.utils.getReactiveHeight
 import com.yeolsimee.moneysaving.view.home.calendar.CalendarViewModel
 import com.yeolsimee.moneysaving.view.home.calendar.ComposeCalendar
@@ -82,7 +81,7 @@ fun HomeScreen(
             val dialogState = remember { mutableStateOf(false) }
             val calendarMonth = remember { mutableStateOf(today.month) }
             val routineViewState = routineStateViewModel.getRoutineState().collectAsState(initial = false)
-            val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsStateWithLifecycleRemember(
+            val routinesOfDayState by selectedDateViewModel.container.stateFlow.collectAsState(
                 RoutinesOfDay("loading")
             )
 
