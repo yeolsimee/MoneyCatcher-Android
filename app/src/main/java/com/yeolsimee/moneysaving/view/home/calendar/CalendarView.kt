@@ -87,9 +87,6 @@ fun ComposeCalendar(
             CalendarSpreadButton(
                 modifier,
                 spread,
-                selected,
-                year,
-                month,
                 calendarMonth,
                 restoreSelected
             )
@@ -166,17 +163,23 @@ private fun CalendarGrid(
         pageState.scrollToPage(newInitialPage)
     }
 
-    HorizontalPager(pageCount = 924, state = pageState, pageSpacing = 56.dp, verticalAlignment = Alignment.Top, userScrollEnabled = spread.value) { page ->
+    HorizontalPager(
+        pageCount = 924,
+        state = pageState,
+        pageSpacing = 56.dp,
+        verticalAlignment = Alignment.Top,
+        userScrollEnabled = spread.value
+    ) { page ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.heightIn(min = 68.dp, max = (68 * 7).dp)
         ) {
-            val currentMonth = getMonthFromPage(page)
-
             if (days.isNotEmpty()) {
-                val dayList = if (page < currentPage.value || currentMonth < days[15].month) getWeekDays(days.first().getPreviousCalendar())
-                else if (page == currentPage.value && (currentMonth == month) && days[15].month == month) days
+                val currentMonth = getMonthFromPage(page)
+                Log.i("ComposeCalendar", "page: ${page}, currentPage1: ${pageState.currentPage}, currentPage2: ${currentPage.value}, days[15].month: ${days[15].month}, currentMonth: $currentMonth")
+                val dayList = if (page < currentPage.value) getWeekDays(days.first().getPreviousCalendar())
+                else if (page == currentPage.value) days
                 else getWeekDays(days.last().getNextCalendar())
 
                 items(dayList) { date ->
@@ -208,13 +211,10 @@ enum class PageChangedState {
 
 @Composable
 private fun CalendarSpreadButton(
-    modifier: Modifier,
-    spread: MutableState<Boolean>,
-    selected: MutableState<CalendarDay>,
-    year: Int,
-    month: Int,
-    calendarMonth: MutableState<Int>,
-    restoreSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    spread: MutableState<Boolean> = mutableStateOf(true),
+    calendarMonth: MutableState<Int> = mutableStateOf(4),
+    restoreSelected: (Int) -> Unit = {},
 ) {
     Image(
         modifier = modifier.clickable(
@@ -223,9 +223,7 @@ private fun CalendarSpreadButton(
             },
             indication = null,
             onClick = {
-                if (spread.value && (selected.value.year != year || calendarMonth.value - 1 != month)) {
-                    restoreSelected(calendarMonth.value - 1)
-                }
+                restoreSelected(calendarMonth.value - 1)
                 spread.value = !spread.value
             }
         ),

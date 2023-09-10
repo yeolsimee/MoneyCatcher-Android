@@ -117,7 +117,11 @@ fun HomeScreen(
                     modifier = Modifier.draggable(
                         orientation = Orientation.Vertical,
                         state = rememberDraggableState { dy ->
+                            val temp = spread.value
                             spread.value = dy > 0
+                            if (temp && !spread.value) {
+                                restoreSelected(calendarViewModel, selectedState, findAllMyRoutineViewModel)
+                            }
                         }
                     ),
                     days = findAllMyRoutineViewModel.container.stateFlow.collectAsState().value,
@@ -127,13 +131,7 @@ fun HomeScreen(
                     month = month,
                     calendarMonth = calendarMonth,
                     restoreSelected = {
-                        val resultDayList =
-                            calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
-                        findAllMyRoutineViewModel.find(
-                            calendarViewModel.getFirstAndLastDate(resultDayList),
-                            selectedState.value.month,
-                            resultDayList
-                        )
+                        restoreSelected(calendarViewModel, selectedState, findAllMyRoutineViewModel)
                     },
                     onItemSelected = {
                         selectedDateViewModel.find(it)
@@ -227,6 +225,21 @@ fun HomeScreen(
             }
         }
     }
+}
+
+
+private fun restoreSelected(
+    calendarViewModel: CalendarViewModel,
+    selectedState: MutableState<CalendarDay>,
+    findAllMyRoutineViewModel: FindAllMyRoutineViewModel,
+) {
+    val resultDayList =
+        calendarViewModel.setDate(selectedState.value.year, selectedState.value.month - 1)
+    findAllMyRoutineViewModel.find(
+        calendarViewModel.getFirstAndLastDate(resultDayList),
+        selectedState.value.month,
+        resultDayList
+    )
 }
 
 private fun setOnYearMonthConfirm(
